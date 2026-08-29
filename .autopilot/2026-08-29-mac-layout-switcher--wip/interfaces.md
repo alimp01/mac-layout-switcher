@@ -43,3 +43,13 @@
 - `final class SnippetStore`: `init()`, `load(from url: URL)`, `expansion(for abbrev: String) -> String?`; битый/отсутствующий JSON → пустой набор; повторный load битого файла обнуляет набор
 - Executable `MacLayoutSwitcher` — пустая заглушка под `#if os(macOS)`
 - Тесты: `swift test` (12), один класс — `swift test --filter <ClassName>`
+
+### Из таска 03 — системный слой macOS (весь под `#if os(macOS)`)
+
+- `struct KeyStroke { enum Kind { keyDown, flagsChanged }; kind, keyCode: UInt16, characters: String, flags: CGEventFlags, isAutorepeat: Bool }`
+- `final class EventTap { static let syntheticMarker: Int64 = 0xC0FFEE; init(); start(handler: @escaping (KeyStroke) -> Void) -> Bool; stop() }` — tap в `.listenOnly`; для подавления событий (Option-хоткей) таску 04 нужен active-tap или доработка
+- `final class Typist { init(); replaceLastWord(len: Int, with text: String) }` — асинхронно, своя очередь
+- `enum LayoutSwitcher { static func current() -> Lang?; @discardableResult static func select(_ lang: Lang) -> Bool }`
+- `enum SecureInput { static var isActive: Bool }`
+- `enum FrontApp { static var bundleID: String? }`
+- `enum Permissions { static var trusted: Bool; @discardableResult static func requestTrust() -> Bool; static func openAccessibilitySettings(); static func openInputMonitoringSettings() }`
