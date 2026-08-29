@@ -8,7 +8,10 @@
 
 | Команда | Что делает |
 |---------|------------|
-| _пока не определены_ | — |
+| `swift test` | Юнит-тесты ядра `SwitcherCore` (проходят на Linux и macOS) |
+| `swift build` | Сборка обоих target'ов (на Linux macOS-слой — пустой executable) |
+| `./build.sh` | macOS 13+: релизная сборка + `MacLayoutSwitcher.app` (ad-hoc подпись) в `dist/` |
+| `open dist/MacLayoutSwitcher.app` | Запуск собранного приложения (первый раз — правый клик → «Открыть») |
 
 ## Как здесь работает Autopilot
 

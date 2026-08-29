@@ -53,6 +53,14 @@
 - `public func load(from url: URL)` / `public func save(to url: URL)` — исключения, JSON-массив строк; битый/отсутствующий файл → пустой набор
 - Биграммные таблицы — `DetectorBigrams.swift` (сгенерированы по Ципфу из top-300 частотных слов, источник в комментарии)
 
+### Из таска 05 — UI, звуки, сборка (весь под `#if os(macOS)`)
+
+- `final class Sounds { init(enabled: Bool); var enabled: Bool; playKey(); playCorrection(); playUndo() }` — системные звуки NSSound
+- `final class StatusBarUI: NSObject { struct State{paused,autoSwitch,sounds}; init(state:version:); install(); show(state:); onTogglePause/onToggleAutoSwitch/onToggleSounds/onOpenSnippets/onOpenConfig/onQuit }`
+- `Engine.sounds: Sounds?` — аддитивная инъекция звуков в handle (звук correction на авто/Option/сниппет, undo — по excludedWordToPersist)
+- main.swift: NSApplication `.accessory` (LSUIElement), AppDelegate — онбординг разрешений + старт Engine; пауза = stop()/start() перехвата
+- `build.sh` — `swift build -c release` + сборка `MacLayoutSwitcher.app` в `dist/` + ad-hoc codesign; README со сравнением Punto/Caramba и чек-листом приёмки на Mac
+
 ### Из таска 04 — Engine (ядро на Linux + macOS-обвязка)
 
 - `SwitcherCore.EngineCore` (тестируется на Linux):

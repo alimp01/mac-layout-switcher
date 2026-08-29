@@ -25,6 +25,11 @@ public final class Engine {
     private let config: Config
     private let tap = EventTap()
 
+    /// Озвучка ввода (история G02). Инжектится из `main` после создания Engine;
+    /// nil → работаем молча. Клик звучит на каждый keyDown, отдельные сигналы —
+    /// на исправление и откат (см. `playSound(for:)`).
+    public var sounds: Sounds?
+
     /// Виртуальный код Backspace (kVK_Delete).
     private static let backspaceKeyCode: UInt16 = 51
 
@@ -94,14 +99,34 @@ public final class Engine {
         switch stroke.kind {
         case .flagsChanged:
             if let event = optionTapEvent(for: stroke) {
-                execute(core.handle(event))
+                let outcome = core.handle(event)
+                execute(outcome)
+                playSound(for: outcome)
             }
         case .keyDown:
+            // Клик — только когда ядро НЕ на паузе: в secure input (пароль) и
+            // в приложениях-исключениях озвучка молчит полностью (история 4/A01).
+            if !core.isPaused { sounds?.playKey() }
             // Любая печатная/командная клавиша рвёт «чистый» тап Option.
             otherInputSinceOptionDown = true
             for event in translate(stroke) {
-                execute(core.handle(event))
+                let outcome = core.handle(event)
+                execute(outcome)
+                playSound(for: outcome)
             }
+        }
+    }
+
+    /// Звук по итогу события: откат авто-исправления (в исключения ушло слово) —
+    /// сигнал отката; любая другая замена (авто-исправление, конвертация по
+    /// Option, разворот сниппета) — сигнал исправления. Клик на keyDown играет
+    /// отдельно в `handle`.
+    private func playSound(for outcome: EngineOutcome) {
+        guard case .replaceLast = outcome.command else { return }
+        if outcome.excludedWordToPersist != nil {
+            sounds?.playUndo()
+        } else {
+            sounds?.playCorrection()
         }
     }
 
