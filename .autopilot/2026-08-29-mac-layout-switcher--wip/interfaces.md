@@ -53,6 +53,13 @@
 - `public func load(from url: URL)` / `public func save(to url: URL)` — исключения, JSON-массив строк; битый/отсутствующий файл → пустой набор
 - Биграммные таблицы — `DetectorBigrams.swift` (сгенерированы по Ципфу из top-300 частотных слов, источник в комментарии)
 
+### Из таска 07 — .dmg-дистрибутив
+
+- `build-dmg.sh` (macOS-скрипт): вход — опц. `--rebuild`; собирает `dist/MacLayoutSwitcher.app` через `./build.sh` при отсутствии, затем `dist/MacLayoutSwitcher.dmg` (staging через mktemp+trap, симлинк `/Applications`, `hdiutil -format UDZO`). Константы `VOL_NAME`/`DMG_PATH`.
+- `build.sh` — подсказка про `./build-dmg.sh` в конце
+- README — раздел «Установка через .dmg» + предупреждение про первый запуск без нотаризации
+- Не запускался (hdiutil только на macOS), только `bash -n`
+
 ### Из таска 06 — порог отмен перед авто-исключением
 
 - `EngineCore.init(..., undoThreshold: Int = 3, undoCounts: [String:Int] = [:], now:)` — ключи undoCounts нормализуются к нижнему регистру
