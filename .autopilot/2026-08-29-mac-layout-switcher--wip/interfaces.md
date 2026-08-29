@@ -44,6 +44,15 @@
 - Executable `MacLayoutSwitcher` — пустая заглушка под `#if os(macOS)`
 - Тесты: `swift test` (12), один класс — `swift test --filter <ClassName>`
 
+### Из таска 02 — детектор (SwitcherCore)
+
+- `public enum Verdict: Equatable, Sendable { case ru, en, unsure }`
+- `public final class Detector { public init() }`
+- `public func verdict(for word: String) -> Verdict` — алфавит → невозможные сочетания → биграммы; короткие(<3)/смешанные/с цифрами → `.unsure`; перекос в осторожность (редкая лексика вне корпуса → `.unsure`)
+- `public func addExclusion(_ word: String)`, `public func isExcluded(_ word: String) -> Bool` (без учёта регистра)
+- `public func load(from url: URL)` / `public func save(to url: URL)` — исключения, JSON-массив строк; битый/отсутствующий файл → пустой набор
+- Биграммные таблицы — `DetectorBigrams.swift` (сгенерированы по Ципфу из top-300 частотных слов, источник в комментарии)
+
 ### Из таска 03 — системный слой macOS (весь под `#if os(macOS)`)
 
 - `struct KeyStroke { enum Kind { keyDown, flagsChanged }; kind, keyCode: UInt16, characters: String, flags: CGEventFlags, isAutorepeat: Bool }`
