@@ -1,7 +1,7 @@
 window.STATE =
 {
   "slug": "mac-layout-switcher",
-  "dir": "2026-08-29-mac-layout-switcher--wip",
+  "dir": "2026-08-29-mac-layout-switcher",
   "title": "Свой аналог Punto/Caramba Switcher для Mac",
   "mode": "semi",
   "depth": "normal",
@@ -11,35 +11,249 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-08-29T04:48:00+00:00",
-  "finishedAt": null,
+  "updatedAt": "2026-08-29T05:30:00+00:00",
+  "finishedAt": "2026-08-29T05:30:00+00:00",
   "stages": [
-    { "id": "preflight", "status": "done", "startedAt": "2026-08-29T03:22:57+00:00", "finishedAt": "2026-08-29T03:24:41+00:00" },
-    { "id": "manifest",  "status": "done", "startedAt": "2026-08-29T03:24:41+00:00", "finishedAt": "2026-08-29T03:27:10+00:00" },
-    { "id": "briefing",  "status": "done", "startedAt": "2026-08-29T03:27:10+00:00", "finishedAt": "2026-08-29T03:34:30+00:00" },
-    { "id": "spec",      "status": "done", "startedAt": "2026-08-29T03:34:30+00:00", "finishedAt": "2026-08-29T03:44:20+00:00" },
-    { "id": "plan",      "status": "done", "startedAt": "2026-08-29T03:44:20+00:00", "finishedAt": "2026-08-29T03:52:30+00:00", "note": "5 тасков, ярус T2" },
-    { "id": "build",     "status": "active", "startedAt": "2026-08-29T03:52:30+00:00", "note": "3 из 5 тасков готовы" },
-    { "id": "review",    "status": "active", "startedAt": "2026-08-29T04:05:30+00:00", "note": "проверено 3 из 5" },
-    { "id": "final",     "status": "pending" }
+    {
+      "id": "preflight",
+      "status": "done",
+      "startedAt": "2026-08-29T03:22:57+00:00",
+      "finishedAt": "2026-08-29T03:24:41+00:00"
+    },
+    {
+      "id": "manifest",
+      "status": "done",
+      "startedAt": "2026-08-29T03:24:41+00:00",
+      "finishedAt": "2026-08-29T03:27:10+00:00"
+    },
+    {
+      "id": "briefing",
+      "status": "done",
+      "startedAt": "2026-08-29T03:27:10+00:00",
+      "finishedAt": "2026-08-29T03:34:30+00:00"
+    },
+    {
+      "id": "spec",
+      "status": "done",
+      "startedAt": "2026-08-29T03:34:30+00:00",
+      "finishedAt": "2026-08-29T03:44:20+00:00"
+    },
+    {
+      "id": "plan",
+      "status": "done",
+      "startedAt": "2026-08-29T03:44:20+00:00",
+      "finishedAt": "2026-08-29T03:52:30+00:00",
+      "note": "5 тасков, ярус T2"
+    },
+    {
+      "id": "build",
+      "status": "done",
+      "startedAt": "2026-08-29T03:52:30+00:00",
+      "note": "5 из 5 тасков готовы",
+      "finishedAt": "2026-08-29T05:25:00+00:00"
+    },
+    {
+      "id": "review",
+      "status": "done",
+      "startedAt": "2026-08-29T04:05:30+00:00",
+      "note": "проверено 5 из 5",
+      "finishedAt": "2026-08-29T05:25:00+00:00"
+    },
+    {
+      "id": "final",
+      "status": "done",
+      "startedAt": "2026-08-29T05:25:00+00:00",
+      "finishedAt": "2026-08-29T05:30:00+00:00"
+    }
   ],
   "requirements": {
-    "total": 9, "done": 0, "inTicket": 9, "inSpec": 0,
-    "placeholder": 0, "deferred": 0, "dropped": 0
+    "total": 9,
+    "done": 9,
+    "inTicket": 0,
+    "inSpec": 0,
+    "placeholder": 0,
+    "deferred": 0,
+    "dropped": 0
   },
   "tickets": [
-    { "id": "01", "title": "Каркас SwiftPM + ядро: KeyMap, WordBuffer, SnippetStore", "requirements": ["R02", "R03", "R07i", "G01"], "blockedBy": [], "wave": 1, "zone": ["Package.swift", "Sources/SwitcherCore/", "Tests/"], "status": "done", "startedAt": "2026-08-29T03:56:00+00:00", "finishedAt": "2026-08-29T04:12:40+00:00", "tests": { "passed": 12, "failed": 0 }, "commit": "8ee81d5", "retries": 0, "repairs": 0, "handoffs": 0 },
-    { "id": "02", "title": "Детектор неправильной раскладки", "requirements": ["R04i"], "blockedBy": ["01"], "wave": 2, "zone": ["Sources/SwitcherCore/Detector"], "status": "done", "startedAt": "2026-08-29T04:13:20+00:00", "finishedAt": "2026-08-29T04:42:00+00:00", "tests": { "passed": 17, "failed": 0 }, "commit": "59f0216", "retries": 0, "repairs": 0, "handoffs": 0 },
-    { "id": "03", "title": "Системный слой macOS: перехват, перепечатка, раскладка", "requirements": ["R06i", "R03"], "blockedBy": ["01"], "wave": 2, "zone": ["Sources/MacLayoutSwitcher/System/"], "status": "done", "startedAt": "2026-08-29T04:13:20+00:00", "finishedAt": "2026-08-29T04:32:10+00:00", "tests": { "passed": 12, "failed": 0 }, "commit": "54da5e2", "retries": 0, "repairs": 0, "handoffs": 0 },
-    { "id": "04", "title": "Engine: автоисправление, Option, откат, автозамена, автопауза", "requirements": ["R04i", "R05i", "G01", "A01"], "blockedBy": ["02", "03"], "wave": 3, "zone": ["Sources/MacLayoutSwitcher/Engine", "Sources/MacLayoutSwitcher/Config"], "status": "review", "startedAt": "2026-08-29T04:42:30+00:00", "retries": 0, "repairs": 0, "handoffs": 0 },
-    { "id": "05", "title": "Меню-бар, звуки, сборка .app, README", "requirements": ["R06i", "G02", "R07i", "R01"], "blockedBy": ["04"], "wave": 4, "zone": ["Sources/MacLayoutSwitcher/UI/", "build.sh", "README.md"], "status": "pending", "retries": 0, "repairs": 0, "handoffs": 0 }
+    {
+      "id": "01",
+      "title": "Каркас SwiftPM + ядро: KeyMap, WordBuffer, SnippetStore",
+      "requirements": [
+        "R02",
+        "R03",
+        "R07i",
+        "G01"
+      ],
+      "blockedBy": [],
+      "wave": 1,
+      "zone": [
+        "Package.swift",
+        "Sources/SwitcherCore/",
+        "Tests/"
+      ],
+      "status": "done",
+      "startedAt": "2026-08-29T03:56:00+00:00",
+      "finishedAt": "2026-08-29T04:12:40+00:00",
+      "tests": {
+        "passed": 12,
+        "failed": 0
+      },
+      "commit": "8ee81d5",
+      "retries": 0,
+      "repairs": 0,
+      "handoffs": 0
+    },
+    {
+      "id": "02",
+      "title": "Детектор неправильной раскладки",
+      "requirements": [
+        "R04i"
+      ],
+      "blockedBy": [
+        "01"
+      ],
+      "wave": 2,
+      "zone": [
+        "Sources/SwitcherCore/Detector"
+      ],
+      "status": "done",
+      "startedAt": "2026-08-29T04:13:20+00:00",
+      "finishedAt": "2026-08-29T04:42:00+00:00",
+      "tests": {
+        "passed": 17,
+        "failed": 0
+      },
+      "commit": "59f0216",
+      "retries": 0,
+      "repairs": 0,
+      "handoffs": 0
+    },
+    {
+      "id": "03",
+      "title": "Системный слой macOS: перехват, перепечатка, раскладка",
+      "requirements": [
+        "R06i",
+        "R03"
+      ],
+      "blockedBy": [
+        "01"
+      ],
+      "wave": 2,
+      "zone": [
+        "Sources/MacLayoutSwitcher/System/"
+      ],
+      "status": "done",
+      "startedAt": "2026-08-29T04:13:20+00:00",
+      "finishedAt": "2026-08-29T04:32:10+00:00",
+      "tests": {
+        "passed": 12,
+        "failed": 0
+      },
+      "commit": "54da5e2",
+      "retries": 0,
+      "repairs": 0,
+      "handoffs": 0
+    },
+    {
+      "id": "04",
+      "title": "Engine: автоисправление, Option, откат, автозамена, автопауза",
+      "requirements": [
+        "R04i",
+        "R05i",
+        "G01",
+        "A01"
+      ],
+      "blockedBy": [
+        "02",
+        "03"
+      ],
+      "wave": 3,
+      "zone": [
+        "Sources/MacLayoutSwitcher/Engine",
+        "Sources/MacLayoutSwitcher/Config"
+      ],
+      "status": "done",
+      "startedAt": "2026-08-29T04:42:30+00:00",
+      "finishedAt": "2026-08-29T04:53:00+00:00",
+      "tests": {
+        "passed": 28,
+        "failed": 0
+      },
+      "commit": "2a2f260",
+      "retries": 0,
+      "repairs": 0,
+      "handoffs": 0
+    },
+    {
+      "id": "05",
+      "title": "Меню-бар, звуки, сборка .app, README",
+      "requirements": [
+        "R06i",
+        "G02",
+        "R07i",
+        "R01"
+      ],
+      "blockedBy": [
+        "04"
+      ],
+      "wave": 4,
+      "zone": [
+        "Sources/MacLayoutSwitcher/UI/",
+        "build.sh",
+        "README.md"
+      ],
+      "status": "done",
+      "startedAt": "2026-08-29T04:53:30+00:00",
+      "finishedAt": "2026-08-29T05:24:00+00:00",
+      "tests": {
+        "passed": 28,
+        "failed": 0
+      },
+      "commit": "272742e",
+      "retries": 0,
+      "repairs": 1,
+      "repairFindings": [
+        "звук клика играл в secure input/паузе — нарушение A01 «молчать полностью»"
+      ],
+      "handoffs": 0
+    }
   ],
   "singlePass": null,
-  "tests": { "passed": 28, "failed": 0 },
-  "debt": { "placeholders": [], "assumptions": [], "emptyEnv": [] },
+  "tests": {
+    "passed": 28,
+    "failed": 0
+  },
+  "debt": {
+    "placeholders": [],
+    "assumptions": [],
+    "emptyEnv": []
+  },
   "additions": [],
-  "coverage": { "findings": 0, "note": "G2: пропусков нет, полупокрытий нет; 8 позиций «сверх брифа» = R##.n-проработка и A01 с родителем — оставлены" },
-  "concerns": ["Tests/SwitcherCoreTests/*:2 — @testable import SwitcherCore, хотя ассерты ходят через публичный шов; условие: обычный import", "РЕШЕНО в T04: EventTap оставлен .listenOnly осознанно — исправление стирает слово вместе с уже напечатанным разделителем и перепечатывает; подавлять нечего. Плата: Enter-как-submit в chat-полях может перепечататься (задокументировано в Engine.swift). Ревью 04 признало переигровкой, не блок.", "Typist.swift:50,68 — отказ создания CGEvent молча съедает событие, частичная замена портит текст; условие: прерывать весь replaceLastWord", "Typist.swift:27 — 5000 мкс на событие ≈0.2 с на слово; условие: обосновать или уменьшить", "DetectorTests.swift:90,102 — ambiguousShort все <3 символов, дублируют testShortMixed; условие: спорные короткие ≥3 либо убрать метку", "Detector.swift:167 — save глотает ошибку записи через try? молча; условие: не выглядеть успехом при отказе или задокументировать", "Config.swift:100 — при тихом провале move битого config следующий save() затрёт оригинал дефолтами, .broken-бэкап не останется; условие: бэкап копией до записи либо не затирать при неудаче", "EngineCore.swift:237 — cyrillicSet дублирует алфавит из Detector/KeyMap (3-е место); условие: единый источник, если появится публичный шов классификатора", "EngineCoreTests.swift:3 — @testable import избыточен (ассерты через публичный шов); условие: обычный import"],
-  "reviewers": { "manifestSpec": "a3373fd28e916b546", "craft": "a22e174c56de678a4" },
-  "blind": null
+  "coverage": {
+    "findings": 0,
+    "note": "G2: пропусков нет, полупокрытий нет; 8 позиций «сверх брифа» = R##.n-проработка и A01 с родителем — оставлены"
+  },
+  "concerns": [
+    "Tests/SwitcherCoreTests/*:2 — @testable import SwitcherCore, хотя ассерты ходят через публичный шов; условие: обычный import",
+    "РЕШЕНО в T04: EventTap оставлен .listenOnly осознанно — исправление стирает слово вместе с уже напечатанным разделителем и перепечатывает; подавлять нечего. Плата: Enter-как-submit в chat-полях может перепечататься (задокументировано в Engine.swift). Ревью 04 признало переигровкой, не блок.",
+    "Typist.swift:50,68 — отказ создания CGEvent молча съедает событие, частичная замена портит текст; условие: прерывать весь replaceLastWord",
+    "Typist.swift:27 — 5000 мкс на событие ≈0.2 с на слово; условие: обосновать или уменьшить",
+    "DetectorTests.swift:90,102 — ambiguousShort все <3 символов, дублируют testShortMixed; условие: спорные короткие ≥3 либо убрать метку",
+    "Detector.swift:167 — save глотает ошибку записи через try? молча; условие: не выглядеть успехом при отказе или задокументировать",
+    "Config.swift:100 — при тихом провале move битого config следующий save() затрёт оригинал дефолтами, .broken-бэкап не останется; условие: бэкап копией до записи либо не затирать при неудаче",
+    "EngineCore.swift:237 — cyrillicSet дублирует алфавит из Detector/KeyMap (3-е место); условие: единый источник, если появится публичный шов классификатора",
+    "EngineCoreTests.swift:3 — @testable import избыточен (ассерты через публичный шов); условие: обычный import",
+    "main.swift:83,162 — openInEditor и relaunch глотают отказ через try? молча; условие: отказ не должен выглядеть успехом"
+  ],
+  "reviewers": {
+    "manifestSpec": "a3373fd28e916b546",
+    "craft": "a22e174c56de678a4"
+  },
+  "blind": {
+    "run": "swift build → Build complete; swift test → 28 passed; bash -n build.sh → OK",
+    "verdict": "расхождений манифест↔факт нет; все выбранные опции на месте, дневник отсутствует как заказано",
+    "note": "e2e самого переключателя раскладки — только на Mac пользователя (системный слой под #if os(macOS), на Linux не запускается)",
+    "drift": []
+  }
 }
