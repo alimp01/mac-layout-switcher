@@ -59,8 +59,9 @@ final class EngineCoreTests: XCTestCase {
     func testOptionUndoesAutoCorrectionWithinWindowAndExcludes() throws {
         let clock = Clock()
         let detector = Detector()
+        // Порог 1 = прежнее поведение: один откат в окне сразу исключает.
         let core = EngineCore(detector: detector, snippets: SnippetStore(),
-                              undoWindow: 5, now: clock.now)
+                              undoWindow: 5, undoThreshold: 1, now: clock.now)
         type(core, "ghbdtn")
         _ = core.handle(.boundary(" "))
         clock.t += 3 // в пределах 5 с
@@ -83,6 +84,91 @@ final class EngineCoreTests: XCTestCase {
         clock.t += 6 // окно истекло
         let out = core.handle(.optionTap)
         XCTAssertNil(out.excludedWordToPersist)
+    }
+
+    func testUndoBelowThresholdDoesNotExcludeButStillCorrects() throws {
+        let clock = Clock()
+        let detector = Detector()
+        let core = EngineCore(detector: detector, snippets: SnippetStore(),
+                              undoWindow: 5, undoThreshold: 3, now: clock.now)
+
+        // Первый откат: слово возвращается, но в исключения НЕ уходит.
+        type(core, "ghbdtn")
+        _ = core.handle(.boundary(" "))
+        clock.t += 1
+        let first = core.handle(.optionTap)
+        XCTAssertEqual(first.command,
+            .replaceLast(len: 7, with: "ghbdtn ", switchTo: .en))
+        XCTAssertNil(first.excludedWordToPersist)
+        XCTAssertFalse(detector.isExcluded("ghbdtn"))
+        XCTAssertEqual(first.undoCountUpdate?.word, "ghbdtn")
+        XCTAssertEqual(first.undoCountUpdate?.count, 1)
+
+        // Слово всё ещё исправляется автоматически (не исключено).
+        type(core, "ghbdtn")
+        clock.t += 1
+        XCTAssertEqual(core.handle(.boundary(" ")).command,
+            .replaceLast(len: 7, with: "привет ", switchTo: .ru))
+
+        // Второй откат — по-прежнему не исключает.
+        clock.t += 1
+        let second = core.handle(.optionTap)
+        XCTAssertNil(second.excludedWordToPersist)
+        XCTAssertEqual(second.undoCountUpdate?.count, 2)
+        XCTAssertFalse(detector.isExcluded("ghbdtn"))
+
+        // Третий откат — достигнут порог: исключает и сбрасывает счётчик.
+        type(core, "ghbdtn")
+        clock.t += 1
+        _ = core.handle(.boundary(" "))
+        clock.t += 1
+        let third = core.handle(.optionTap)
+        XCTAssertEqual(third.excludedWordToPersist, "ghbdtn")
+        XCTAssertTrue(detector.isExcluded("ghbdtn"))
+        XCTAssertEqual(third.undoCountUpdate?.word, "ghbdtn")
+        XCTAssertEqual(third.undoCountUpdate?.count, 0)
+    }
+
+    func testUndoThresholdOfOneReproducesImmediateExclusion() throws {
+        let clock = Clock()
+        let detector = Detector()
+        let core = EngineCore(detector: detector, snippets: SnippetStore(),
+                              undoWindow: 5, undoThreshold: 1, now: clock.now)
+        type(core, "ghbdtn")
+        _ = core.handle(.boundary(" "))
+        clock.t += 1
+        let out = core.handle(.optionTap)
+        XCTAssertEqual(out.excludedWordToPersist, "ghbdtn")
+        XCTAssertTrue(detector.isExcluded("ghbdtn"))
+    }
+
+    func testUndoCountsAreIndependentPerWordAndCaseInsensitive() throws {
+        let clock = Clock()
+        let detector = Detector()
+        // Начальные счётчики приходят из персиста; ключ «GHBDTN» в верхнем
+        // регистре должен нормализоваться и совпасть с набранным «ghbdtn».
+        let core = EngineCore(detector: detector, snippets: SnippetStore(),
+                              undoWindow: 5, undoThreshold: 3,
+                              undoCounts: ["GHBDTN": 2], now: clock.now)
+
+        // Другое слово «cgfcb,j» (спасибо) считается независимо — первый откат
+        // его не исключает.
+        type(core, "cgfcb,j")
+        _ = core.handle(.boundary(" "))
+        clock.t += 1
+        let other = core.handle(.optionTap)
+        XCTAssertNil(other.excludedWordToPersist)
+        XCTAssertFalse(detector.isExcluded("cgfcb,j"))
+
+        // «ghbdtn» стартует с 2 (из персиста, регистронезависимо) → первый же
+        // откат достигает порога 3 и исключает.
+        type(core, "ghbdtn")
+        clock.t += 1
+        _ = core.handle(.boundary(" "))
+        clock.t += 1
+        let out = core.handle(.optionTap)
+        XCTAssertEqual(out.excludedWordToPersist, "ghbdtn")
+        XCTAssertTrue(detector.isExcluded("ghbdtn"))
     }
 
     // MARK: - Ручная конвертация по Option

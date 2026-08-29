@@ -30,21 +30,42 @@ public enum EngineCommand: Equatable {
     case replaceLast(len: Int, with: String, switchTo: Lang?)
 }
 
-/// Результат обработки события: команда + побочный факт для персиста.
+/// Результат обработки события: команда + побочные факты для персиста.
 public struct EngineOutcome: Equatable {
     /// Что должен сделать исполнитель.
     public let command: EngineCommand
     /// Непусто, когда ядро добавило слово в исключения `Detector` (откат
-    /// авто-исправления по Option): `Engine` обязан сохранить exclusions.json.
+    /// авто-исправления по Option достиг порога): `Engine` обязан сохранить
+    /// exclusions.json.
     public let excludedWordToPersist: String?
+    /// Непусто, когда откат изменил счётчик отмен слова (увеличил на 1 или
+    /// сбросил в 0 при достижении порога): `Engine` обязан сохранить
+    /// undo-counts.json. Ключ — исходное слово, регистр как пришёл.
+    public let undoCountUpdate: (word: String, count: Int)?
 
-    public init(command: EngineCommand, excludedWordToPersist: String? = nil) {
+    public init(
+        command: EngineCommand,
+        excludedWordToPersist: String? = nil,
+        undoCountUpdate: (word: String, count: Int)? = nil
+    ) {
         self.command = command
         self.excludedWordToPersist = excludedWordToPersist
+        self.undoCountUpdate = undoCountUpdate
     }
 
     /// Пустой результат — событие ничего не меняет на экране.
-    public static let none = EngineOutcome(command: .none, excludedWordToPersist: nil)
+    public static let none = EngineOutcome(command: .none)
+
+    /// Ручной `==`: кортеж `undoCountUpdate` блокирует синтез Equatable.
+    public static func == (lhs: EngineOutcome, rhs: EngineOutcome) -> Bool {
+        guard lhs.command == rhs.command,
+              lhs.excludedWordToPersist == rhs.excludedWordToPersist else { return false }
+        switch (lhs.undoCountUpdate, rhs.undoCountUpdate) {
+        case (nil, nil): return true
+        case let (l?, r?): return l.word == r.word && l.count == r.count
+        default: return false
+        }
+    }
 }
 
 /// Ядро логики переключателя: поток абстрактных событий → команды.
@@ -57,6 +78,16 @@ public final class EngineCore {
     private let snippets: SnippetStore
     private let now: () -> Double
     private let undoWindow: Double
+
+    /// Порог отмен одной и той же замены, после которого слово уходит в
+    /// исключения автоматически (spec G03, дефолт 3). `1` воспроизводит
+    /// прежнее поведение — исключение с первого отката.
+    private let undoThreshold: Int
+
+    /// Счётчики отмен per-word (ключ — исходное слово в нижнем регистре,
+    /// консистентно с `Detector.isExcluded`). Переживают перезапуск: приходят
+    /// в `init` из undo-counts.json и отдаются наружу через `undoCountUpdate`.
+    private var undoCounts: [String: Int]
 
     /// Глобальный тумблер автоисправления по детектору. `false` → детектор
     /// молчит, но Option-хоткей и сниппеты продолжают работать (см. spec).
@@ -98,12 +129,19 @@ public final class EngineCore {
         snippets: SnippetStore,
         autoSwitch: Bool = true,
         undoWindow: Double = 5,
+        undoThreshold: Int = 3,
+        undoCounts: [String: Int] = [:],
         now: @escaping () -> Double = { Date().timeIntervalSince1970 }
     ) {
         self.detector = detector
         self.snippets = snippets
         self.autoSwitch = autoSwitch
         self.undoWindow = undoWindow
+        self.undoThreshold = undoThreshold
+        // Нормализуем ключи к нижнему регистру — сравнение без учёта регистра.
+        self.undoCounts = Dictionary(
+            undoCounts.map { ($0.key.lowercased(), $0.value) },
+            uniquingKeysWith: { max($0, $1) })
         self.now = now
     }
 
@@ -194,17 +232,33 @@ public final class EngineCore {
     // MARK: - Option
 
     private func handleOptionTap() -> EngineOutcome {
-        // Откат недавнего авто-исправления: вернуть как было + слово в исключения.
+        // Откат недавнего авто-исправления: всегда возвращаем как было; в
+        // исключения слово уходит только по достижении порога отмен (spec G03).
         if let auto = lastAuto, now() - auto.time <= undoWindow {
-            detector.addExclusion(auto.original)
             lastAuto = nil
             lastRegion = Region(word: auto.original, separator: auto.separator)
-            return EngineOutcome(
-                command: .replaceLast(
-                    len: auto.corrected.count + auto.separator.count,
-                    with: auto.original + auto.separator,
-                    switchTo: auto.originalLang),
-                excludedWordToPersist: auto.original)
+            let command = EngineCommand.replaceLast(
+                len: auto.corrected.count + auto.separator.count,
+                with: auto.original + auto.separator,
+                switchTo: auto.originalLang)
+
+            let key = auto.original.lowercased()
+            let bumped = (undoCounts[key] ?? 0) + 1
+            if bumped >= undoThreshold {
+                // Порог достигнут — исключаем слово и сбрасываем счётчик.
+                detector.addExclusion(auto.original)
+                undoCounts[key] = 0
+                return EngineOutcome(
+                    command: command,
+                    excludedWordToPersist: auto.original,
+                    undoCountUpdate: (word: auto.original, count: 0))
+            } else {
+                // Ниже порога — только считаем, слово не исключаем.
+                undoCounts[key] = bumped
+                return EngineOutcome(
+                    command: command,
+                    undoCountUpdate: (word: auto.original, count: bumped))
+            }
         }
 
         // Ручная конвертация. Незавершённое слово в буфере имеет приоритет.

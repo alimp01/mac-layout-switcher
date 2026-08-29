@@ -42,6 +42,10 @@ public final class Engine {
     private var optionDown = false
     private var otherInputSinceOptionDown = false
 
+    /// Счётчики отмен per-word (spec G03). Загружаются из undo-counts.json при
+    /// старте, обновляются по `EngineOutcome.undoCountUpdate` и сохраняются.
+    private var undoCounts: [String: Int]
+
     public init(config: Config = Config()) {
         self.config = config
         config.load()
@@ -54,10 +58,15 @@ public final class Engine {
         self.detector = detector
         self.snippets = snippets
         self.typist = Typist()
+
+        let undoCounts = config.loadUndoCounts()
+        self.undoCounts = undoCounts
         self.core = EngineCore(
             detector: detector,
             snippets: snippets,
-            autoSwitch: config.config.autoSwitch)
+            autoSwitch: config.config.autoSwitch,
+            undoThreshold: config.config.undoThreshold,
+            undoCounts: undoCounts)
     }
 
     /// Включает перехват. `false` — система отказала (нет разрешений).
@@ -197,6 +206,11 @@ public final class Engine {
         // Откат авто-исправления добавил слово в исключения — персистим на диск.
         if outcome.excludedWordToPersist != nil {
             detector.save(to: config.exclusionsURL)
+        }
+        // Счётчик отмен изменился — сохраняем, чтобы пережить перезапуск.
+        if let upd = outcome.undoCountUpdate {
+            undoCounts[upd.word.lowercased()] = upd.count
+            config.saveUndoCounts(undoCounts)
         }
     }
 

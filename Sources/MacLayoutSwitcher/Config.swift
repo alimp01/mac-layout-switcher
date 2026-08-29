@@ -14,6 +14,10 @@ public struct AppConfig: Codable, Equatable {
     /// Приложения-исключения (bundle id) — в них автоматика молчит.
     public var excludedApps: [String]
 
+    /// Порог отмен одной и той же замены перед авто-исключением слова
+    /// (spec G03). Дефолт 3; `1` — исключение с первого отката.
+    public var undoThreshold: Int
+
     /// Дефолтные исключения — терминалы/IDE, как у Caramba (spec, A01).
     public static let defaultExcludedApps = [
         "com.apple.Terminal",
@@ -21,11 +25,29 @@ public struct AppConfig: Codable, Equatable {
         "com.microsoft.VSCode",
     ]
 
+    /// Дефолт порога отмен (spec G03).
+    public static let defaultUndoThreshold = 3
+
     public static let `default` = AppConfig(
         autoSwitch: true,
         sounds: false,
-        excludedApps: defaultExcludedApps
+        excludedApps: defaultExcludedApps,
+        undoThreshold: defaultUndoThreshold
     )
+}
+
+extension AppConfig {
+    /// Ручной декодер: отсутствие поля → дефолт (Codable с дефолтом).
+    /// Так старый config.json без `undoThreshold` грузится без ошибки, а
+    /// добавление новых полей не ломает существующие файлы.
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        let d = AppConfig.default
+        self.autoSwitch = try c.decodeIfPresent(Bool.self, forKey: .autoSwitch) ?? d.autoSwitch
+        self.sounds = try c.decodeIfPresent(Bool.self, forKey: .sounds) ?? d.sounds
+        self.excludedApps = try c.decodeIfPresent([String].self, forKey: .excludedApps) ?? d.excludedApps
+        self.undoThreshold = try c.decodeIfPresent(Int.self, forKey: .undoThreshold) ?? d.undoThreshold
+    }
 }
 
 /// Хранилище настроек в `~/Library/Application Support/MacLayoutSwitcher/`.
@@ -44,6 +66,8 @@ public final class Config {
     public var snippetsURL: URL { directory.appendingPathComponent("snippets.json") }
     /// URL файла слов-исключений (грузит/пишет `Detector`).
     public var exclusionsURL: URL { directory.appendingPathComponent("exclusions.json") }
+    /// URL файла счётчиков отмен per-word (spec G03). JSON-словарь слово→число.
+    public var undoCountsURL: URL { directory.appendingPathComponent("undo-counts.json") }
 
     /// `directory == nil` → штатный Application Support; иначе (тесты/перенос)
     /// заданный каталог.
@@ -90,6 +114,25 @@ public final class Config {
     public func update(_ mutate: (inout AppConfig) -> Void) {
         mutate(&config)
         save()
+    }
+
+    /// Читает счётчики отмен (JSON-словарь слово→число). Отсутствующий или
+    /// битый файл означает пустой словарь, а не ошибку (как у exclusions).
+    public func loadUndoCounts() -> [String: Int] {
+        guard
+            let data = try? Data(contentsOf: undoCountsURL),
+            let decoded = try? JSONDecoder().decode([String: Int].self, from: data)
+        else { return [:] }
+        return decoded
+    }
+
+    /// Пишет счётчики отмен (атомарно, стабильный порядок ключей для диффов).
+    public func saveUndoCounts(_ counts: [String: Int]) {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        ensureDirectory()
+        guard let data = try? encoder.encode(counts) else { return }
+        try? data.write(to: undoCountsURL, options: .atomic)
     }
 
     private func ensureDirectory() {

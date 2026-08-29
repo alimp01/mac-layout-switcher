@@ -53,6 +53,15 @@
 - `public func load(from url: URL)` / `public func save(to url: URL)` — исключения, JSON-массив строк; битый/отсутствующий файл → пустой набор
 - Биграммные таблицы — `DetectorBigrams.swift` (сгенерированы по Ципфу из top-300 частотных слов, источник в комментарии)
 
+### Из таска 06 — порог отмен перед авто-исключением
+
+- `EngineCore.init(..., undoThreshold: Int = 3, undoCounts: [String:Int] = [:], now:)` — ключи undoCounts нормализуются к нижнему регистру
+- `EngineOutcome.undoCountUpdate: (word: String, count: Int)?` — обновлённый/сброшенный счётчик для персиста; ручной `==` (кортеж блокирует синтез Equatable)
+- `AppConfig.undoThreshold: Int` (дефолт 3); custom `init(from:)` — старый config.json без поля грузится
+- `Config.undoCountsURL`, `loadUndoCounts() -> [String:Int]`, `saveUndoCounts(_:)` — undo-counts.json, битый/отсутствующий → пустой словарь
+- Поведение: откат считает отмены per-word; < порога — просто откат без исключения; >= порога — addExclusion + excludedWordToPersist + сброс счётчика. Порог 1 = прежнее поведение
+- Грабля: `Engine.reload()` не переприменяет undoThreshold (в EngineCore он `let`) — правка порога подхватывается перезапуском
+
 ### Из таска 05 — UI, звуки, сборка (весь под `#if os(macOS)`)
 
 - `final class Sounds { init(enabled: Bool); var enabled: Bool; playKey(); playCorrection(); playUndo() }` — системные звуки NSSound
