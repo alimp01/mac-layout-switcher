@@ -1,7 +1,7 @@
 window.STATE =
 {
   "slug": "mac-layout-switcher",
-  "dir": "2026-08-29-mac-layout-switcher--wip",
+  "dir": "2026-08-29-mac-layout-switcher",
   "title": "Свой аналог Punto/Caramba Switcher для Mac",
   "mode": "semi",
   "depth": "normal",
@@ -11,8 +11,8 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-08-29T07:12:00+00:00",
-  "finishedAt": null,
+  "updatedAt": "2026-08-29T07:45:00+00:00",
+  "finishedAt": "2026-08-29T07:45:00+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -47,21 +47,23 @@ window.STATE =
     },
     {
       "id": "build",
-      "status": "active",
+      "status": "done",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "8 тасков готовы"
+      "note": "8 тасков готовы",
+      "finishedAt": "2026-08-29T07:45:00+00:00"
     },
     {
       "id": "review",
-      "status": "active",
+      "status": "done",
       "startedAt": "2026-08-29T04:05:30+00:00",
-      "note": "проверено 8 из 8"
+      "note": "проверено 8 из 8",
+      "finishedAt": "2026-08-29T07:45:00+00:00"
     },
     {
       "id": "final",
-      "status": "pending",
+      "status": "done",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "finishedAt": "2026-08-29T05:30:00+00:00"
+      "finishedAt": "2026-08-29T07:45:00+00:00"
     }
   ],
   "requirements": {
@@ -303,9 +305,9 @@ window.STATE =
     "craft": "a22e174c56de678a4"
   },
   "blind": {
-    "run": "swift build → Build complete; swift test → 28 passed; bash -n build.sh → OK",
-    "verdict": "расхождений манифест↔факт нет; все выбранные опции на месте, дневник отсутствует как заказано",
-    "note": "e2e самого переключателя раскладки — только на Mac пользователя (системный слой под #if os(macOS), на Linux не запускается)",
+    "run": "swift build → Build complete; swift test → 43 passed; bash -n build.sh/build-dmg.sh → OK",
+    "verdict": "после доработок: расхождений манифест↔факт нет; все 12 требований (вкл. G03 порог отмен, G04 .dmg, G05 хоткеи) на месте",
+    "note": "e2e переключателя, окна-рекордера и валидность .dmg — только на Mac; пользователь подтвердил на живом Mac: переключение раскладки работает",
     "drift": []
   }
 }

@@ -3,8 +3,9 @@
 
 Аналог Punto Switcher / Caramba Switcher для macOS: меню-бар-приложение,
 которое замечает текст в неверной раскладке («ghbdtn» → «привет»),
-переключает раскладку и перепечатывает слово. Плюс ручной Option-хоткей,
-автозамена по шаблонам, звуки. Пары языков — RU/EN. Дневника набора нет.
+переключает раскладку и перепечатывает слово. Плюс настраиваемые горячие
+клавиши (конвертация/откат и вкл-выкл авто; дефолт конвертации — одиночный
+Option), автозамена по шаблонам, звуки. Пары языков — RU/EN. Дневника набора нет.
 Swift 5.9 / SwiftPM, без Xcode-проекта, без внешних зависимостей.
 
 Рабочая машина сборки — Linux; e2e-приёмка только на Mac. Ядро `SwitcherCore`
@@ -20,10 +21,11 @@ export PATH=/home/claudebot/swift-toolchain/swift-6.0.3-RELEASE-ubuntu24.04/usr/
 
 | Команда | Что делает |
 |---------|------------|
-| `swift test` | 28 тестов ядра `SwitcherCore` (зелёные на Linux); один класс — `swift test --filter EngineCoreTests` |
+| `swift test` | 43 теста ядра `SwitcherCore` (зелёные на Linux); один класс — `swift test --filter EngineCoreTests` |
 | `swift build` | Сборка обоих target'ов (на Linux macOS-слой — пустой executable) |
-| `bash -n build.sh` | Шеллчек `build.sh` — единственная проверка сборочного скрипта на Linux |
+| `bash -n build.sh` / `bash -n build-dmg.sh` | Шеллчек сборочных скриптов — единственная их проверка на Linux |
 | `./build.sh` | ТОЛЬКО macOS 13+ с Xcode CLT (`xcode-select --install`): релиз + `dist/MacLayoutSwitcher.app` (ad-hoc подпись) |
+| `./build-dmg.sh` | ТОЛЬКО macOS: собирает `.app` (через `build.sh`, если его нет; `--rebuild` — заново) и упаковывает в `dist/MacLayoutSwitcher.dmg` |
 | `open dist/MacLayoutSwitcher.app` | Запуск .app (первый раз — правый клик по .app → «Открыть») |
 
 ## Структура
@@ -31,39 +33,61 @@ export PATH=/home/claudebot/swift-toolchain/swift-6.0.3-RELEASE-ubuntu24.04/usr/
 ```
 Package.swift                 3 target'а: SwitcherCore, MacLayoutSwitcher (exe), SwitcherCoreTests
 build.sh                      сборка .app в dist/ + ad-hoc codesign (только macOS)
+build-dmg.sh                  упаковка .app в dist/MacLayoutSwitcher.dmg (только macOS)
 Sources/
   SwitcherCore/               ядро, платформонезависимое (тестируется на Linux)
     Lang.swift KeyMap.swift KeyMap-раскладки, DetectorBigrams.swift-таблицы
     WordBuffer.swift Detector.swift SnippetStore.swift EngineCore.swift
+    Hotkey.swift              модель настраиваемой горячей клавиши (matches/displayName)
   MacLayoutSwitcher/          macOS-слой, весь под #if os(macOS)
     main.swift Engine.swift Config.swift
     System/  EventTap Typist LayoutSwitcher SecureInput FrontApp
              KeyStroke KeyTranslator Permissions
-    UI/      StatusBarUI.swift Sounds.swift
+    UI/      StatusBarUI.swift Sounds.swift HotkeyRecorderWindow.swift
 Tests/SwitcherCoreTests/      XCTest, только через публичный шов SwitcherCore
 ```
 
+Настройки — `~/Library/Application Support/MacLayoutSwitcher/`: `config.json`
+(`AppConfig`: autoSwitch/sounds/excludedApps/undoThreshold/convertHotkey/
+toggleAutoHotkey), `snippets.json`, `exclusions.json`, `undo-counts.json`
+(счётчики отмен per-word).
+
 ## Ключевые файлы
 
-- `Sources/MacLayoutSwitcher/main.swift` — точка входа: `NSApplication(.accessory)`, `AppDelegate` (онбординг разрешений → старт Engine + меню-бар).
-- `Sources/SwitcherCore/EngineCore.swift` — вся логика решений «что сделать на событие»; шов тестов. Ниже это `EngineCore`, а не macOS-`Engine`.
-- `Sources/MacLayoutSwitcher/Engine.swift` — macOS-обвязка: `EventTap`→`KeyStroke`→события `EngineCore`→исполнение через `Typist`/`LayoutSwitcher`; детекция Option, автопауза.
+- `Sources/MacLayoutSwitcher/main.swift` — точка входа: `NSApplication(.accessory)`, `AppDelegate` (онбординг разрешений → старт Engine + меню-бар; открывает окно рекордера хоткеев).
+- `Sources/SwitcherCore/EngineCore.swift` — вся логика решений «что сделать на событие»; шов тестов. Ниже это `EngineCore`, а не macOS-`Engine`. `InputEvent.hotkey(HotkeyAction{convert,toggleAuto})` — абстрактное хоткей-событие; порог отмен (`undoThreshold`, счётчики `undoCounts`) тоже здесь.
+- `Sources/SwitcherCore/Hotkey.swift` — модель настраиваемой клавиши: `keyCode: UInt16?` (nil = только модификатор) + `Set<Modifier>`; `matches(keyCode:modifiers:)` (точное сравнение) и `displayName` для меню/окна. Платформонезависима, покрыта тестами.
+- `Sources/MacLayoutSwitcher/Engine.swift` — macOS-обвязка: `EventTap`→`KeyStroke`→события `EngineCore`→исполнение через `Typist`/`LayoutSwitcher`; детекция тапа модификаторов, сопоставление с хоткеями через `Hotkey.matches`, автопауза, персист undo-counts.json.
+- `Sources/MacLayoutSwitcher/UI/HotkeyRecorderWindow.swift` — окно «Горячие клавиши…»: две строки (конвертация/откат, вкл-выкл авто), «Записать» ловит следующее сочетание локальным NSEvent-монитором, «Сброс»; пишет в общий `Config`, работающий `Engine` читает живьём (перезапуск не нужен).
 - `Sources/MacLayoutSwitcher/System/EventTap.swift` — CGEventTap `.listenOnly`, фильтр своей синтетики по маркеру, re-enable после timeout.
 - `Sources/MacLayoutSwitcher/System/Typist.swift` — синтетический ввод: Backspace-серия + печать юникодом на своей очереди.
-- `Sources/MacLayoutSwitcher/Config.swift` — `AppConfig` (autoSwitch/sounds/excludedApps) + пути к config/snippets/exclusions JSON.
+- `Sources/MacLayoutSwitcher/Config.swift` — `AppConfig` (autoSwitch/sounds/excludedApps/undoThreshold/convertHotkey/toggleAutoHotkey, свой `init(from:)` — старый config.json без новых полей грузится) + пути к config/snippets/exclusions/undo-counts JSON и load/save undo-counts.
 - `Sources/SwitcherCore/Detector.swift` (+ `DetectorBigrams.swift`) — вердикт RU/EN/unsure, исключения.
 
 ## Архитектура
 
 Поток: клавиша → `EventTap` (CGEvent) → `Engine.handle(keyEvent:)` транслирует
-`KeyStroke` в `InputEvent` (`char/backspace/boundary/optionTap/reset`) →
-`EngineCore.handle(_:)` копит слово в `WordBuffer` и возвращает `EngineOutcome`
-(`command: .none | .replaceLast(len,with,switchTo)` + `excludedWordToPersist`) →
-`Engine.execute` вызывает `LayoutSwitcher.select` затем `Typist.replaceLastWord`.
+`KeyStroke` в `InputEvent` (`char/backspace/boundary/hotkey(HotkeyAction)/reset`)
+→ `EngineCore.handle(_:)` копит слово в `WordBuffer` и возвращает `EngineOutcome`
+(`command: .none | .replaceLast(len,with,switchTo)` + `excludedWordToPersist` +
+`undoCountUpdate`) → `Engine.execute` вызывает `LayoutSwitcher.select` затем
+`Typist.replaceLastWord`.
 
-Граница модулей — `EngineCore`: платформонезависимо и детерминированно, поэтому
-тестируется на Linux; macOS-`Engine` только переводит CGEvent-мир в события ядра
-и обратно. `EngineCore.init` принимает `now:` для теста окна отката.
+Шов — публичный API `SwitcherCore` (`EngineCore`/`Hotkey`/…): платформонезависимо
+и детерминированно, поэтому тестируется на Linux; macOS-`Engine` только переводит
+CGEvent-мир в события ядра и обратно. `EngineCore.init` принимает `now:` для теста
+окна отката.
+
+Хоткеи. `Engine` не знает про Option как таковой: он собирает описание нажатия
+(`keyCode` + набор модификаторов) — из тапа чистых модификаторов
+(`modifierTapEvent`, жест с `peak`/`dirty`) или из keyDown с модификаторами — и
+спрашивает `config.convertHotkey`/`toggleAutoHotkey` через `Hotkey.matches`.
+Совпало → `.hotkey(.convert)` (приоритет) или `.hotkey(.toggleAuto)`. Дефолт
+`convertHotkey` — `[.option]` (одиночный Option, обратная совместимость),
+`toggleAutoHotkey` — не назначен. Левый и правый вариант модификатора НЕ
+различаются (обе Option → `.option`) — симметрично в `Engine` и в рекордере.
+`.toggleAuto` обрабатывается ДО `guard isPaused` — переключает авто даже на
+автопаузе, персистит config и дёргает `onAutoSwitchChanged` (галочка в меню).
 
 На границе слова (`boundary`) `EngineCore` в порядке приоритета: (1) сниппет
 `SnippetStore.expansion` — если есть, детектор к слову не применяется;
@@ -71,11 +95,15 @@ Tests/SwitcherCoreTests/      XCTest, только через публичный
 остаётся кандидатом на ручной Option. Разделитель уже напечатан пользователем,
 поэтому `replaceLast` стирает слово вместе с ним и перепечатывает оба.
 
-Option: одиночный чистый тап (детектится в `Engine.optionTapEvent` по
-`flagsChanged`). В окне `undoWindow` (5 с) после авто-исправления → откат +
-слово уходит в исключения (`Detector.addExclusion`, персист `exclusions.json`).
-Вне окна → ручная конвертация текущего/последнего слова (кириллица → EN, иначе
-→ RU, так повторный Option возвращает как было).
+Конвертация/откат (`.hotkey(.convert)`, дефолтом — одиночный Option). В окне
+`undoWindow` (5 с) после авто-исправления → откат всегда возвращает как было; в
+исключения (`Detector.addExclusion`, персист `exclusions.json`) слово уходит НЕ
+с первого раза, а по достижении порога `undoThreshold` (дефолт 3): каждый откат
+инкрементит счётчик слова, при `>= порога` слово исключается и счётчик
+сбрасывается. Счётчики per-word живут в `undo-counts.json` (ключ — слово в нижнем
+регистре) и переживают перезапуск. Порог `1` воспроизводит прежнее поведение
+(исключение с первого отката). Вне окна → ручная конвертация текущего/последнего
+слова (кириллица → EN, иначе → RU, так повторный хоткей возвращает как было).
 
 Автопауза считается на каждое событие: `core.isPaused = SecureInput.isActive ||
 isExcludedApp()` (bundle id из `FrontApp` против `config.excludedApps`). На паузе
@@ -86,9 +114,12 @@ isExcludedApp()` (bundle id из `FrontApp` против `config.excludedApps`).
 перепечатки), не по времени.
 
 Меню-бар (`StatusBarUI`) даёт колбэки: пауза = `engine.stop()/start()` (ручной
-паузы внутри Engine нет), автопереключение = `setAutoSwitch` (пишет config),
-звуки, открыть snippets.json/config.json. Настройки — `~/Library/Application
-Support/MacLayoutSwitcher/` (config.json + snippets.json + exclusions.json).
+паузы внутри Engine нет), автопереключение = `setAutoSwitch` (пишет config;
+`setAutoSwitchState` синхронизирует галочку, когда авто переключил хоткей),
+звуки, «Горячие клавиши…» = `onOpenHotkeys` → `HotkeyRecorderWindow`, открыть
+snippets.json/config.json. Настройки — `~/Library/Application Support/
+MacLayoutSwitcher/` (config.json + snippets.json + exclusions.json +
+undo-counts.json).
 
 ## Соглашения кода
 
@@ -101,8 +132,9 @@ Support/MacLayoutSwitcher/` (config.json + snippets.json + exclusions.json).
 - Зависимостей нет и не добавлять. Нет инструмента → вернуть `BLOCKED`, ничего
   не ставить.
 - JSON-файлы: битый/отсутствующий config → бэкап `.broken` рядом + дефолты;
-  битый snippets/exclusions → пустой набор. config пишется атомарно с
-  `.sortedKeys`.
+  битый snippets/exclusions/undo-counts → пустой набор. config и undo-counts
+  пишутся атомарно с `.sortedKeys`. Новые поля в `AppConfig` — только через
+  `decodeIfPresent` с дефолтом (старый config.json обязан грузиться).
 
 ## Подводные камни
 
@@ -123,14 +155,30 @@ Support/MacLayoutSwitcher/` (config.json + snippets.json + exclusions.json).
   выдачи — перезапуск (пункт меню «Я выдал разрешения»), TCC-доверие надёжнее
   подхватывается новым процессом.
 - `dist/` пересобирается `build.sh` с нуля (`rm -rf` бандла) каждый раз.
+- Хоткей с обычной клавишей (например ⌘⇧K) физически напечатается: tap
+  `.listenOnly` не подавляет событий. Для конвертации это не мешает (мы стираем
+  и перепечатываем), но назначать «печатающий» keyCode-хоткей стоит осознанно —
+  дефолт `[.option]` ничего не печатает.
+- Левый и правый вариант модификатора НЕ различаются: рекордер и `Engine`
+  сводят обе Option к `.option`. Правые `Modifier`-кейсы в модели есть, но
+  назначить «только правый Option» нынешний слой не даст — так дефолт срабатывает
+  на любой Option.
+- `HotkeyRecorderWindow` и правки Engine/UI/main собраны ВСЛЕПУЮ (компиляции
+  macOS-слоя на Linux нет). Вся проверяемая логика хоткеев вынесена в
+  `SwitcherCore.Hotkey` и покрыта тестами; AppKit-обвязка — по документированным
+  API, консервативно.
+- `Engine.reload()` НЕ переприменяет `undoThreshold` (в `EngineCore` он `let`) —
+  правка порога в config.json подхватывается только перезапуском. Сами хоткеи,
+  наоборот, читаются живьём из `Config` при каждом событии.
 
 ## Тесты
 
-`swift test` — 28 тестов в `Tests/SwitcherCoreTests/`: `EngineCoreTests` (11,
-поток решений + окно отката через инъекцию `now:`), `KeyMapTests` (5),
-`DetectorTests` (5), `SnippetStoreTests` (4), `WordBufferTests` (3). macOS-слой
-тестами не покрыт (компиляции нет на Linux) — только ручной чек-лист в
-`README.md`.
+`swift test` — 43 теста в `Tests/SwitcherCoreTests/`: `EngineCoreTests` (14,
+поток решений + окно отката через инъекцию `now:` + порог отмен), `HotkeyTests`
+(7, `matches`/`displayName`/Codable), `HotkeyEngineTests` (5, `.hotkey`-события в
+ядре: convert/toggleAuto, приоритеты), `KeyMapTests` (5), `DetectorTests` (5),
+`SnippetStoreTests` (4), `WordBufferTests` (3). macOS-слой тестами не покрыт
+(компиляции нет на Linux) — только ручной чек-лист в `README.md`.
 
 ## Как здесь работает Autopilot
 
