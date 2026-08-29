@@ -65,7 +65,7 @@ final class EngineCoreTests: XCTestCase {
         type(core, "ghbdtn")
         _ = core.handle(.boundary(" "))
         clock.t += 3 // в пределах 5 с
-        let out = core.handle(.optionTap)
+        let out = core.handle(.hotkey(.convert))
         XCTAssertEqual(out.command,
             .replaceLast(len: 7, with: "ghbdtn ", switchTo: .en))
         XCTAssertEqual(out.excludedWordToPersist, "ghbdtn")
@@ -82,7 +82,7 @@ final class EngineCoreTests: XCTestCase {
         type(core, "ghbdtn")
         _ = core.handle(.boundary(" "))
         clock.t += 6 // окно истекло
-        let out = core.handle(.optionTap)
+        let out = core.handle(.hotkey(.convert))
         XCTAssertNil(out.excludedWordToPersist)
     }
 
@@ -96,7 +96,7 @@ final class EngineCoreTests: XCTestCase {
         type(core, "ghbdtn")
         _ = core.handle(.boundary(" "))
         clock.t += 1
-        let first = core.handle(.optionTap)
+        let first = core.handle(.hotkey(.convert))
         XCTAssertEqual(first.command,
             .replaceLast(len: 7, with: "ghbdtn ", switchTo: .en))
         XCTAssertNil(first.excludedWordToPersist)
@@ -112,7 +112,7 @@ final class EngineCoreTests: XCTestCase {
 
         // Второй откат — по-прежнему не исключает.
         clock.t += 1
-        let second = core.handle(.optionTap)
+        let second = core.handle(.hotkey(.convert))
         XCTAssertNil(second.excludedWordToPersist)
         XCTAssertEqual(second.undoCountUpdate?.count, 2)
         XCTAssertFalse(detector.isExcluded("ghbdtn"))
@@ -122,7 +122,7 @@ final class EngineCoreTests: XCTestCase {
         clock.t += 1
         _ = core.handle(.boundary(" "))
         clock.t += 1
-        let third = core.handle(.optionTap)
+        let third = core.handle(.hotkey(.convert))
         XCTAssertEqual(third.excludedWordToPersist, "ghbdtn")
         XCTAssertTrue(detector.isExcluded("ghbdtn"))
         XCTAssertEqual(third.undoCountUpdate?.word, "ghbdtn")
@@ -137,7 +137,7 @@ final class EngineCoreTests: XCTestCase {
         type(core, "ghbdtn")
         _ = core.handle(.boundary(" "))
         clock.t += 1
-        let out = core.handle(.optionTap)
+        let out = core.handle(.hotkey(.convert))
         XCTAssertEqual(out.excludedWordToPersist, "ghbdtn")
         XCTAssertTrue(detector.isExcluded("ghbdtn"))
     }
@@ -156,7 +156,7 @@ final class EngineCoreTests: XCTestCase {
         type(core, "cgfcb,j")
         _ = core.handle(.boundary(" "))
         clock.t += 1
-        let other = core.handle(.optionTap)
+        let other = core.handle(.hotkey(.convert))
         XCTAssertNil(other.excludedWordToPersist)
         XCTAssertFalse(detector.isExcluded("cgfcb,j"))
 
@@ -166,7 +166,7 @@ final class EngineCoreTests: XCTestCase {
         clock.t += 1
         _ = core.handle(.boundary(" "))
         clock.t += 1
-        let out = core.handle(.optionTap)
+        let out = core.handle(.hotkey(.convert))
         XCTAssertEqual(out.excludedWordToPersist, "ghbdtn")
         XCTAssertTrue(detector.isExcluded("ghbdtn"))
     }
@@ -176,11 +176,11 @@ final class EngineCoreTests: XCTestCase {
     func testOptionConvertsInProgressWordAndTogglesBack() throws {
         let core = EngineCore(detector: Detector(), snippets: SnippetStore())
         type(core, "ghbdtn")
-        let first = core.handle(.optionTap)
+        let first = core.handle(.hotkey(.convert))
         XCTAssertEqual(first.command,
             .replaceLast(len: 6, with: "привет", switchTo: .ru))
         // Повторный Option возвращает как было.
-        let second = core.handle(.optionTap)
+        let second = core.handle(.hotkey(.convert))
         XCTAssertEqual(second.command,
             .replaceLast(len: 6, with: "ghbdtn", switchTo: .en))
     }
@@ -191,7 +191,7 @@ final class EngineCoreTests: XCTestCase {
         let core = EngineCore(detector: Detector(), snippets: SnippetStore())
         type(core, "hello")
         XCTAssertEqual(core.handle(.boundary(" ")).command, .none)
-        let out = core.handle(.optionTap)
+        let out = core.handle(.hotkey(.convert))
         XCTAssertEqual(out.command,
             .replaceLast(len: 6, with: "руддщ ", switchTo: .ru))
     }
@@ -216,7 +216,7 @@ final class EngineCoreTests: XCTestCase {
         XCTAssertEqual(core.handle(.boundary(" ")).command, .none)
         // Сняли паузу — старое слово не должно всплыть (буфер был сброшен).
         core.isPaused = false
-        XCTAssertEqual(core.handle(.optionTap).command, .none)
+        XCTAssertEqual(core.handle(.hotkey(.convert)).command, .none)
     }
 
     func testResetPreventsCorrection() throws {
@@ -233,7 +233,7 @@ final class EngineCoreTests: XCTestCase {
         type(core, "ghbdtn")
         XCTAssertEqual(core.handle(.boundary(" ")).command, .none)
         // Option по-прежнему конвертирует последнее слово.
-        let out = core.handle(.optionTap)
+        let out = core.handle(.hotkey(.convert))
         XCTAssertEqual(out.command,
             .replaceLast(len: 7, with: "привет ", switchTo: .ru))
     }

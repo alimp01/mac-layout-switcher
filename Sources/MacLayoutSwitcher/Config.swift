@@ -2,6 +2,7 @@
 // собирается в пустой executable, чтобы `swift build`/`swift test` были зелёными.
 #if os(macOS)
 import Foundation
+import SwitcherCore
 
 /// Типизированные настройки приложения (config.json).
 /// snippets.json и exclusions.json — отдельные файлы, ими владеют
@@ -18,6 +19,13 @@ public struct AppConfig: Codable, Equatable {
     /// (spec G03). Дефолт 3; `1` — исключение с первого отката.
     public var undoThreshold: Int
 
+    /// Хоткей конвертации/отката (таск 08). Дефолт — одиночный Option
+    /// (обратная совместимость: у существующих пользователей не меняется).
+    public var convertHotkey: Hotkey
+
+    /// Хоткей вкл/выкл автопереключения (таск 08). Дефолт — не назначен (`nil`).
+    public var toggleAutoHotkey: Hotkey?
+
     /// Дефолтные исключения — терминалы/IDE, как у Caramba (spec, A01).
     public static let defaultExcludedApps = [
         "com.apple.Terminal",
@@ -32,7 +40,9 @@ public struct AppConfig: Codable, Equatable {
         autoSwitch: true,
         sounds: false,
         excludedApps: defaultExcludedApps,
-        undoThreshold: defaultUndoThreshold
+        undoThreshold: defaultUndoThreshold,
+        convertHotkey: .defaultConvert,
+        toggleAutoHotkey: nil
     )
 }
 
@@ -47,6 +57,9 @@ extension AppConfig {
         self.sounds = try c.decodeIfPresent(Bool.self, forKey: .sounds) ?? d.sounds
         self.excludedApps = try c.decodeIfPresent([String].self, forKey: .excludedApps) ?? d.excludedApps
         self.undoThreshold = try c.decodeIfPresent(Int.self, forKey: .undoThreshold) ?? d.undoThreshold
+        // Старый config.json без хоткей-полей → дефолты (Option / не назначен).
+        self.convertHotkey = try c.decodeIfPresent(Hotkey.self, forKey: .convertHotkey) ?? d.convertHotkey
+        self.toggleAutoHotkey = try c.decodeIfPresent(Hotkey.self, forKey: .toggleAutoHotkey) ?? d.toggleAutoHotkey
     }
 }
 

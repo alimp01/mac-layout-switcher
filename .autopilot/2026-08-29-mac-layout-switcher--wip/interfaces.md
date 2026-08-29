@@ -53,6 +53,15 @@
 - `public func load(from url: URL)` / `public func save(to url: URL)` — исключения, JSON-массив строк; битый/отсутствующий файл → пустой набор
 - Биграммные таблицы — `DetectorBigrams.swift` (сгенерированы по Ципфу из top-300 частотных слов, источник в комментарии)
 
+### Из таска 08 — настройка горячих клавиш
+
+- `struct Hotkey: Codable, Equatable, Sendable { var keyCode: UInt16?; var modifiers: Set<Modifier>; func matches(keyCode:modifiers:) -> Bool; var displayName: String; static let defaultConvert }` (SwitcherCore, тестируется на Linux)
+- `enum Hotkey.Modifier: String, Codable, CaseIterable { command, option, control, shift, capsLock, function, rightCommand, rightOption, rightControl, rightShift }`
+- `enum HotkeyAction: Equatable, Sendable { case convert, toggleAuto }`; `InputEvent.hotkey(HotkeyAction)` ЗАМЕНИЛ `.optionTap`
+- `AppConfig.convertHotkey: Hotkey` (дефолт = Option), `AppConfig.toggleAutoHotkey: Hotkey?` (дефолт nil); старый config.json грузится
+- `Engine.onAutoSwitchChanged`, `StatusBarUI.onOpenHotkeys`, `StatusBarUI.setAutoSwitchState(_:)`, `HotkeyRecorderWindow(config:).show()`
+- Оговорки: окно-рекордер и правки Engine/UI/main собраны ВСЛЕПУЮ (#if os(macOS)); рекордер не различает левый/правый модификатор (обе Option → .option); keyCode-хоткей физически печатается (плата .listenOnly)
+
 ### Из таска 07 — .dmg-дистрибутив
 
 - `build-dmg.sh` (macOS-скрипт): вход — опц. `--rebuild`; собирает `dist/MacLayoutSwitcher.app` через `./build.sh` при отсутствии, затем `dist/MacLayoutSwitcher.dmg` (staging через mktemp+trap, симлинк `/Applications`, `hdiutil -format UDZO`). Константы `VOL_NAME`/`DMG_PATH`.

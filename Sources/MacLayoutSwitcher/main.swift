@@ -17,6 +17,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var engine: Engine?
     private var sounds: Sounds?
     private var ui: StatusBarUI?
+    private var hotkeyWindow: HotkeyRecorderWindow?
 
     // Отдельный статус-элемент онбординга (когда нет доверия и Engine не поднят).
     private var onboardingItem: NSStatusItem?
@@ -65,12 +66,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ui.onOpenConfig = { [weak self] in
             self?.openInEditor(self?.config.directory.appendingPathComponent("config.json"))
         }
+        ui.onOpenHotkeys = { [weak self] in self?.showHotkeys() }
         ui.onQuit = { NSApp.terminate(nil) }
         ui.install()
+
+        // Хоткей `.toggleAuto` меняет автопереключение мимо меню — синхронизируем
+        // галочку.
+        engine.onAutoSwitchChanged = { [weak ui] on in
+            ui?.setAutoSwitchState(on)
+        }
 
         self.sounds = sounds
         self.engine = engine
         self.ui = ui
+    }
+
+    /// Открывает окно настройки горячих клавиш (создаётся лениво, переживает
+    /// закрытие — один и тот же экземпляр).
+    private func showHotkeys() {
+        if hotkeyWindow == nil {
+            hotkeyWindow = HotkeyRecorderWindow(config: config)
+        }
+        hotkeyWindow?.show()
     }
 
     /// Открывает JSON-файл настроек во внешнем редакторе. Если файла ещё нет

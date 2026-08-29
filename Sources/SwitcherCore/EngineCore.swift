@@ -11,11 +11,20 @@ public enum InputEvent: Equatable {
     /// Граница слова (пробел/таб/enter/…). `Character` — сам разделитель:
     /// он уже напечатан пользователем, поэтому команда замены его сохраняет.
     case boundary(Character)
-    /// Одиночное нажатие-отпускание Option без других клавиш между ними.
-    case optionTap
+    /// Сработал сконфигурированный хоткей. macOS-`Engine` решает, что это за
+    /// клавиша (через `Hotkey.matches`), и шлёт соответствующее действие.
+    case hotkey(HotkeyAction)
     /// Сброс без исправления: комбинация с Cmd/Ctrl, автоповтор удержания,
     /// перемещение курсора (стрелки, мышь) — текущее слово больше не «наше».
     case reset
+}
+
+/// Действие настраиваемого хоткея (таск 08). `convert` — прежнее поведение
+/// одиночного Option: конвертация текущего/последнего слова или откат
+/// авто-исправления в окне отмены. `toggleAuto` — вкл/выкл автопереключения.
+public enum HotkeyAction: Equatable, Sendable {
+    case convert
+    case toggleAuto
 }
 
 /// Команда исполнителю. macOS-`Engine` переводит её в вызовы
@@ -148,6 +157,14 @@ public final class EngineCore {
     /// Обрабатывает одно событие и возвращает команду исполнителю.
     @discardableResult
     public func handle(_ event: InputEvent) -> EngineOutcome {
+        // Переключение автопереключения — глобальная настройка, а не работа с
+        // текстом: срабатывает даже на автопаузе (secure input / приложение-
+        // исключение), где ядро иначе молчит.
+        if case .hotkey(.toggleAuto) = event {
+            autoSwitch.toggle()
+            return .none
+        }
+
         if isPaused { return .none }
 
         switch event {
@@ -173,8 +190,12 @@ public final class EngineCore {
         case .boundary(let sep):
             return handleBoundary(sep)
 
-        case .optionTap:
-            return handleOptionTap()
+        case .hotkey(.convert):
+            return handleConvert()
+
+        case .hotkey(.toggleAuto):
+            // Обработано выше, до guard isPaused; сюда не доходит.
+            return .none
         }
     }
 
@@ -229,9 +250,9 @@ public final class EngineCore {
             switchTo: lang))
     }
 
-    // MARK: - Option
+    // MARK: - Конвертация/откат (хоткей .convert, прежний Option)
 
-    private func handleOptionTap() -> EngineOutcome {
+    private func handleConvert() -> EngineOutcome {
         // Откат недавнего авто-исправления: всегда возвращаем как было; в
         // исключения слово уходит только по достижении порога отмен (spec G03).
         if let auto = lastAuto, now() - auto.time <= undoWindow {

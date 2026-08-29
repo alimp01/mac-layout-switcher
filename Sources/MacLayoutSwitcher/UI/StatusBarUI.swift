@@ -32,6 +32,7 @@ public final class StatusBarUI: NSObject {
     public var onToggleSounds: ((Bool) -> Void)?
     public var onOpenSnippets: (() -> Void)?
     public var onOpenConfig: (() -> Void)?
+    public var onOpenHotkeys: (() -> Void)?
     public var onQuit: (() -> Void)?
 
     private var state: State
@@ -72,6 +73,13 @@ public final class StatusBarUI: NSObject {
         refresh()
     }
 
+    /// Точечно синхронизирует галочку автопереключения, когда его поменяли
+    /// снаружи меню (хоткей `.toggleAuto`). Паузу/звуки не трогает.
+    public func setAutoSwitchState(_ on: Bool) {
+        state.autoSwitch = on
+        refresh()
+    }
+
     // MARK: - Построение меню
 
     private func buildMenu() -> NSMenu {
@@ -96,6 +104,11 @@ public final class StatusBarUI: NSObject {
         sounds.target = self
         soundsItem = sounds
         menu.addItem(sounds)
+
+        let hotkeys = NSMenuItem(
+            title: "Горячие клавиши…", action: #selector(openHotkeys), keyEquivalent: "")
+        hotkeys.target = self
+        menu.addItem(hotkeys)
 
         menu.addItem(.separator())
 
@@ -155,6 +168,7 @@ public final class StatusBarUI: NSObject {
 
     @objc private func openSnippets() { onOpenSnippets?() }
     @objc private func openConfig() { onOpenConfig?() }
+    @objc private func openHotkeys() { onOpenHotkeys?() }
     @objc private func quit() { onQuit?() }
 
     @objc private func showAbout() {
