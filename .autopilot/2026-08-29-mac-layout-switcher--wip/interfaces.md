@@ -53,6 +53,17 @@
 - `public func load(from url: URL)` / `public func save(to url: URL)` — исключения, JSON-массив строк; битый/отсутствующий файл → пустой набор
 - Биграммные таблицы — `DetectorBigrams.swift` (сгенерированы по Ципфу из top-300 частотных слов, источник в комментарии)
 
+### Из таска 04 — Engine (ядро на Linux + macOS-обвязка)
+
+- `SwitcherCore.EngineCore` (тестируется на Linux):
+  - `enum InputEvent { case char(Character), backspace, boundary(Character), optionTap, reset }`
+  - `enum EngineCommand { case none; case replaceLast(len: Int, with: String, switchTo: Lang?) }`
+  - `struct EngineOutcome { let command; let excludedWordToPersist: String? }`
+  - `final class EngineCore { init(detector:snippets:autoSwitch:undoWindow:now:); var autoSwitch; var isPaused; func handle(_:) -> EngineOutcome }`
+- macOS (`#if os(macOS)`): `struct AppConfig: Codable`; `final class Config { load/save/update; snippetsURL; exclusionsURL }` (config.json → дефолты + `.broken`-бэкап при битом); `final class Engine { init(config:); start()->Bool; stop(); setAutoSwitch(_:); reload(); handle(keyEvent:) }`
+- Решение по долгу active-tap: EventTap оставлен `.listenOnly`; исправление стирает слово вместе с уже напечатанным разделителем и перепечатывает (подавлять нечего). Плата: Enter-как-разделитель может перепечататься в chat-полях — задокументировано в Engine.swift.
+- Граница слова в macOS-Engine = только пробелы (space/tab/enter); пунктуация НЕ граница (клавиши `;,.[]` в EN дают буквы ЙЦУКЕН внутри слова).
+
 ### Из таска 03 — системный слой macOS (весь под `#if os(macOS)`)
 
 - `struct KeyStroke { enum Kind { keyDown, flagsChanged }; kind, keyCode: UInt16, characters: String, flags: CGEventFlags, isAutorepeat: Bool }`
