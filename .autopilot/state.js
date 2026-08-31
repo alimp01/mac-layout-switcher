@@ -1,7 +1,7 @@
 window.STATE =
 {
   "slug": "mac-layout-switcher",
-  "dir": "2026-08-29-mac-layout-switcher",
+  "dir": "2026-08-29-mac-layout-switcher--wip",
   "title": "Свой аналог Punto/Caramba Switcher для Mac",
   "mode": "semi",
   "depth": "normal",
@@ -11,8 +11,8 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-08-31T09:20:00+00:00",
-  "finishedAt": "2026-08-31T09:20:00+00:00",
+  "updatedAt": "2026-08-31T10:10:00+00:00",
+  "finishedAt": null,
   "stages": [
     {
       "id": "preflight",
@@ -47,10 +47,9 @@ window.STATE =
     },
     {
       "id": "build",
-      "status": "done",
+      "status": "active",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "9 тасков готовы",
-      "finishedAt": "2026-08-31T09:20:00+00:00"
+      "note": "доработка G07 — тикет 10"
     },
     {
       "id": "review",
@@ -67,9 +66,9 @@ window.STATE =
     }
   ],
   "requirements": {
-    "total": 13,
+    "total": 16,
     "done": 13,
-    "inTicket": 0,
+    "inTicket": 2,
     "inSpec": 0,
     "placeholder": 0,
     "deferred": 0,
@@ -281,6 +280,35 @@ window.STATE =
       "retries": 0,
       "repairs": 1,
       "repairFindings": ["register→.requiresApproval снимал галочку без подсказки — пользователь видит «не работает»"],
+      "handoffs": 0
+    },
+    {
+      "id": "10",
+      "title": "Инфраструктура иконки (.icns в бандле)",
+      "requirements": ["G08"],
+      "blockedBy": ["05", "07"],
+      "wave": 8,
+      "zone": ["Resources/", "tools/make-icns.py", "build.sh"],
+      "status": "done",
+      "startedAt": "2026-08-31T10:10:00+00:00",
+      "finishedAt": "2026-08-31T10:40:00+00:00",
+      "tests": { "passed": 43, "failed": 0 },
+      "commit": "PENDING",
+      "retries": 0,
+      "repairs": 0,
+      "handoffs": 0
+    },
+    {
+      "id": "11",
+      "title": "Утка-иконка + индикация раскладки в трее",
+      "requirements": ["G08", "G09"],
+      "blockedBy": ["10"],
+      "wave": 9,
+      "zone": ["Resources/AppIcon.icns", "Sources/MacLayoutSwitcher/UI/", "Sources/MacLayoutSwitcher/main.swift"],
+      "status": "in-progress",
+      "startedAt": "2026-08-31T10:40:00+00:00",
+      "retries": 0,
+      "repairs": 0,
       "handoffs": 0
     }
   ],

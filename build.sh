@@ -49,6 +49,7 @@ fi
 DIST_DIR="$SCRIPT_DIR/dist"
 APP_BUNDLE="$DIST_DIR/$APP_NAME.app"
 MACOS_DIR="$APP_BUNDLE/Contents/MacOS"
+RESOURCES_DIR="$APP_BUNDLE/Contents/Resources"
 
 echo "==> Собираю бандл $APP_BUNDLE"
 rm -rf "$APP_BUNDLE"
@@ -57,6 +58,24 @@ mkdir -p "$MACOS_DIR"
 # Исполняемый файл.
 cp "$BIN_PATH" "$MACOS_DIR/$APP_NAME"
 chmod +x "$MACOS_DIR/$APP_NAME"
+
+# Иконка приложения (Finder, «Программы», Dock при запуске, .dmg).
+# Генерируется на Linux-машине: python3 tools/make-icns.py (из Resources/AppIcon.svg)
+# и лежит в репозитории. Если её нет — собираем без иконки, но предупреждаем:
+# .app останется рабочим, просто с дефолтной иконкой.
+ICNS_SRC="$SCRIPT_DIR/Resources/AppIcon.icns"
+ICON_PLIST_KEYS=""
+if [[ -f "$ICNS_SRC" ]]; then
+    mkdir -p "$RESOURCES_DIR"
+    cp "$ICNS_SRC" "$RESOURCES_DIR/AppIcon.icns"
+    # Перевод строки и отступ внутри значения не важны — plist это переживёт,
+    # но держим формат ровным для читаемости готового Info.plist.
+    ICON_PLIST_KEYS="    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>"
+else
+    echo "!! Resources/AppIcon.icns не найден — собираю без иконки." >&2
+    echo "!! Сгенерировать: python3 tools/make-icns.py (нужен cairosvg)." >&2
+fi
 
 # Info.plist. LSUIElement=true → приложение без иконки в Dock (только меню-бар),
 # как и просит .accessory-режим в main.swift. LSMinimumSystemVersion фиксирует
@@ -76,6 +95,7 @@ cat > "$APP_BUNDLE/Contents/Info.plist" <<PLIST
     <string>$APP_NAME</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
+${ICON_PLIST_KEYS}
     <key>CFBundleShortVersionString</key>
     <string>$VERSION</string>
     <key>CFBundleVersion</key>
