@@ -18,11 +18,14 @@ public final class StatusBarUI: NSObject {
         public var autoSwitch: Bool
         /// Звуки ввода.
         public var sounds: Bool
+        /// Автозапуск при входе — по ФАКТУ (`LoginItem.isEnabled`), не по config.
+        public var launchAtLogin: Bool
 
-        public init(paused: Bool, autoSwitch: Bool, sounds: Bool) {
+        public init(paused: Bool, autoSwitch: Bool, sounds: Bool, launchAtLogin: Bool = false) {
             self.paused = paused
             self.autoSwitch = autoSwitch
             self.sounds = sounds
+            self.launchAtLogin = launchAtLogin
         }
     }
 
@@ -30,6 +33,10 @@ public final class StatusBarUI: NSObject {
     public var onTogglePause: ((Bool) -> Void)?
     public var onToggleAutoSwitch: ((Bool) -> Void)?
     public var onToggleSounds: ((Bool) -> Void)?
+    /// Тумблер автозапуска. Аргумент — ЖЕЛАЕМОЕ состояние. Колбэк сам пробует
+    /// enable/disable и обязан вернуть галочку в факт через `setLaunchAtLoginState`
+    /// (при ошибке — в прежнее положение). UI сам галочку НЕ переставляет.
+    public var onToggleLaunchAtLogin: ((Bool) -> Void)?
     public var onOpenSnippets: (() -> Void)?
     public var onOpenConfig: (() -> Void)?
     public var onOpenHotkeys: (() -> Void)?
@@ -41,6 +48,7 @@ public final class StatusBarUI: NSObject {
     private var pauseItem: NSMenuItem?
     private var autoItem: NSMenuItem?
     private var soundsItem: NSMenuItem?
+    private var launchItem: NSMenuItem?
 
     /// Версия из Info.plist (заполняет build.sh); вне бандла — «dev».
     private let version: String
@@ -80,6 +88,15 @@ public final class StatusBarUI: NSObject {
         refresh()
     }
 
+    /// Синхронизирует галочку автозапуска с ФАКТИЧЕСКИМ статусом
+    /// (`LoginItem.isEnabled`). Вызывать при старте и после каждой попытки
+    /// enable/disable — так галочка отражает истину, а не намерение, и ошибка
+    /// register/unregister откатывает её в прежнее положение.
+    public func setLaunchAtLoginState(_ on: Bool) {
+        state.launchAtLogin = on
+        refresh()
+    }
+
     // MARK: - Построение меню
 
     private func buildMenu() -> NSMenu {
@@ -104,6 +121,12 @@ public final class StatusBarUI: NSObject {
         sounds.target = self
         soundsItem = sounds
         menu.addItem(sounds)
+
+        let launch = NSMenuItem(
+            title: "Запускать при входе", action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
+        launch.target = self
+        launchItem = launch
+        menu.addItem(launch)
 
         let hotkeys = NSMenuItem(
             title: "Горячие клавиши…", action: #selector(openHotkeys), keyEquivalent: "")
@@ -142,6 +165,7 @@ public final class StatusBarUI: NSObject {
         pauseItem?.title = state.paused ? "Работа (снять паузу)" : "Пауза"
         autoItem?.state = state.autoSwitch ? .on : .off
         soundsItem?.state = state.sounds ? .on : .off
+        launchItem?.state = state.launchAtLogin ? .on : .off
         // В паузе иконка приглушена — видно, что перехват выключен.
         statusItem?.button?.alphaValue = state.paused ? 0.4 : 1.0
     }
@@ -164,6 +188,14 @@ public final class StatusBarUI: NSObject {
         state.sounds.toggle()
         refresh()
         onToggleSounds?(state.sounds)
+    }
+
+    /// В отличие от прочих тумблеров галочку тут НЕ переставляем сразу: просим
+    /// ЖЕЛАЕМОЕ состояние, а факт вернёт колбэк через `setLaunchAtLoginState`
+    /// (при ошибке register/unregister галочка останется прежней — без ложного
+    /// успеха).
+    @objc private func toggleLaunchAtLogin() {
+        onToggleLaunchAtLogin?(!state.launchAtLogin)
     }
 
     @objc private func openSnippets() { onOpenSnippets?() }

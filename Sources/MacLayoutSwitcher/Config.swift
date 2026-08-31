@@ -26,6 +26,10 @@ public struct AppConfig: Codable, Equatable {
     /// Хоткей вкл/выкл автопереключения (таск 08). Дефолт — не назначен (`nil`).
     public var toggleAutoHotkey: Hotkey?
 
+    /// Желаемое состояние автозапуска при входе (таск 09, G06). Дефолт false.
+    /// Это лишь ЖЕЛАНИЕ пользователя; факт — `SMAppService.status` (`LoginItem`).
+    public var launchAtLogin: Bool
+
     /// Дефолтные исключения — терминалы/IDE, как у Caramba (spec, A01).
     public static let defaultExcludedApps = [
         "com.apple.Terminal",
@@ -42,7 +46,8 @@ public struct AppConfig: Codable, Equatable {
         excludedApps: defaultExcludedApps,
         undoThreshold: defaultUndoThreshold,
         convertHotkey: .defaultConvert,
-        toggleAutoHotkey: nil
+        toggleAutoHotkey: nil,
+        launchAtLogin: false
     )
 }
 
@@ -60,6 +65,8 @@ extension AppConfig {
         // Старый config.json без хоткей-полей → дефолты (Option / не назначен).
         self.convertHotkey = try c.decodeIfPresent(Hotkey.self, forKey: .convertHotkey) ?? d.convertHotkey
         self.toggleAutoHotkey = try c.decodeIfPresent(Hotkey.self, forKey: .toggleAutoHotkey) ?? d.toggleAutoHotkey
+        // Старый config.json без поля автозапуска → false (выключено).
+        self.launchAtLogin = try c.decodeIfPresent(Bool.self, forKey: .launchAtLogin) ?? d.launchAtLogin
     }
 }
 

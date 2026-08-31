@@ -18,6 +18,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var sounds: Sounds?
     private var ui: StatusBarUI?
     private var hotkeyWindow: HotkeyRecorderWindow?
+    // Автозапуск при входе (SMAppService). Источник истины — сам сервис, не config.
+    private let loginItem = LoginItem()
 
     // Отдельный статус-элемент онбординга (когда нет доверия и Engine не поднят).
     private var onboardingItem: NSStatusItem?
@@ -44,10 +46,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
 
+        // Факт автозапуска — из SMAppService, а не из config: пользователь мог
+        // снять объект входа в Системных настройках. Расхождение config↔факт
+        // разрешаем в пользу факта и приводим config к нему.
+        let launchFact = loginItem.isEnabled
+        if config.config.launchAtLogin != launchFact {
+            config.update { $0.launchAtLogin = launchFact }
+        }
+
         let ui = StatusBarUI(state: StatusBarUI.State(
             paused: false,
             autoSwitch: config.config.autoSwitch,
-            sounds: config.config.sounds))
+            sounds: config.config.sounds,
+            launchAtLogin: launchFact))
 
         // Пауза = полностью снять/поднять перехват (у Engine нет ручной паузы;
         // автопауза secure-input/исключений считается внутри на каждое событие).
@@ -60,6 +71,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ui.onToggleSounds = { [weak self] on in
             self?.sounds?.enabled = on
             self?.config.update { $0.sounds = on }
+        }
+        // Тумблер автозапуска: пробуем enable/disable, затем ВСЕГДА приводим
+        // config и галочку к фактическому статусу. Ошибку register/unregister не
+        // глотаем — логируем, config не меняем, галочка откатывается в факт
+        // (в прежнее положение), без ложного успеха.
+        ui.onToggleLaunchAtLogin = { [weak self] desired in
+            guard let self = self else { return }
+            do {
+                if desired { try self.loginItem.enable() } else { try self.loginItem.disable() }
+            } catch {
+                NSLog("MacLayoutSwitcher: смена автозапуска не удалась: \(error)")
+            }
+            // На современных macOS register() часто не бросает ошибку, а ставит
+            // статус .requiresApproval: объект входа создан, но ждёт подтверждения
+            // в Системных настройках. isEnabled тут false — без подсказки
+            // пользователь решит, что тумблер не сработал.
+            if desired && !self.loginItem.isEnabled && self.loginItem.requiresApproval {
+                self.presentLaunchApprovalNeeded()
+            }
+            let fact = self.loginItem.isEnabled
+            self.config.update { $0.launchAtLogin = fact }
+            self.ui?.setLaunchAtLoginState(fact)
         }
         ui.onOpenSnippets = { [weak self] in self?.openInEditor(self?.config.snippetsURL) }
         // config.json приватен внутри Config, но каталог публичен — собираем путь.
@@ -88,6 +121,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             hotkeyWindow = HotkeyRecorderWindow(config: config)
         }
         hotkeyWindow?.show()
+    }
+
+    /// Автозапуск зарегистрирован, но macOS ждёт подтверждения пользователем
+    /// (статус `.requiresApproval`). Объясняем это и открываем панель «Объекты
+    /// входа», чтобы включение не выглядело «ничего не произошло».
+    private func presentLaunchApprovalNeeded() {
+        let alert = NSAlert()
+        alert.messageText = "Разрешите автозапуск"
+        alert.informativeText = """
+        macOS просит подтвердить автозапуск вручную. Откройте «Системные \
+        настройки → Основные → Объекты входа» и включите «Mac Layout Switcher» \
+        в списке — после этого приложение будет стартовать при входе.
+        """
+        alert.addButton(withTitle: "Открыть «Объекты входа»")
+        alert.addButton(withTitle: "Позже")
+        let response = alert.runModal()
+        if response == .alertFirstButtonReturn {
+            loginItem.openLoginItemsSettings()
+        }
     }
 
     /// Открывает JSON-файл настроек во внешнем редакторе. Если файла ещё нет

@@ -53,6 +53,13 @@
 - `public func load(from url: URL)` / `public func save(to url: URL)` — исключения, JSON-массив строк; битый/отсутствующий файл → пустой набор
 - Биграммные таблицы — `DetectorBigrams.swift` (сгенерированы по Ципфу из top-300 частотных слов, источник в комментарии)
 
+### Из таска 09 — автозапуск при входе (весь под `#if os(macOS)`)
+
+- `@available(macOS 13.0, *) final class LoginItem { init(); var isEnabled: Bool; func enable() throws; func disable() throws }` — SMAppService.mainApp (status==.enabled → true)
+- `AppConfig.launchAtLogin: Bool` (дефолт false, decodeIfPresent — старый config.json грузится); Config хранит желаемое, факт = SMAppService.status
+- `StatusBarUI.State.init(..., launchAtLogin: Bool = false)`, `onToggleLaunchAtLogin: ((Bool) -> Void)?`, `setLaunchAtLoginState(_:)` — тумблер «Запускать при входе», галочка по факту; при старте факт побеждает config; ошибка register/unregister откатывает галочку
+- Собрано вслепую; e2e автозапуска — только на Mac из бандла
+
 ### Из таска 08 — настройка горячих клавиш
 
 - `struct Hotkey: Codable, Equatable, Sendable { var keyCode: UInt16?; var modifiers: Set<Modifier>; func matches(keyCode:modifiers:) -> Bool; var displayName: String; static let defaultConvert }` (SwitcherCore, тестируется на Linux)
