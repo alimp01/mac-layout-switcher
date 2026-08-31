@@ -1,7 +1,7 @@
 window.STATE =
 {
   "slug": "mac-layout-switcher",
-  "dir": "2026-08-29-mac-layout-switcher--wip",
+  "dir": "2026-08-29-mac-layout-switcher",
   "title": "Свой аналог Punto/Caramba Switcher для Mac",
   "mode": "semi",
   "depth": "normal",
@@ -11,8 +11,8 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-08-31T12:50:00+00:00",
-  "finishedAt": null,
+  "updatedAt": "2026-08-31T13:50:00+00:00",
+  "finishedAt": "2026-08-31T13:50:00+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -47,9 +47,10 @@ window.STATE =
     },
     {
       "id": "build",
-      "status": "active",
+      "status": "done",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "доработка G11 — тикет 13"
+      "note": "13 тасков готовы",
+      "finishedAt": "2026-08-31T13:50:00+00:00"
     },
     {
       "id": "review",
@@ -342,7 +343,7 @@ window.STATE =
       "startedAt": "2026-08-31T12:50:00+00:00",
       "finishedAt": "2026-08-31T13:40:00+00:00",
       "tests": { "passed": 49, "failed": 0 },
-      "commit": "PENDING",
+      "commit": "e73a751",
       "retries": 0,
       "repairs": 1,
       "repairFindings": ["rm -rf без гарда .app + предложение обновления вне бандла = снос произвольного каталога; interactive-офлайн молчит; замена не атомарна"],
