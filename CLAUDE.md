@@ -196,6 +196,21 @@ undo-counts.json).
 - Иконка приложения: `Resources/AppIcon.svg` (утка) → `python3 tools/make-icns.py` → `Resources/AppIcon.icns`; build.sh кладёт её в бандл (CFBundleIconFile=AppIcon).
 - Меню-бар показывает текущую раскладку текстом «RU»/«EN» (attributedTitle, в паузе серый + ⏸); обновление по DistributedNotificationCenter (TISNotifySelectedKeyboardInputSourceChanged) + колбэк Engine.onLayoutSwitched после select; поллинга нет.
 
+## Релиз новой версии (ОБЯЗАТЕЛЬНЫЙ ритуал)
+
+Приложения пользователей проверяют raw `VERSION` с main GitHub. Любое изменение,
+которое должно доехать до пользователей:
+1. Бампни `VERSION` (semver, одна строка).
+2. commit + `git push` (репо публичное: github.com/alimp01/mac-layout-switcher).
+3. Обнови архив: `git archive --format=tar.gz --prefix=mac-layout-switcher/ -o /var/www/cat.alimp.space/mac-layout-switcher.tar.gz HEAD`
+Не бампнул VERSION → приложения обновления НЕ увидят.
+
+- Автообновление: Updater (raw VERSION с GitHub, при старте + раз в 24 ч + пункт меню)
+  → алерт → tools/self-update.sh (скачивает main.tar.gz, собирает во временном,
+  атомарно заменяет .app, перезапускает; лог ~/Library/Logs/MacLayoutSwitcher-update.log).
+  После обновления TCC-разрешения выдаются заново (ad-hoc). Вне .app-бандла
+  Updater обновление не предлагает.
+
 ## Репозиторий
 
 GitHub: https://github.com/alimp01/mac-layout-switcher (приватный). Push по HTTPS,

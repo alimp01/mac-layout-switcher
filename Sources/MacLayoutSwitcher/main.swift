@@ -20,6 +20,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var hotkeyWindow: HotkeyRecorderWindow?
     // Автозапуск при входе (SMAppService). Источник истины — сам сервис, не config.
     private let loginItem = LoginItem()
+    // Проверка обновлений (raw VERSION с GitHub): отложенно при старте,
+    // раз в сутки и по пункту меню.
+    private let updater = Updater()
 
     // Отдельный статус-элемент онбординга (когда нет доверия и Engine не поднят).
     private var onboardingItem: NSStatusItem?
@@ -110,8 +113,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self?.openInEditor(self?.config.directory.appendingPathComponent("config.json"))
         }
         ui.onOpenHotkeys = { [weak self] in self?.showHotkeys() }
+        ui.onCheckUpdates = { [weak self] in self?.updater.check(interactive: true) }
         ui.onQuit = { NSApp.terminate(nil) }
         ui.install()
+
+        // Расписание проверок обновлений: первая — через ~1 мин (не мешаем
+        // старту), дальше раз в 24 ч. Фоновая проверка молчит, пока нет новой
+        // версии; ручная (пункт меню) отвечает и «версия актуальна».
+        updater.start()
 
         // Хоткей `.toggleAuto` меняет автопереключение мимо меню — синхронизируем
         // галочку.

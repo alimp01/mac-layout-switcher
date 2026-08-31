@@ -27,7 +27,14 @@ cd "$SCRIPT_DIR"
 # --- Параметры бандла ---------------------------------------------------------
 APP_NAME="MacLayoutSwitcher"                 # = имя executable-продукта SwiftPM
 BUNDLE_ID="space.alimp.maclayoutswitcher"
-VERSION="1.0"                                # CFBundleShortVersionString (для меню «О программе»)
+# CFBundleShortVersionString — из файла VERSION в корне репо (одна строка
+# semver). Это источник истины для автообновления: Updater сравнивает версию
+# бандла с raw VERSION из main на GitHub, поэтому зашивать её здесь нельзя.
+VERSION="$(tr -d '[:space:]' < "$SCRIPT_DIR/VERSION")"
+if [[ -z "$VERSION" ]]; then
+    echo "!! Файл VERSION пуст или не найден" >&2
+    exit 1
+fi
 BUILD="1"                                    # CFBundleVersion
 MIN_MACOS="13.0"
 
@@ -76,6 +83,13 @@ else
     echo "!! Resources/AppIcon.icns не найден — собираю без иконки." >&2
     echo "!! Сгенерировать: python3 tools/make-icns.py (нужен cairosvg)." >&2
 fi
+
+# Скрипт самообновления — в Resources бандла: приложение (Updater) копирует
+# его оттуда во временную папку и запускает detached, когда пользователь
+# соглашается обновиться (см. tools/self-update.sh).
+mkdir -p "$RESOURCES_DIR"
+cp "$SCRIPT_DIR/tools/self-update.sh" "$RESOURCES_DIR/self-update.sh"
+chmod +x "$RESOURCES_DIR/self-update.sh"
 
 # Info.plist. LSUIElement=true → приложение без иконки в Dock (только меню-бар),
 # как и просит .accessory-режим в main.swift. LSMinimumSystemVersion фиксирует

@@ -46,6 +46,8 @@ public final class StatusBarUI: NSObject {
     public var onOpenSnippets: (() -> Void)?
     public var onOpenConfig: (() -> Void)?
     public var onOpenHotkeys: (() -> Void)?
+    /// «Проверить обновления…» — ручная проверка (main дёргает Updater).
+    public var onCheckUpdates: (() -> Void)?
     public var onQuit: (() -> Void)?
 
     private var state: State
@@ -166,6 +168,11 @@ public final class StatusBarUI: NSObject {
 
         menu.addItem(.separator())
 
+        let updates = NSMenuItem(
+            title: "Проверить обновления…", action: #selector(checkUpdates), keyEquivalent: "")
+        updates.target = self
+        menu.addItem(updates)
+
         let about = NSMenuItem(
             title: "О программе", action: #selector(showAbout), keyEquivalent: "")
         about.target = self
@@ -234,6 +241,7 @@ public final class StatusBarUI: NSObject {
     @objc private func openSnippets() { onOpenSnippets?() }
     @objc private func openConfig() { onOpenConfig?() }
     @objc private func openHotkeys() { onOpenHotkeys?() }
+    @objc private func checkUpdates() { onCheckUpdates?() }
     @objc private func quit() { onQuit?() }
 
     @objc private func showAbout() {
