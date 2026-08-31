@@ -42,14 +42,14 @@ Sources/
   MacLayoutSwitcher/          macOS-слой, весь под #if os(macOS)
     main.swift Engine.swift Config.swift
     System/  EventTap Typist LayoutSwitcher SecureInput FrontApp
-             KeyStroke KeyTranslator Permissions
+             KeyStroke KeyTranslator Permissions LoginItem (автозапуск, SMAppService)
     UI/      StatusBarUI.swift Sounds.swift HotkeyRecorderWindow.swift
 Tests/SwitcherCoreTests/      XCTest, только через публичный шов SwitcherCore
 ```
 
 Настройки — `~/Library/Application Support/MacLayoutSwitcher/`: `config.json`
 (`AppConfig`: autoSwitch/sounds/excludedApps/undoThreshold/convertHotkey/
-toggleAutoHotkey), `snippets.json`, `exclusions.json`, `undo-counts.json`
+toggleAutoHotkey/launchAtLogin), `snippets.json`, `exclusions.json`, `undo-counts.json`
 (счётчики отмен per-word).
 
 ## Ключевые файлы
@@ -61,7 +61,8 @@ toggleAutoHotkey), `snippets.json`, `exclusions.json`, `undo-counts.json`
 - `Sources/MacLayoutSwitcher/UI/HotkeyRecorderWindow.swift` — окно «Горячие клавиши…»: две строки (конвертация/откат, вкл-выкл авто), «Записать» ловит следующее сочетание локальным NSEvent-монитором, «Сброс»; пишет в общий `Config`, работающий `Engine` читает живьём (перезапуск не нужен).
 - `Sources/MacLayoutSwitcher/System/EventTap.swift` — CGEventTap `.listenOnly`, фильтр своей синтетики по маркеру, re-enable после timeout.
 - `Sources/MacLayoutSwitcher/System/Typist.swift` — синтетический ввод: Backspace-серия + печать юникодом на своей очереди.
-- `Sources/MacLayoutSwitcher/Config.swift` — `AppConfig` (autoSwitch/sounds/excludedApps/undoThreshold/convertHotkey/toggleAutoHotkey, свой `init(from:)` — старый config.json без новых полей грузится) + пути к config/snippets/exclusions/undo-counts JSON и load/save undo-counts.
+- `Sources/MacLayoutSwitcher/Config.swift` — `AppConfig` (autoSwitch/sounds/excludedApps/undoThreshold/convertHotkey/toggleAutoHotkey/launchAtLogin, свой `init(from:)` — старый config.json без новых полей грузится) + пути к config/snippets/exclusions/undo-counts JSON и load/save undo-counts. `launchAtLogin: Bool` (дефолт false) — лишь ЖЕЛАЕМОЕ состояние автозапуска; факт спрашивается у системы (`LoginItem`).
+- `Sources/MacLayoutSwitcher/System/LoginItem.swift` — обёртка `SMAppService.mainApp` (`enable`/`disable`/`isEnabled`/`requiresApproval`/`openLoginItemsSettings`), `@available(macOS 13.0, *)`. Источник истины по автозапуску — `SMAppService.status`, а НЕ config: пользователь мог снять объект входа в Системных настройках. Ошибки `enable/disable` не глотаются — пробрасываются наверх.
 - `Sources/SwitcherCore/Detector.swift` (+ `DetectorBigrams.swift`) — вердикт RU/EN/unsure, исключения.
 
 ## Архитектура
@@ -116,7 +117,10 @@ isExcludedApp()` (bundle id из `FrontApp` против `config.excludedApps`).
 Меню-бар (`StatusBarUI`) даёт колбэки: пауза = `engine.stop()/start()` (ручной
 паузы внутри Engine нет), автопереключение = `setAutoSwitch` (пишет config;
 `setAutoSwitchState` синхронизирует галочку, когда авто переключил хоткей),
-звуки, «Горячие клавиши…» = `onOpenHotkeys` → `HotkeyRecorderWindow`, открыть
+звуки, тумблер «Запускать при входе» = `onToggleLaunchAtLogin` (шлёт ЖЕЛАЕМОЕ
+состояние; `LoginItem` пробует enable/disable, факт возвращается галочке через
+`setLaunchAtLoginState` — галочка по факту `LoginItem.isEnabled`, не по config),
+«Горячие клавиши…» = `onOpenHotkeys` → `HotkeyRecorderWindow`, открыть
 snippets.json/config.json. Настройки — `~/Library/Application Support/
 MacLayoutSwitcher/` (config.json + snippets.json + exclusions.json +
 undo-counts.json).
@@ -167,6 +171,15 @@ undo-counts.json).
   macOS-слоя на Linux нет). Вся проверяемая логика хоткеев вынесена в
   `SwitcherCore.Hotkey` и покрыта тестами; AppKit-обвязка — по документированным
   API, консервативно.
+- Автозапуск: на современных macOS `SMAppService.mainApp.register()` часто НЕ
+  бросает ошибку, а переводит статус в `.requiresApproval` (объект входа создан,
+  но выключен, пока пользователь не подтвердит его в «Системные настройки →
+  Основные → Объекты входа») — это НЕ ошибка. Приложение показывает подсказку и
+  открывает панель «Объекты входа» (`openLoginItemsSettings`). Факт из
+  `SMAppService.status` — источник истины, галочка меню ставится по факту
+  (`LoginItem.isEnabled`), а не по желаемому config-флагу; `requiresApproval` →
+  галочка НЕ загорается (не показываем ложный успех). `AppConfig.launchAtLogin`
+  синхронизируется с фактом при старте и после каждой попытки.
 - `Engine.reload()` НЕ переприменяет `undoThreshold` (в `EngineCore` он `let`) —
   правка порога в config.json подхватывается только перезапуском. Сами хоткеи,
   наоборот, читаются живьём из `Config` при каждом событии.

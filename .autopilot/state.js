@@ -11,8 +11,8 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-08-29T07:45:00+00:00",
-  "finishedAt": "2026-08-29T07:45:00+00:00",
+  "updatedAt": "2026-08-31T09:20:00+00:00",
+  "finishedAt": "2026-08-31T09:20:00+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -49,26 +49,26 @@ window.STATE =
       "id": "build",
       "status": "done",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "8 тасков готовы",
-      "finishedAt": "2026-08-29T07:45:00+00:00"
+      "note": "9 тасков готовы",
+      "finishedAt": "2026-08-31T09:20:00+00:00"
     },
     {
       "id": "review",
       "status": "done",
       "startedAt": "2026-08-29T04:05:30+00:00",
-      "note": "проверено 8 из 8",
-      "finishedAt": "2026-08-29T07:45:00+00:00"
+      "note": "проверено 9 из 9",
+      "finishedAt": "2026-08-31T09:20:00+00:00"
     },
     {
       "id": "final",
       "status": "done",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "finishedAt": "2026-08-29T07:45:00+00:00"
+      "finishedAt": "2026-08-31T09:20:00+00:00"
     }
   ],
   "requirements": {
-    "total": 12,
-    "done": 12,
+    "total": 13,
+    "done": 13,
     "inTicket": 0,
     "inSpec": 0,
     "placeholder": 0,
@@ -265,6 +265,23 @@ window.STATE =
       "retries": 0,
       "repairs": 0,
       "handoffs": 0
+    },
+    {
+      "id": "09",
+      "title": "Автозапуск при входе (launch at login)",
+      "requirements": ["G06"],
+      "blockedBy": ["05", "08"],
+      "wave": 7,
+      "zone": ["Sources/MacLayoutSwitcher/System/LoginItem", "Sources/MacLayoutSwitcher/Config", "Sources/MacLayoutSwitcher/UI/StatusBarUI", "Sources/MacLayoutSwitcher/main.swift"],
+      "status": "done",
+      "startedAt": "2026-08-31T09:00:00+00:00",
+      "finishedAt": "2026-08-31T09:20:00+00:00",
+      "tests": { "passed": 43, "failed": 0 },
+      "commit": "21f8a6b",
+      "retries": 0,
+      "repairs": 1,
+      "repairFindings": ["register→.requiresApproval снимал галочку без подсказки — пользователь видит «не работает»"],
+      "handoffs": 0
     }
   ],
   "singlePass": null,
@@ -295,6 +312,8 @@ window.STATE =
     "main.swift:83,162 — openInEditor и relaunch глотают отказ через try? молча; условие: отказ не должен выглядеть успехом",
     "T06 EngineCore/Engine — при пороге счётчик пишется key=0, а не удаляется; undo-counts.json монотонно пухнет мёртвыми записями; условие: удалять сброшенный ключ",
     "T06 EngineCore — дефолт undoThreshold=3 нигде не проверяется тестом без явной передачи порога; условие: тест на конструктор без порога",
+    "T09 StatusBarUI:23 — State.launchAtLogin имеет дефолт =false, прочие поля нет; условие: убрать дефолт или задать всем",
+    "T09: CLAUDE.md не упоминает launchAtLogin/LoginItem.swift; условие: дописать при финале памяти",
     "CLAUDE.md устарел: «28 тестов» (стало 43) + раздел Архитектура упоминает InputEvent.optionTap (переименован в .hotkey(.convert)); условие: обновить память при финале",
     "T08 Hotkey.swift — rightCommand/rightOption/... в модели, но не порождаются (Engine и рекордер схлопывают лево/право); speculative generality; условие: либо различать, либо убрать кейсы",
     "T08 HotkeyRecorderWindow — рекордер записывает голый печатный keyDown (напр. «K»), который под .listenOnly и сработает, и напечатается; условие: отклонять/предупреждать голый печатный keyCode",
@@ -305,9 +324,9 @@ window.STATE =
     "craft": "a22e174c56de678a4"
   },
   "blind": {
-    "run": "swift build → Build complete; swift test → 43 passed; bash -n build.sh/build-dmg.sh → OK",
-    "verdict": "после доработок: расхождений манифест↔факт нет; все 12 требований (вкл. G03 порог отмен, G04 .dmg, G05 хоткеи) на месте",
-    "note": "e2e переключателя, окна-рекордера и валидность .dmg — только на Mac; пользователь подтвердил на живом Mac: переключение раскладки работает",
+    "run": "swift build → Build complete; swift test → 43 passed",
+    "verdict": "все 13 требований done; G06 автозапуск добавлен под #if os(macOS), ядро и 43 теста не тронуты",
+    "note": "e2e автозапуска/переключателя/.dmg — только на Mac; пользователь ранее подтвердил работу переключателя",
     "drift": []
   }
 }
