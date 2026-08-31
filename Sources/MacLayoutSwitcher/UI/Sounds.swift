@@ -3,9 +3,9 @@
 #if os(macOS)
 import AppKit
 
-/// Озвучка ввода (история G02, «как в Punto»). Три события — три звука:
-/// тихий клик на каждое нажатие, отдельный сигнал на авто-исправление,
-/// третий — на откат. Свои ресурсы не тащим: берём системные звуки macOS
+/// Озвучка ввода (истории G02/G10). Два события — два звука: сигнал на
+/// авто-исправление/конвертацию и отдельный — на откат. Обычные нажатия
+/// клавиш не озвучиваются. Свои ресурсы не тащим: берём системные звуки macOS
 /// из `/System/Library/Sounds/*.aiff` через `NSSound(named:)`; имена — ниже
 /// константами, при желании пользователь меняет их правкой этого файла или,
 /// в следующем заходе, через config.
@@ -17,23 +17,17 @@ public final class Sounds {
     /// Глобальный выключатель звуков (пункт меню «Звуки»).
     public var enabled: Bool
 
-    // Имена системных звуков macOS. Клик — самый лёгкий («Tink»); исправление
-    // и откат — заметнее и различимы на слух.
-    /// Клик на нажатие клавиши.
-    public static let keySoundName = "Tink"
+    // Имена системных звуков macOS: исправление и откат различимы на слух.
     /// Сигнал успешного авто-исправления/конвертации.
     public static let correctionSoundName = "Pop"
     /// Сигнал отката авто-исправления (Option сразу после исправления).
     public static let undoSoundName = "Funk"
 
-    private let keySound: NSSound?
     private let correctionSound: NSSound?
     private let undoSound: NSSound?
 
     public init(enabled: Bool) {
         self.enabled = enabled
-        // Клик заметно тише прочих — иначе набор превращается в стрельбу.
-        keySound = Sounds.load(Sounds.keySoundName, volume: 0.25)
         correctionSound = Sounds.load(Sounds.correctionSoundName, volume: 0.6)
         undoSound = Sounds.load(Sounds.undoSoundName, volume: 0.6)
     }
@@ -44,8 +38,6 @@ public final class Sounds {
         return sound
     }
 
-    /// Клик на нажатие клавиши.
-    public func playKey() { play(keySound) }
     /// Сигнал авто-исправления/конвертации.
     public func playCorrection() { play(correctionSound) }
     /// Сигнал отката.
@@ -53,8 +45,8 @@ public final class Sounds {
 
     private func play(_ sound: NSSound?) {
         guard enabled, let sound = sound else { return }
-        // При быстром наборе предыдущий клик может ещё звучать: NSSound.play()
-        // на играющем экземпляре вернул бы false — перезапускаем с начала.
+        // Предыдущий сигнал может ещё звучать: NSSound.play() на играющем
+        // экземпляре вернул бы false — перезапускаем с начала.
         if sound.isPlaying { sound.stop() }
         sound.play()
     }

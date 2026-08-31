@@ -25,9 +25,9 @@ public final class Engine {
     private let config: Config
     private let tap = EventTap()
 
-    /// Озвучка ввода (история G02). Инжектится из `main` после создания Engine;
-    /// nil → работаем молча. Клик звучит на каждый keyDown, отдельные сигналы —
-    /// на исправление и откат (см. `playSound(for:)`).
+    /// Озвучка ввода (истории G02/G10). Инжектится из `main` после создания
+    /// Engine; nil → работаем молча. Звучат только исправление и откат
+    /// (см. `playSound(for:)`) — на обычные нажатия звука нет.
     public var sounds: Sounds?
 
     /// Вызывается, когда автопереключение поменялось хоткеем `.toggleAuto` —
@@ -125,9 +125,6 @@ public final class Engine {
                 dispatch(event)
             }
         case .keyDown:
-            // Клик — только когда ядро НЕ на паузе: в secure input (пароль) и
-            // в приложениях-исключениях озвучка молчит полностью (история 4/A01).
-            if !core.isPaused { sounds?.playKey() }
             // Любая печатная/командная клавиша рвёт «чистый» тап модификатора.
             modifierGestureDirty = true
             // Хоткей с обычной клавишей (например ⌘⇧K)? Тогда это хоткей, а не
@@ -157,8 +154,9 @@ public final class Engine {
 
     /// Звук по итогу события: откат авто-исправления (в исключения ушло слово) —
     /// сигнал отката; любая другая замена (авто-исправление, конвертация по
-    /// Option, разворот сниппета) — сигнал исправления. Клик на keyDown играет
-    /// отдельно в `handle`.
+    /// Option, разворот сниппета) — сигнал исправления. На обычные нажатия
+    /// звука нет (G10); пауза гейтится сама собой: на паузе ядро не выдаёт
+    /// `replaceLast`, значит и звучать нечему.
     private func playSound(for outcome: EngineOutcome) {
         guard case .replaceLast = outcome.command else { return }
         if outcome.excludedWordToPersist != nil {
