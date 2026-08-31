@@ -2,12 +2,18 @@
 // собирается в пустой executable, чтобы `swift build`/`swift test` были зелёными.
 #if os(macOS)
 import AppKit
+import SwitcherCore
 
 /// Иконка в меню-баре и её меню (история R06i). NSStatusItem + NSMenu, без
 /// SwiftUI-окон — минимальная поверхность. Владеет только отображением и
 /// состоянием тумблеров; что делать по переключению — решают колбэки, которые
 /// проставляет `main` (Engine / Config / Sounds). Persist настроек — за
 /// колбэками (они пишут `Config`), UI лишь хранит и рисует текущее состояние.
+///
+/// В самом меню-баре — не картинка, а ТЕКУЩАЯ РАСКЛАДКА текстом («RU»/«EN»,
+/// история G09): `setLayoutIndicator` дёргает `main` по системному уведомлению
+/// смены источника ввода и после каждого programmatic select. Утка — иконка
+/// приложения (AppIcon.icns), в трее её не рисуем.
 public final class StatusBarUI: NSObject {
 
     /// Отображаемое состояние тумблеров.
@@ -45,6 +51,12 @@ public final class StatusBarUI: NSObject {
     private var state: State
     private var statusItem: NSStatusItem?
 
+    // Индикатор раскладки: что показывать на кнопке статус-итема.
+    // nil → «--» (источник не опознан как RU/EN: IME, другой язык).
+    private var layoutLang: Lang?
+    // Приглушить индикатор (пауза перехвата): серый цвет + значок паузы.
+    private var layoutPaused = false
+
     private var pauseItem: NSMenuItem?
     private var autoItem: NSMenuItem?
     private var soundsItem: NSMenuItem?
@@ -64,12 +76,9 @@ public final class StatusBarUI: NSObject {
     /// после старта NSApplication.
     public func install() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        if let button = item.button {
-            button.image = NSImage(
-                systemSymbolName: "keyboard",
-                accessibilityDescription: "Mac Layout Switcher")
-            button.image?.isTemplate = true
-        }
+        // Вместо картинки на кнопке — текст текущей раскладки («RU»/«EN»);
+        // до первого setLayoutIndicator показываем «--».
+        item.button?.toolTip = "Mac Layout Switcher"
         item.menu = buildMenu()
         statusItem = item
         refresh()
@@ -94,6 +103,16 @@ public final class StatusBarUI: NSObject {
     /// register/unregister откатывает её в прежнее положение.
     public func setLaunchAtLoginState(_ on: Bool) {
         state.launchAtLogin = on
+        refresh()
+    }
+
+    /// Индикатор текущей раскладки на кнопке статус-итема: «RU»/«EN», nil →
+    /// «--». `paused` — приглушить (серый + «⏸»): перехват стоит на паузе.
+    /// Обновление приходит от `main` по событию (системное уведомление смены
+    /// источника ввода / после programmatic select) — поллинга нет.
+    public func setLayoutIndicator(_ lang: Lang?, paused: Bool) {
+        layoutLang = lang
+        layoutPaused = paused
         refresh()
     }
 
@@ -160,14 +179,28 @@ public final class StatusBarUI: NSObject {
         return menu
     }
 
-    /// Перерисовывает заголовки/галочки/иконку под текущее состояние.
+    /// Перерисовывает заголовки/галочки/индикатор под текущее состояние.
     private func refresh() {
         pauseItem?.title = state.paused ? "Работа (снять паузу)" : "Пауза"
         autoItem?.state = state.autoSwitch ? .on : .off
         soundsItem?.state = state.sounds ? .on : .off
         launchItem?.state = state.launchAtLogin ? .on : .off
-        // В паузе иконка приглушена — видно, что перехват выключен.
-        statusItem?.button?.alphaValue = state.paused ? 0.4 : 1.0
+        renderLayoutIndicator()
+    }
+
+    /// Рисует текст раскладки на кнопке статус-итема. Жирный моноширинный
+    /// мелкий шрифт — «RU»/«EN» не прыгает по ширине; в паузе — серый
+    /// (`secondaryLabelColor`, адаптируется к теме) с префиксом «⏸».
+    private func renderLayoutIndicator() {
+        guard let button = statusItem?.button else { return }
+        let paused = layoutPaused || state.paused
+        let lang = layoutLang.map { $0.rawValue.uppercased() } ?? "--"
+        let text = paused ? "⏸ " + lang : lang
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.monospacedSystemFont(ofSize: 12, weight: .bold),
+            .foregroundColor: paused ? NSColor.secondaryLabelColor : NSColor.labelColor,
+        ]
+        button.attributedTitle = NSAttributedString(string: text, attributes: attributes)
     }
 
     // MARK: - Действия

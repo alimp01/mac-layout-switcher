@@ -24,6 +24,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // Отдельный статус-элемент онбординга (когда нет доверия и Engine не поднят).
     private var onboardingItem: NSStatusItem?
 
+    // Индикатор раскладки в меню-баре (история G09): обновляется по событиям,
+    // без поллинга. Токен наблюдателя системного уведомления держим, чтобы
+    // подписка жила вместе с делегатом (живёт до выхода приложения);
+    // manualPaused — пауза из меню (у Engine ручной паузы нет, факт живёт здесь).
+    private var layoutObserver: NSObjectProtocol?
+    private var manualPaused = false
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         config.load()
         if Permissions.trusted {
@@ -62,8 +69,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Пауза = полностью снять/поднять перехват (у Engine нет ручной паузы;
         // автопауза secure-input/исключений считается внутри на каждое событие).
-        ui.onTogglePause = { [weak engine] paused in
+        // Индикатор раскладки при этом приглушается/оживает.
+        ui.onTogglePause = { [weak self, weak engine] paused in
             if paused { engine?.stop() } else { engine?.start() }
+            self?.manualPaused = paused
+            self?.updateLayoutIndicator()
         }
         ui.onToggleAutoSwitch = { [weak engine] on in
             engine?.setAutoSwitch(on)   // сам пишет config
@@ -112,6 +122,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.sounds = sounds
         self.engine = engine
         self.ui = ui
+
+        // Индикатор раскладки (история G09) — строго по событиям, без поллинга:
+        // 1) системное уведомление смены источника ввода (пользователь сменил
+        //    раскладку сам — ⌃Space, меню ввода, другое приложение);
+        // 2) колбэк Engine после programmatic select (авто-исправление, Option) —
+        //    не ждём системный бродкаст, обновляемся сразу;
+        // 3) начальная установка при старте.
+        // Имя уведомления — kTISNotifySelectedKeyboardInputSourceChanged
+        // (HIToolbox), приходит через DistributedNotificationCenter.
+        layoutObserver = DistributedNotificationCenter.default().addObserver(
+            forName: Notification.Name(
+                "com.apple.Carbon.TISNotifySelectedKeyboardInputSourceChanged"),
+            object: nil,
+            queue: .main) { [weak self] _ in
+            self?.updateLayoutIndicator()
+        }
+        engine.onLayoutSwitched = { [weak self] _ in
+            DispatchQueue.main.async { self?.updateLayoutIndicator() }
+        }
+        updateLayoutIndicator()
+    }
+
+    /// Перечитывает текущую раскладку и отдаёт её индикатору в меню-баре.
+    /// Всегда спрашиваем систему (`LayoutSwitcher.current()`), а не кэш —
+    /// уведомление лишь сигнал «что-то поменялось».
+    private func updateLayoutIndicator() {
+        ui?.setLayoutIndicator(LayoutSwitcher.current(), paused: manualPaused)
     }
 
     /// Открывает окно настройки горячих клавиш (создаётся лениво, переживает

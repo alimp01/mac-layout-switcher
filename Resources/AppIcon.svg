@@ -5,59 +5,57 @@
       <stop offset="1" stop-color="#3b2fd4"/>
     </linearGradient>
     <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#ffdf4d"/>
-      <stop offset="1" stop-color="#f7c718"/>
+      <stop offset="0" stop-color="#ffe45c"/>
+      <stop offset="0.65" stop-color="#ffcf24"/>
+      <stop offset="1" stop-color="#f2b90d"/>
     </linearGradient>
     <linearGradient id="beak" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#ff9d2e"/>
-      <stop offset="1" stop-color="#f07f12"/>
+      <stop offset="0" stop-color="#ffab3a"/>
+      <stop offset="1" stop-color="#ef7f10"/>
     </linearGradient>
   </defs>
 
-  <!-- фон: macOS squircle -->
   <rect x="100" y="100" width="824" height="824" rx="186" fill="url(#bg)"/>
+  <ellipse cx="512" cy="800" rx="268" ry="42" fill="#000" opacity="0.20"/>
 
-  <!-- мягкая тень -->
-  <ellipse cx="512" cy="812" rx="270" ry="44" fill="#000" opacity="0.22"/>
-
-  <!-- ===== утка в профиль (смотрит вправо) ===== -->
-  <g stroke="#141414" stroke-width="26" stroke-linejoin="round" stroke-linecap="round">
-    <!-- хвостик -->
-    <path d="M 330 600 Q 250 540 268 470 Q 320 512 366 520 Z" fill="url(#body)"/>
-    <!-- тело -->
-    <path d="M 300 640
-             Q 300 540 400 522
-             L 560 500
-             Q 700 490 716 600
-             Q 726 700 640 748
-             Q 560 790 452 782
-             Q 330 770 300 640 Z" fill="url(#body)"/>
-    <!-- крыло -->
-    <path d="M 420 600
-             Q 520 560 600 610
-             Q 560 690 470 692
-             Q 408 690 402 646
-             Q 400 618 420 600 Z" fill="#f0b90a"/>
-    <!-- шея+голова -->
-    <path d="M 520 560
-             Q 500 420 560 340
-             Q 600 286 664 292
-             Q 742 300 754 380
-             Q 762 448 706 480
-             Q 664 502 648 560 Z" fill="url(#body)"/>
-    <!-- клюв -->
-    <path d="M 742 356
-             Q 830 352 872 386
-             Q 890 402 866 416
-             Q 812 444 748 436 Z" fill="url(#beak)"/>
-    <!-- нижняя створка клюва -->
-    <path d="M 748 436 Q 800 452 838 438 Q 812 478 756 470 Z" fill="#e06d0a"/>
+  <!-- клюв ПОД силуэтом головы: торчит вправо, голова его перекрывает -->
+  <g stroke="#141414" stroke-width="22" stroke-linejoin="round">
+    <path d="M 700 370
+             C 780 340, 860 348, 896 384
+             C 912 400, 906 420, 882 430
+             C 828 452, 756 452, 706 432 Z" fill="url(#beak)"/>
+    <path d="M 716 428 C 776 448, 844 446, 890 424" fill="none" stroke="#141414" stroke-width="14" stroke-linecap="round"/>
   </g>
 
-  <!-- глаз -->
-  <circle cx="676" cy="376" r="34" fill="#141414"/>
-  <circle cx="688" cy="364" r="11" fill="#ffffff"/>
+  <!-- ===== цельный силуэт: голова + тело + хвостик ===== -->
+  <path d="M 560 238
+           C 652 230, 730 290, 742 376
+           C 748 424, 732 468, 700 498
+           C 742 532, 768 588, 768 646
+           C 768 738, 672 792, 545 792
+           C 432 792, 334 754, 307 674
+           C 297 644, 298 618, 307 594
+           C 270 576, 243 548, 230 508
+           C 262 514, 290 514, 313 506
+           C 296 484, 288 462, 288 440
+           C 322 462, 356 470, 385 464
+           C 398 452, 410 445, 422 440
+           C 430 355, 453 291, 508 256
+           C 524 246, 542 240, 560 238 Z"
+        fill="url(#body)" stroke="#141414" stroke-width="26" stroke-linejoin="round"/>
 
-  <!-- блик на голове -->
-  <path d="M 590 340 Q 620 306 660 306" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round" opacity="0.55"/>
+  <!-- крыло -->
+  <path d="M 430 588
+           C 502 550, 584 560, 626 612
+           C 600 670, 530 698, 466 682
+           C 418 670, 405 622, 430 588 Z"
+        fill="#f0b40a" stroke="#141414" stroke-width="22" stroke-linejoin="round"/>
+
+  <!-- глаз -->
+  <circle cx="640" cy="356" r="40" fill="#141414"/>
+  <circle cx="654" cy="342" r="13" fill="#ffffff"/>
+
+  <!-- блики -->
+  <path d="M 535 290 C 566 270, 606 264, 642 274" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round" opacity="0.6"/>
+  <path d="M 356 700 C 404 736, 472 752, 540 752" fill="none" stroke="#ffffff" stroke-width="16" stroke-linecap="round" opacity="0.35"/>
 </svg>

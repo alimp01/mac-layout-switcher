@@ -34,6 +34,12 @@ public final class Engine {
     /// `main` обновляет галочку в меню. Аргумент — новое состояние.
     public var onAutoSwitchChanged: ((Bool) -> Void)?
 
+    /// Вызывается после каждого programmatic `LayoutSwitcher.select` (авто-
+    /// исправление, Option-конвертация, откат) — `main` обновляет индикатор
+    /// раскладки в меню-баре, не дожидаясь системного уведомления. Может прийти
+    /// не с главного потока — получатель сам уходит на main.
+    public var onLayoutSwitched: ((Lang) -> Void)?
+
     /// Виртуальный код Backspace (kVK_Delete).
     private static let backspaceKeyCode: UInt16 = 51
 
@@ -254,6 +260,7 @@ public final class Engine {
         case .replaceLast(let len, let text, let switchTo):
             if let lang = switchTo {
                 LayoutSwitcher.select(lang)
+                onLayoutSwitched?(lang)
             }
             typist.replaceLastWord(len: len, with: text)
         }

@@ -193,6 +193,9 @@ undo-counts.json).
 `SnippetStoreTests` (4), `WordBufferTests` (3). macOS-слой тестами не покрыт
 (компиляции нет на Linux) — только ручной чек-лист в `README.md`.
 
+- Иконка приложения: `Resources/AppIcon.svg` (утка) → `python3 tools/make-icns.py` → `Resources/AppIcon.icns`; build.sh кладёт её в бандл (CFBundleIconFile=AppIcon).
+- Меню-бар показывает текущую раскладку текстом «RU»/«EN» (attributedTitle, в паузе серый + ⏸); обновление по DistributedNotificationCenter (TISNotifySelectedKeyboardInputSourceChanged) + колбэк Engine.onLayoutSwitched после select; поллинга нет.
+
 ## Репозиторий
 
 GitHub: https://github.com/alimp01/mac-layout-switcher (приватный). Push по HTTPS,

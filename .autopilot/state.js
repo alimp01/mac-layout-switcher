@@ -11,8 +11,8 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-08-31T10:10:00+00:00",
-  "finishedAt": null,
+  "updatedAt": "2026-08-31T11:30:00+00:00",
+  "finishedAt": "2026-08-31T11:30:00+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -47,9 +47,10 @@ window.STATE =
     },
     {
       "id": "build",
-      "status": "active",
+      "status": "done",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "доработка G07 — тикет 10"
+      "note": "11 тасков готовы",
+      "finishedAt": "2026-08-31T11:30:00+00:00"
     },
     {
       "id": "review",
@@ -67,12 +68,13 @@ window.STATE =
   ],
   "requirements": {
     "total": 16,
-    "done": 13,
-    "inTicket": 2,
+    "done": 15,
+    "inTicket": 0,
+    "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
     "deferred": 0,
-    "dropped": 0
+    "dropped": 1
   },
   "tickets": [
     {
@@ -293,7 +295,7 @@ window.STATE =
       "startedAt": "2026-08-31T10:10:00+00:00",
       "finishedAt": "2026-08-31T10:40:00+00:00",
       "tests": { "passed": 43, "failed": 0 },
-      "commit": "PENDING",
+      "commit": "f4a2248",
       "retries": 0,
       "repairs": 0,
       "handoffs": 0
@@ -305,8 +307,11 @@ window.STATE =
       "blockedBy": ["10"],
       "wave": 9,
       "zone": ["Resources/AppIcon.icns", "Sources/MacLayoutSwitcher/UI/", "Sources/MacLayoutSwitcher/main.swift"],
-      "status": "in-progress",
+      "status": "done",
       "startedAt": "2026-08-31T10:40:00+00:00",
+      "finishedAt": "2026-08-31T11:30:00+00:00",
+      "tests": { "passed": 43, "failed": 0 },
+      "commit": "PENDING",
       "retries": 0,
       "repairs": 0,
       "handoffs": 0
@@ -338,6 +343,9 @@ window.STATE =
     "EngineCore.swift:237 — cyrillicSet дублирует алфавит из Detector/KeyMap (3-е место); условие: единый источник, если появится публичный шов классификатора",
     "EngineCoreTests.swift:3 — @testable import избыточен (ассерты через публичный шов); условие: обычный import",
     "main.swift:83,162 — openInEditor и relaunch глотают отказ через try? молча; условие: отказ не должен выглядеть успехом",
+    "T10 make-icns.py:104 — self-check делит константу CHUNK_TYPES со сборщиком (самоподтверждение в миниатюре); условие: эталон типов отдельным литералом",
+    "T11 main.swift:134 — имя TIS-уведомления захардкожено строкой при доступной Carbon-константе; условие: kTISNotifySelectedKeyboardInputSourceChanged as String",
+    "T11 main.swift:29+StatusBarUI:56 — факт ручной паузы дублирован (manualPaused и state.paused, OR прячет рассинхрон); условие: единый источник",
     "T06 EngineCore/Engine — при пороге счётчик пишется key=0, а не удаляется; undo-counts.json монотонно пухнет мёртвыми записями; условие: удалять сброшенный ключ",
     "T06 EngineCore — дефолт undoThreshold=3 нигде не проверяется тестом без явной передачи порога; условие: тест на конструктор без порога",
     "T09 StatusBarUI:23 — State.launchAtLogin имеет дефолт =false, прочие поля нет; условие: убрать дефолт или задать всем",
