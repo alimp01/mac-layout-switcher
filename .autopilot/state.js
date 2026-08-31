@@ -1,7 +1,7 @@
 window.STATE =
 {
   "slug": "mac-layout-switcher",
-  "dir": "2026-08-29-mac-layout-switcher--wip",
+  "dir": "2026-08-29-mac-layout-switcher",
   "title": "Свой аналог Punto/Caramba Switcher для Mac",
   "mode": "semi",
   "depth": "normal",
@@ -311,7 +311,7 @@ window.STATE =
       "startedAt": "2026-08-31T10:40:00+00:00",
       "finishedAt": "2026-08-31T11:30:00+00:00",
       "tests": { "passed": 43, "failed": 0 },
-      "commit": "PENDING",
+      "commit": "6fdee31",
       "retries": 0,
       "repairs": 0,
       "handoffs": 0
