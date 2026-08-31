@@ -193,6 +193,12 @@ undo-counts.json).
 `SnippetStoreTests` (4), `WordBufferTests` (3). macOS-слой тестами не покрыт
 (компиляции нет на Linux) — только ручной чек-лист в `README.md`.
 
+## Репозиторий
+
+GitHub: https://github.com/alimp01/mac-layout-switcher (приватный). Push по HTTPS,
+креды в ~/.git-credentials (аккаунт alimp01). Публичный архив для скачивания на Mac:
+https://cat.alimp.space/mac-layout-switcher.tar.gz (обновлять `git archive` после изменений).
+
 ## Как здесь работает Autopilot
 
 Сборка ведётся навыком `/autopilot`. Требования, спецификация и таски — в `.autopilot/`.
