@@ -1,7 +1,7 @@
 window.STATE =
 {
   "slug": "mac-layout-switcher",
-  "dir": "2026-08-29-mac-layout-switcher--wip",
+  "dir": "2026-08-29-mac-layout-switcher",
   "title": "Свой аналог Punto/Caramba Switcher для Mac",
   "mode": "semi",
   "depth": "normal",
@@ -11,8 +11,8 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-09-15T12:20:00+00:00",
-  "finishedAt": null,
+  "updatedAt": "2026-09-15T15:10:00+00:00",
+  "finishedAt": "2026-09-15T15:10:00+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -47,9 +47,10 @@ window.STATE =
     },
     {
       "id": "build",
-      "status": "active",
+      "status": "done",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "доработка G12 — тикет 14"
+      "note": "15 тасков готовы",
+      "finishedAt": "2026-09-15T15:10:00+00:00"
     },
     {
       "id": "review",
@@ -67,8 +68,8 @@ window.STATE =
   ],
   "requirements": {
     "total": 20,
-    "done": 17,
-    "inTicket": 2,
+    "done": 19,
+    "inTicket": 0,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -355,8 +356,11 @@ window.STATE =
       "blockedBy": ["13"],
       "wave": 12,
       "zone": ["Sources/SwitcherCore/EngineCore", "Sources/MacLayoutSwitcher/System/EventTap", "Sources/MacLayoutSwitcher/System/Typist", "Sources/MacLayoutSwitcher/Engine"],
-      "status": "repair",
+      "status": "done",
       "startedAt": "2026-09-15T12:20:00+00:00",
+      "finishedAt": "2026-09-15T15:10:00+00:00",
+      "tests": { "passed": 58, "failed": 0 },
+      "commit": "3b51c43",
       "retries": 0,
       "repairs": 1,
       "repairFindings": ["typeKey молча терял подавленный Enter; гонка ввода во время перепечатки; файловый I/O в колбэке активного tap'а; мёртвый then:"],
@@ -369,8 +373,11 @@ window.STATE =
       "blockedBy": ["02"],
       "wave": 12,
       "zone": ["Sources/SwitcherCore/Detector", "Sources/SwitcherCore/ShortWords"],
-      "status": "in-progress",
+      "status": "done",
       "startedAt": "2026-09-15T13:10:00+00:00",
+      "finishedAt": "2026-09-15T15:10:00+00:00",
+      "tests": { "passed": 58, "failed": 0 },
+      "commit": "3b51c43",
       "retries": 0,
       "repairs": 0,
       "handoffs": 0
