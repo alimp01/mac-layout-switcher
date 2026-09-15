@@ -30,13 +30,16 @@ final class EngineCoreTests: XCTestCase {
 
     // MARK: - Автоисправление
 
-    func testWrongLayoutWordIsCorrectedAndLayoutSwitched() throws {
+    func testWrongLayoutWordIsCorrectedBeforeSeparatorIsDelivered() throws {
+        // Активный tap (G12): Enter перехвачен ДО доставки — стираем только
+        // слово (6 символов), печатаем «привет», раскладка в RU, а разделитель
+        // исполнитель дошлёт сам ПОСЛЕ перепечатки.
         let core = EngineCore(detector: Detector(), snippets: SnippetStore())
         type(core, "ghbdtn")
-        let out = core.handle(.boundary(" "))
-        // «ghbdtn» + пробел → «привет» + сохранённый пробел, раскладка в RU.
+        let out = core.handle(.boundary("\n"))
         XCTAssertEqual(out.command,
-            .replaceLast(len: 7, with: "привет ", switchTo: .ru))
+            .replaceLast(len: 6, with: "привет", switchTo: .ru))
+        XCTAssertEqual(out.reinjectSeparator, "\n")
     }
 
     func testValidWordIsLeftUntouched() throws {
@@ -44,6 +47,20 @@ final class EngineCoreTests: XCTestCase {
         type(core, "hello")
         let out = core.handle(.boundary(" "))
         XCTAssertEqual(out.command, .none)
+        // Исправлять нечего — разделитель должен пройти как есть, без досылки.
+        XCTAssertNil(out.reinjectSeparator)
+    }
+
+    func testLegacyModeKeepsAlreadyTypedSeparatorInReplacement() throws {
+        // ADR 0004 (listen-only tap): разделитель уже напечатан — стирается
+        // вместе со словом (7 символов) и перепечатывается; досылать нечего.
+        let core = EngineCore(detector: Detector(), snippets: SnippetStore(),
+                              separatorAlreadyTyped: true)
+        type(core, "ghbdtn")
+        let out = core.handle(.boundary(" "))
+        XCTAssertEqual(out.command,
+            .replaceLast(len: 7, with: "привет ", switchTo: .ru))
+        XCTAssertNil(out.reinjectSeparator)
     }
 
     func testCorrectionOnlyAtWordBoundaryNotMidWord() throws {
@@ -104,11 +121,14 @@ final class EngineCoreTests: XCTestCase {
         XCTAssertEqual(first.undoCountUpdate?.word, "ghbdtn")
         XCTAssertEqual(first.undoCountUpdate?.count, 1)
 
-        // Слово всё ещё исправляется автоматически (не исключено).
+        // Слово всё ещё исправляется автоматически (не исключено). Разделитель
+        // ещё не доставлен: стираем только слово, пробел дошлёт исполнитель.
         type(core, "ghbdtn")
         clock.t += 1
-        XCTAssertEqual(core.handle(.boundary(" ")).command,
-            .replaceLast(len: 7, with: "привет ", switchTo: .ru))
+        let again = core.handle(.boundary(" "))
+        XCTAssertEqual(again.command,
+            .replaceLast(len: 6, with: "привет", switchTo: .ru))
+        XCTAssertEqual(again.reinjectSeparator, " ")
 
         // Второй откат — по-прежнему не исключает.
         clock.t += 1
@@ -203,8 +223,11 @@ final class EngineCoreTests: XCTestCase {
         let core = EngineCore(detector: Detector(), snippets: store)
         type(core, "сдр")
         let out = core.handle(.boundary(" "))
+        // Та же схема, что у исправления: подавить разделитель, стереть только
+        // сокращение (3 символа), развернуть, дослать пробел после.
         XCTAssertEqual(out.command,
-            .replaceLast(len: 4, with: "С днём рождения! ", switchTo: nil))
+            .replaceLast(len: 3, with: "С днём рождения!", switchTo: nil))
+        XCTAssertEqual(out.reinjectSeparator, " ")
     }
 
     // MARK: - Автопауза / сброс / тумблер

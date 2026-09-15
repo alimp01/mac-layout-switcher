@@ -126,6 +126,108 @@ final class DetectorTests: XCTestCase {
             "точность на однозначных: \(hits)/\(total)")
     }
 
+    // MARK: - Короткие частотные слова (G13)
+
+    func testShortRussianWordsTypedInEnAreDetected() {
+        // «Rfr» = «Как», ns = ты, yt = не, jy = он. Каждое слово из 2+ букв —
+        // на свежем детекторе: без контекста, чисто по словарям.
+        for word in ["Rfr", "ns", "yt", "jy", "xnj", "'nj", "tckb"] {
+            XCTAssertEqual(Detector().verdict(for: word), .ru, "«\(word)» — русское в EN-наборе")
+        }
+    }
+
+    func testSingleLetterWordsNeedConfirmingContext() {
+        // Однобуквенные (b = и, d = в, z = я) без контекста — не трогать:
+        // «plan b» в английском тексте не должен стать «plan и».
+        for word in ["b", "d", "z", "c", "ы", "в"] {
+            XCTAssertEqual(Detector().verdict(for: word), .unsure, "«\(word)» без контекста")
+        }
+
+        let detector = Detector()
+        // После английского слова «b» остаётся английским.
+        XCTAssertEqual(detector.verdict(for: "plan"), .unsure)
+        XCTAssertEqual(detector.verdict(for: "b"), .unsure)
+
+        // После русского слова (исправленного или валидного) — по инерции.
+        XCTAssertEqual(detector.verdict(for: "ghbdtn"), .ru)
+        XCTAssertEqual(detector.verdict(for: "b"), .ru)
+        XCTAssertEqual(detector.verdict(for: "d"), .ru)
+        XCTAssertEqual(detector.verdict(for: "привет"), .unsure)
+        XCTAssertEqual(detector.verdict(for: "z"), .ru)
+
+        // Симметрично: кириллическая «ф» (= a) после английского → .en,
+        // после русского — остаётся.
+        XCTAssertEqual(detector.verdict(for: "руддщ"), .en)
+        XCTAssertEqual(detector.verdict(for: "ф"), .en)
+        XCTAssertEqual(detector.verdict(for: "привет"), .unsure)
+        XCTAssertEqual(detector.verdict(for: "ф"), .unsure)
+
+        detector.resetContext()
+        XCTAssertEqual(detector.verdict(for: "b"), .unsure)
+    }
+
+    func testValidShortWordsAreLeftAloneWithoutContext() {
+        for word in ["of", "to", "is", "it", "in", "on", "we", "a", "I", "the", "and", "ok", "tv"] {
+            XCTAssertEqual(Detector().verdict(for: word), .unsure, "валидное английское «\(word)»")
+        }
+        for word in ["и", "в", "на", "не", "я", "он", "Как", "ща"] {
+            XCTAssertEqual(Detector().verdict(for: word), .unsure, "валидное русское «\(word)»")
+        }
+        // Английское в RU-наборе — симметрично: «ерфе» = that.
+        XCTAssertEqual(Detector().verdict(for: "ерфе"), .en)
+    }
+
+    func testCollisionsAreResolvedByContextOfPreviousWord() {
+        let detector = Detector()
+
+        // «of» ↔ «ща»: обе стороны частотны. Без контекста — не трогать.
+        XCTAssertEqual(detector.verdict(for: "of"), .unsure)
+
+        // После русского слова (исправленного) — латинское «of» = «ща».
+        XCTAssertEqual(detector.verdict(for: "ghbdtn"), .ru)
+        XCTAssertEqual(detector.verdict(for: "of"), .ru)
+
+        // После валидного английского — «of» остаётся английским.
+        XCTAssertEqual(detector.verdict(for: "hello"), .unsure)
+        XCTAssertEqual(detector.verdict(for: "of"), .unsure)
+        XCTAssertEqual(detector.verdict(for: "vs"), .unsure)
+
+        // Симметрично: «ща» после английского в RU-наборе → «of»,
+        // после валидного русского — остаётся русским.
+        XCTAssertEqual(detector.verdict(for: "руддщ"), .en)
+        XCTAssertEqual(detector.verdict(for: "ща"), .en)
+        XCTAssertEqual(detector.verdict(for: "привет"), .unsure)
+        XCTAssertEqual(detector.verdict(for: "ща"), .unsure)
+        XCTAssertEqual(detector.verdict(for: "рук"), .unsure)
+
+        // Контекст даёт и слово, оставленное как есть: «Как» — валидное
+        // русское, после него «vs» = «мы».
+        XCTAssertEqual(detector.verdict(for: "Как"), .unsure)
+        XCTAssertEqual(detector.verdict(for: "vs"), .ru)
+
+        // resetContext() возвращает к «без контекста».
+        detector.resetContext()
+        XCTAssertEqual(detector.verdict(for: "vs"), .unsure)
+
+        // Смешанное слово контекст не трогает: после русского «ghb123» не
+        // мешает «of» решиться в RU.
+        XCTAssertEqual(detector.verdict(for: "ghbdtn"), .ru)
+        XCTAssertEqual(detector.verdict(for: "ghb123"), .unsure)
+        XCTAssertEqual(detector.verdict(for: "of"), .ru)
+    }
+
+    func testShortWordCaseSurvivesConversionEndToEnd() {
+        // «Rfr ns b z» → «Как ты и я»: вердикт по словарю, регистр — KeyMap.
+        let detector = Detector()
+        let typed = ["Rfr", "ns", "b", "z"]
+        var fixed: [String] = []
+        for word in typed {
+            XCTAssertEqual(detector.verdict(for: word), .ru)
+            fixed.append(KeyMap.convert(word, to: .ru))
+        }
+        XCTAssertEqual(fixed.joined(separator: " "), "Как ты и я")
+    }
+
     // MARK: - Исключения
 
     private func makeTempFile() -> URL {

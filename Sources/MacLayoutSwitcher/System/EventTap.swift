@@ -3,20 +3,37 @@
 import Foundation
 import CoreGraphics
 
+/// Решение активного tap'а по одному событию клавиатуры.
+public enum TapDecision {
+    /// Пропустить событие в приложение как есть.
+    case pass
+    /// Подавить: приложение события не увидит (колбэк вернёт `nil`).
+    case suppress
+}
+
 /// Перехват клавиатуры во всех приложениях через CGEventTap
-/// (`CGEvent.tapCreate`, `.cgSessionEventTap`, `.listenOnly` — мы наблюдаем,
-/// а не фильтруем; для работы нужны разрешения Accessibility + Input
-/// Monitoring, см. `Permissions`).
+/// (`CGEvent.tapCreate`, `.cgSessionEventTap`, `.defaultTap` — активный tap,
+/// умеющий подавлять события; для работы нужны разрешения Accessibility +
+/// Input Monitoring, см. `Permissions`).
 ///
 /// Обязанности:
-/// - слушать `keyDown` + `flagsChanged` и отдавать наверх готовые `KeyStroke`
-///   (символы уже расшифрованы `KeyTranslator`'ом по текущей раскладке);
-/// - игнорировать собственные синтетические события `Typist`'а — они помечены
-///   маркером `syntheticMarker` в `CGEventField.eventSourceUserData`, иначе
-///   перепечатка слова зациклила бы сама себя;
+/// - слушать `keyDown` + `flagsChanged`, отдавать наверх готовые `KeyStroke`
+///   (символы уже расшифрованы `KeyTranslator`'ом по текущей раскладке) и
+///   СИНХРОННО исполнять решение обработчика: `.pass` — событие уходит в
+///   приложение, `.suppress` — колбэк возвращает `nil`, событие исчезает.
+///   Так разделитель (Enter/пробел/Tab) перехватывается ДО доставки, и слово
+///   исправляется раньше, чем чат отправит сообщение (G12, ADR 0004
+///   пересмотрен);
+/// - пропускать собственные синтетические события `Typist`'а без обработки —
+///   они помечены маркером `syntheticMarker` в
+///   `CGEventField.eventSourceUserData`, иначе перепечатка зациклила бы себя;
 /// - переживать `tapDisabledByTimeout`/`tapDisabledByUserInput`: система
 ///   отключает tap, если колбэк медлит, — включаем обратно
 ///   (`CGEvent.tapEnable`).
+///
+/// Активный tap обязан отвечать быстро: решение обработчика — это детектор на
+/// одном слове (микросекунды); никакого I/O, sleep и синтетики в колбэке —
+/// перепечатка уходит на очередь `Typist`.
 ///
 /// Tap вешается на главный run loop (`CFRunLoopGetMain`), поэтому и колбэк
 /// `handler` приходит на главном потоке.
@@ -29,15 +46,16 @@ public final class EventTap {
 
     private var tap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
-    private var handler: ((KeyStroke) -> Void)?
+    private var handler: ((KeyStroke) -> TapDecision)?
 
     public init() {}
 
     /// Создаёт и включает tap. `false` — если система отказала (обычно нет
     /// разрешения Accessibility/Input Monitoring); повторный вызов при живом
-    /// tap'е — no-op, `true`.
+    /// tap'е — no-op, `true`. `handler` решает синхронно, пропустить или
+    /// подавить каждое пользовательское нажатие.
     @discardableResult
-    public func start(handler: @escaping (KeyStroke) -> Void) -> Bool {
+    public func start(handler: @escaping (KeyStroke) -> TapDecision) -> Bool {
         guard tap == nil else { return true }
         self.handler = handler
 
@@ -50,14 +68,20 @@ public final class EventTap {
         guard let newTap = CGEvent.tapCreate(
             tap: .cgSessionEventTap,
             place: .headInsertEventTap,
-            options: .listenOnly,
+            options: .defaultTap,
             eventsOfInterest: mask,
             callback: { _, type, event, userInfo in
-                if let userInfo = userInfo {
-                    let owner = Unmanaged<EventTap>.fromOpaque(userInfo).takeUnretainedValue()
-                    owner.process(type: type, event: event)
+                guard let userInfo = userInfo else {
+                    return Unmanaged.passUnretained(event)
                 }
-                return Unmanaged.passUnretained(event)
+                let owner = Unmanaged<EventTap>.fromOpaque(userInfo).takeUnretainedValue()
+                switch owner.process(type: type, event: event) {
+                case .pass:
+                    return Unmanaged.passUnretained(event)
+                case .suppress:
+                    // nil = событие подавлено, приложение его не увидит.
+                    return nil
+                }
             },
             userInfo: selfPtr
         ) else {
@@ -87,7 +111,9 @@ public final class EventTap {
         self.handler = nil
     }
 
-    private func process(type: CGEventType, event: CGEvent) {
+    /// Разбирает событие и возвращает решение. Всё, что не пользовательское
+    /// нажатие (служебные типы, своя синтетика), пропускается без обработки.
+    private func process(type: CGEventType, event: CGEvent) -> TapDecision {
         switch type {
         case .tapDisabledByTimeout, .tapDisabledByUserInput:
             // Система отключила tap (медленный колбэк или secure input) —
@@ -95,12 +121,14 @@ public final class EventTap {
             if let tap = tap {
                 CGEvent.tapEnable(tap: tap, enable: true)
             }
+            return .pass
 
         case .keyDown, .flagsChanged:
-            // Собственная синтетика возвращается в tap через .cghidEventTap —
-            // отсеиваем её до обработчика (защита от цикла перепечатки).
+            // Собственная синтетика (перепечатка и досланный разделитель)
+            // возвращается в tap через .cghidEventTap — пропускаем её без
+            // обработки: подавить или зациклить свои же события нельзя.
             guard event.getIntegerValueField(.eventSourceUserData) != Self.syntheticMarker else {
-                return
+                return .pass
             }
             let keyCode = UInt16(truncatingIfNeeded: event.getIntegerValueField(.keyboardEventKeycode))
             let stroke: KeyStroke
@@ -121,10 +149,10 @@ public final class EventTap {
                     isAutorepeat: false
                 )
             }
-            handler?(stroke)
+            return handler?(stroke) ?? .pass
 
         default:
-            break
+            return .pass
         }
     }
 }

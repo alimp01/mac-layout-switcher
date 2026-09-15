@@ -53,6 +53,20 @@
 - `public func load(from url: URL)` / `public func save(to url: URL)` — исключения, JSON-массив строк; битый/отсутствующий файл → пустой набор
 - Биграммные таблицы — `DetectorBigrams.swift` (сгенерированы по Ципфу из top-300 частотных слов, источник в комментарии)
 
+### Из таска 14 — активный EventTap, исправление ДО разделителя (v1.2.0)
+
+- `EngineCore.init(..., separatorAlreadyTyped: Bool = false, ...)`; `EngineOutcome.reinjectSeparator: Character?` — на boundary при исправлении/сниппете `.replaceLast(len: word.count, with:, switchTo:)` + разделитель для досылки; legacy-режим (`true`) = прежнее `word+sep`
+- macOS: `enum TapDecision { pass, suppress }`; `EventTap.start(handler: (KeyStroke) -> TapDecision)` — `.defaultTap`, nil из колбэка = подавлено; синтетика с маркером → pass без обработки
+- `Typist`: `struct KeyPress`, `makeKeyPress(keyCode:flags:)`, `makeUnicodePress(_:)`, `replaceLastWord(len:with:)`, `send(_:)`, `isBusy`; одна последовательная очередь: backspaces → символы → разделитель
+- `Engine.handle(keyEvent:) -> TapDecision`: `.suppress` только после успешного синхронного makeKeyPress (иначе pass + legacy-перепечатка); при `typist.isBusy` пользовательские keyDown прогоняются через ядро и переигрываются той же очередью; персист (exclusions/undo-counts/config) — на фоновой `persistQueue`, колбэк только решает
+- `Detector.exclusionList: [String]`; `Config.saveExclusions(_:)`, `flushPersist`
+
+### Из таска 15 — короткие частотные слова
+
+- `public enum ShortWords { static let ru: Set<String>; static let en: Set<String>; static func contains(_:lang:) -> Bool }` (RU 232 / EN ~270, 1–4 буквы, регистронезависимо)
+- `Detector.verdict` порядок: исключения → алфавит → словари коротких слов → порог <3 → правила+биграммы; `Detector.resetContext()`
+- Контекст = целевой язык последнего исправления либо алфавит последнего нетронутого слова; 2+ букв — по словарю без контекста; однобуквенные — только при подтверждающем контексте; коллизии (of↔ща, vs↔мы, her↔рук, here↔руку) — по контексту, без него .unsure
+
 ### Из таска 09 — автозапуск при входе (весь под `#if os(macOS)`)
 
 - `@available(macOS 13.0, *) final class LoginItem { init(); var isEnabled: Bool; func enable() throws; func disable() throws }` — SMAppService.mainApp (status==.enabled → true)

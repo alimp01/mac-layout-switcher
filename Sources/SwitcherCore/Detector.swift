@@ -164,18 +164,91 @@ public final class Detector {
     /// Сохраняет исключения в файл (JSON-массив строк, отсортирован
     /// для стабильности диффов).
     public func save(to url: URL) {
-        guard let data = try? JSONEncoder().encode(exclusions.sorted()) else { return }
+        guard let data = try? JSONEncoder().encode(exclusionList) else { return }
         try? data.write(to: url, options: .atomic)
     }
 
+    /// Снимок исключений (нижний регистр, отсортирован — тот же формат, что
+    /// пишет `save(to:)`). Для записи с фоновой очереди: снимок берётся
+    /// синхронно, файл пишется без обращения к живому состоянию детектора.
+    public var exclusionList: [String] { exclusions.sorted() }
+
+    // MARK: - Языковая инерция (контекст)
+
+    /// Язык последнего слова, прошедшего через `verdict`: целевой язык
+    /// исправления либо алфавит слова, которое оставили как есть. Решает
+    /// коллизии словарей коротких слов (of↔ща, vs↔мы, …). Смешанные слова
+    /// (цифры, символы вне карты) контекст не меняют. Намеренно: слово из
+    /// исключений (пользователь подтвердил, что оно валидно в своём алфавите)
+    /// и неизвестное слово, которое детектор не решился тронуть, тоже дают
+    /// инерцию по алфавиту — алфавит набора остаётся лучшим приором.
+    private var lastContextLang: Lang?
+
+    /// Забыть контекст последнего слова (новое поле ввода, тесты).
+    public func resetContext() {
+        lastContextLang = nil
+    }
+
     /// Отвечает на вопрос «это слово набрано не в той раскладке?».
+    /// Порядок: исключения → алфавит → словари коротких слов (G13) →
+    /// порог длины → невозможные сочетания + биграммы.
     public func verdict(for word: String) -> Verdict {
-        guard word.count >= Self.minWordLength else { return .unsure }
-        guard !isExcluded(word) else { return .unsure }
+        let alphabet = Self.alphabet(of: word)
+        let result = decide(word: word, alphabet: alphabet)
+        switch (result, alphabet) {
+        case (.ru, _): lastContextLang = .ru
+        case (.en, _): lastContextLang = .en
+        case (.unsure, .latin): lastContextLang = .en
+        case (.unsure, .cyrillic): lastContextLang = .ru
+        case (.unsure, .mixed): break
+        }
+        return result
+    }
 
+    private func decide(word: String, alphabet: Alphabet) -> Verdict {
+        guard alphabet != .mixed, !isExcluded(word) else { return .unsure }
         let lowered = word.lowercased()
+        if let short = shortWordVerdict(lowered: lowered, alphabet: alphabet) {
+            return short
+        }
+        guard lowered.count >= Self.minWordLength else { return .unsure }
+        return bigramVerdict(lowered: lowered, alphabet: alphabet)
+    }
 
-        switch Self.alphabet(of: word) {
+    /// Правило коротких частотных слов. `nil` — словари не решают, дальше
+    /// прежний путь. Слово длиной ≤4, чья конверсия — частотное слово другого
+    /// языка, а само оно — не частотное слово своего, исправляется; если
+    /// частотны обе стороны (коллизия), решает контекст, без контекста —
+    /// `.unsure`. Слово из своего словаря — валидное, не трогаем.
+    /// Однобуквенные слова (b/d/z → и/в/я, ф → a) исправляются ТОЛЬКО при
+    /// подтверждающем контексте: «plan b» в английском тексте не должен стать
+    /// «plan и», а в «Rfr ns b z» контекст после «Rfr»→«Как» уже RU.
+    private func shortWordVerdict(lowered: String, alphabet: Alphabet) -> Verdict? {
+        let ownLang: Lang = (alphabet == .latin) ? .en : .ru
+        let otherLang: Lang = (alphabet == .latin) ? .ru : .en
+        let converted = KeyMap.convert(lowered, to: otherLang).lowercased()
+        let inOwn = ShortWords.contains(lowered, lang: ownLang)
+        let inOther = ShortWords.contains(converted, lang: otherLang)
+        let fix: Verdict = (otherLang == .ru) ? .ru : .en
+
+        switch (inOwn, inOther) {
+        case (false, true):
+            guard lowered.count > 1 else {
+                return lastContextLang == otherLang ? fix : .unsure
+            }
+            return fix
+        case (true, true):
+            guard let context = lastContextLang else { return .unsure }
+            return context == otherLang ? fix : .unsure
+        case (true, false):
+            return .unsure
+        case (false, false):
+            return nil
+        }
+    }
+
+    private func bigramVerdict(lowered: String, alphabet: Alphabet) -> Verdict {
+        switch alphabet {
         case .mixed:
             return .unsure
 

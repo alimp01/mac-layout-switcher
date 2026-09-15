@@ -1,7 +1,7 @@
 window.STATE =
 {
   "slug": "mac-layout-switcher",
-  "dir": "2026-08-29-mac-layout-switcher",
+  "dir": "2026-08-29-mac-layout-switcher--wip",
   "title": "Свой аналог Punto/Caramba Switcher для Mac",
   "mode": "semi",
   "depth": "normal",
@@ -11,8 +11,8 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-08-31T13:50:00+00:00",
-  "finishedAt": "2026-08-31T13:50:00+00:00",
+  "updatedAt": "2026-09-15T12:20:00+00:00",
+  "finishedAt": null,
   "stages": [
     {
       "id": "preflight",
@@ -47,10 +47,9 @@ window.STATE =
     },
     {
       "id": "build",
-      "status": "done",
+      "status": "active",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "13 тасков готовы",
-      "finishedAt": "2026-08-31T13:50:00+00:00"
+      "note": "доработка G12 — тикет 14"
     },
     {
       "id": "review",
@@ -67,9 +66,9 @@ window.STATE =
     }
   ],
   "requirements": {
-    "total": 18,
+    "total": 20,
     "done": 17,
-    "inTicket": 0,
+    "inTicket": 2,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -348,6 +347,33 @@ window.STATE =
       "repairs": 1,
       "repairFindings": ["rm -rf без гарда .app + предложение обновления вне бандла = снос произвольного каталога; interactive-офлайн молчит; замена не атомарна"],
       "handoffs": 0
+    },
+    {
+      "id": "14",
+      "title": "Исправление ДО доставки разделителя (активный EventTap)",
+      "requirements": ["G12"],
+      "blockedBy": ["13"],
+      "wave": 12,
+      "zone": ["Sources/SwitcherCore/EngineCore", "Sources/MacLayoutSwitcher/System/EventTap", "Sources/MacLayoutSwitcher/System/Typist", "Sources/MacLayoutSwitcher/Engine"],
+      "status": "repair",
+      "startedAt": "2026-09-15T12:20:00+00:00",
+      "retries": 0,
+      "repairs": 1,
+      "repairFindings": ["typeKey молча терял подавленный Enter; гонка ввода во время перепечатки; файловый I/O в колбэке активного tap'а; мёртвый then:"],
+      "handoffs": 0
+    },
+    {
+      "id": "15",
+      "title": "Короткие частотные слова: «Как», «ты», «и»",
+      "requirements": ["G13"],
+      "blockedBy": ["02"],
+      "wave": 12,
+      "zone": ["Sources/SwitcherCore/Detector", "Sources/SwitcherCore/ShortWords"],
+      "status": "in-progress",
+      "startedAt": "2026-09-15T13:10:00+00:00",
+      "retries": 0,
+      "repairs": 0,
+      "handoffs": 0
     }
   ],
   "singlePass": null,
@@ -381,6 +407,11 @@ window.STATE =
     "T11 main.swift:29+StatusBarUI:56 — факт ручной паузы дублирован (manualPaused и state.paused, OR прячет рассинхрон); условие: единый источник",
     "T06 EngineCore/Engine — при пороге счётчик пишется key=0, а не удаляется; undo-counts.json монотонно пухнет мёртвыми записями; условие: удалять сброшенный ключ",
     "T06 EngineCore — дефолт undoThreshold=3 нигде не проверяется тестом без явной передачи порога; условие: тест на конструктор без порога",
+    "T14 Engine.swift:383 / Typist.keyCode(forSeparator:) — запасной путь по символу недостижим (stroke==nil только у хоткеев); условие: убрать или сделать stroke обязательным для boundary",
+    "T14 Detector.save(to:) — приложением больше не используется (персист через Config.saveExclusions), жив только в тестах; условие: одна точка записи exclusions.json",
+    "T14 Engine.swift:172 — isBusy = «очередь пуста», а не «события доставлены»: микроокно после последней синтетики; условие: зафиксировать как известную плату",
+    "T14 EventTap mask — реальный keyUp разделителя не подавляется (mask keyDown+flagsChanged): приложение видит одиночный keyUp после синтетической пары; для текстовых полей безвредно; условие: зафиксировать как известную плату / подавлять парный keyUp",
+    "T14 Typist.replaceLastWord(then:) добавлен, Engine не использует (порядок через typeKey в той же очереди); условие: убрать неиспользуемый параметр",
     "T09 StatusBarUI:23 — State.launchAtLogin имеет дефолт =false, прочие поля нет; условие: убрать дефолт или задать всем",
     "T09: CLAUDE.md не упоминает launchAtLogin/LoginItem.swift; условие: дописать при финале памяти",
     "CLAUDE.md устарел: «28 тестов» (стало 43) + раздел Архитектура упоминает InputEvent.optionTap (переименован в .hotkey(.convert)); условие: обновить память при финале",
@@ -390,7 +421,7 @@ window.STATE =
   ],
   "reviewers": {
     "manifestSpec": "a3373fd28e916b546",
-    "craft": "a22e174c56de678a4"
+    "craft": "a9af146a77a904cc1"
   },
   "blind": {
     "run": "swift build → Build complete; swift test → 43 passed",

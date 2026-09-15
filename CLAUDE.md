@@ -21,7 +21,7 @@ export PATH=/home/claudebot/swift-toolchain/swift-6.0.3-RELEASE-ubuntu24.04/usr/
 
 | Команда | Что делает |
 |---------|------------|
-| `swift test` | 43 теста ядра `SwitcherCore` (зелёные на Linux); один класс — `swift test --filter EngineCoreTests` |
+| `swift test` | 58 тестов ядра `SwitcherCore` (зелёные на Linux); один класс — `swift test --filter EngineCoreTests` |
 | `swift build` | Сборка обоих target'ов (на Linux macOS-слой — пустой executable) |
 | `bash -n build.sh` / `bash -n build-dmg.sh` | Шеллчек сборочных скриптов — единственная их проверка на Linux |
 | `./build.sh` | ТОЛЬКО macOS 13+ с Xcode CLT (`xcode-select --install`): релиз + `dist/MacLayoutSwitcher.app` (ad-hoc подпись) |
@@ -59,8 +59,8 @@ toggleAutoHotkey/launchAtLogin), `snippets.json`, `exclusions.json`, `undo-count
 - `Sources/SwitcherCore/Hotkey.swift` — модель настраиваемой клавиши: `keyCode: UInt16?` (nil = только модификатор) + `Set<Modifier>`; `matches(keyCode:modifiers:)` (точное сравнение) и `displayName` для меню/окна. Платформонезависима, покрыта тестами.
 - `Sources/MacLayoutSwitcher/Engine.swift` — macOS-обвязка: `EventTap`→`KeyStroke`→события `EngineCore`→исполнение через `Typist`/`LayoutSwitcher`; детекция тапа модификаторов, сопоставление с хоткеями через `Hotkey.matches`, автопауза, персист undo-counts.json.
 - `Sources/MacLayoutSwitcher/UI/HotkeyRecorderWindow.swift` — окно «Горячие клавиши…»: две строки (конвертация/откат, вкл-выкл авто), «Записать» ловит следующее сочетание локальным NSEvent-монитором, «Сброс»; пишет в общий `Config`, работающий `Engine` читает живьём (перезапуск не нужен).
-- `Sources/MacLayoutSwitcher/System/EventTap.swift` — CGEventTap `.listenOnly`, фильтр своей синтетики по маркеру, re-enable после timeout.
-- `Sources/MacLayoutSwitcher/System/Typist.swift` — синтетический ввод: Backspace-серия + печать юникодом на своей очереди.
+- `Sources/MacLayoutSwitcher/System/EventTap.swift` — CGEventTap АКТИВНЫЙ (`.defaultTap`): handler возвращает `TapDecision` (`.pass`/`.suppress`), свою синтетику пропускает по маркеру без обработки, re-enable после timeout.
+- `Sources/MacLayoutSwitcher/System/Typist.swift` — синтетический ввод на своей последовательной очереди: `replaceLastWord(len:with:)` (Backspace-серия + юникод) и `send(KeyPress)` — отправка ЗАРАНЕЕ созданного нажатия (`makeKeyPress(keyCode:flags:)` / `makeUnicodePress(_:)`, синхронно, `nil` = система отказала) строго после всего поставленного раньше; `isBusy` — очередь ещё не опустела.
 - `Sources/MacLayoutSwitcher/Config.swift` — `AppConfig` (autoSwitch/sounds/excludedApps/undoThreshold/convertHotkey/toggleAutoHotkey/launchAtLogin, свой `init(from:)` — старый config.json без новых полей грузится) + пути к config/snippets/exclusions/undo-counts JSON и load/save undo-counts. `launchAtLogin: Bool` (дефолт false) — лишь ЖЕЛАЕМОЕ состояние автозапуска; факт спрашивается у системы (`LoginItem`).
 - `Sources/MacLayoutSwitcher/System/LoginItem.swift` — обёртка `SMAppService.mainApp` (`enable`/`disable`/`isEnabled`/`requiresApproval`/`openLoginItemsSettings`), `@available(macOS 13.0, *)`. Источник истины по автозапуску — `SMAppService.status`, а НЕ config: пользователь мог снять объект входа в Системных настройках. Ошибки `enable/disable` не глотаются — пробрасываются наверх.
 - `Sources/SwitcherCore/Detector.swift` (+ `DetectorBigrams.swift`) — вердикт RU/EN/unsure, исключения.
@@ -71,8 +71,13 @@ toggleAutoHotkey/launchAtLogin), `snippets.json`, `exclusions.json`, `undo-count
 `KeyStroke` в `InputEvent` (`char/backspace/boundary/hotkey(HotkeyAction)/reset`)
 → `EngineCore.handle(_:)` копит слово в `WordBuffer` и возвращает `EngineOutcome`
 (`command: .none | .replaceLast(len,with,switchTo)` + `excludedWordToPersist` +
-`undoCountUpdate`) → `Engine.execute` вызывает `LayoutSwitcher.select` затем
-`Typist.replaceLastWord`.
+`undoCountUpdate` + `reinjectSeparator`) → `Engine.execute` вызывает
+`LayoutSwitcher.select`, затем (если `reinjectSeparator` непуст) СНАЧАЛА
+синхронно создаёт событие досылки (`Typist.makeKeyPress` по keyCode/флагам
+исходного нажатия) и только при успехе ставит `replaceLastWord` + `send(press)`
+и возвращает tap'у `.suppress`; не создалось — `.pass` + NSLog, исправление в
+legacy-варианте (слово вместе с доставленным разделителем). Разделитель не
+теряется никогда.
 
 Шов — публичный API `SwitcherCore` (`EngineCore`/`Hotkey`/…): платформонезависимо
 и детерминированно, поэтому тестируется на Linux; macOS-`Engine` только переводит
@@ -93,8 +98,12 @@ CGEvent-мир в события ядра и обратно. `EngineCore.init` �
 На границе слова (`boundary`) `EngineCore` в порядке приоритета: (1) сниппет
 `SnippetStore.expansion` — если есть, детектор к слову не применяется;
 (2) при `autoSwitch` — `Detector.verdict` → авто-исправление; (3) иначе слово
-остаётся кандидатом на ручной Option. Разделитель уже напечатан пользователем,
-поэтому `replaceLast` стирает слово вместе с ним и перепечатывает оба.
+остаётся кандидатом на ручной Option. Разделитель на `boundary` ещё НЕ
+доставлен (активный tap перехватил его): `replaceLast(len: word.count)` стирает
+только слово, а `EngineOutcome.reinjectSeparator` велит исполнителю дослать
+разделитель ПОСЛЕ перепечатки. Legacy-режим `EngineCore(separatorAlreadyTyped:
+true)` (ADR 0004: разделитель уже напечатан, стирается и перепечатывается
+вместе со словом) сохранён для совместимости и покрыт тестом.
 
 Конвертация/откат (`.hotkey(.convert)`, дефолтом — одиночный Option). В окне
 `undoWindow` (5 с) после авто-исправления → откат всегда возвращает как было; в
@@ -142,9 +151,21 @@ undo-counts.json).
 
 ## Подводные камни
 
-- Tap создан `.listenOnly` — событий не подавляет. Поэтому Enter-как-разделитель
-  входит в перепечатку и в chat-полях (Slack/Telegram) может улететь как
-  отправка; это осознанная плата, задокументирована в `Engine.swift`.
+- Tap АКТИВНЫЙ (`.defaultTap`, с v1.2.0 — G12, ADR 0004 пересмотрен ADR 0011):
+  разделитель на границе слова подавляется ТОЛЬКО когда ядро исправляет слово,
+  и досылается `Typist.send` после перепечатки (тем же keyCode и флагами —
+  Shift+Enter остаётся переносом строки). Хоткеи/flagsChanged — `.pass`. Колбэк
+  обязан оставаться быстрым: решение = детектор на одном слове, без I/O —
+  весь персист (`Config.save/saveUndoCounts/saveExclusions`) кодирует снимок
+  на месте и пишет файл на фоновой `persistQueue`; `load*` ждут её (`sync {}`)
+  — не звать `load` из колбэка tap'а.
+- Гонка ввода во время перепечатки (~150–200 мс): пока `typist.isBusy`,
+  пользовательские keyDown (буквы/Backspace/разделители/команды) подавляются
+  и ПЕРЕИГРЫВАЮТСЯ той же очередью следом — в исходном порядке, с маркером
+  синтетики (tap повторно не обработает), а ядро получает их сразу, в колбэке.
+  Буква переигрывается юникодом (`makeUnicodePress` — то, что ядро уже
+  получило), остальное — keyCode+флаги. Не удалось создать событие → обычный
+  путь (`.pass`, ляжет посреди синтетики — лучше, чем потерять).
 - Граница слова = ТОЛЬКО пробелы (` \t\n\r`). Пунктуация НЕ граница: клавиши
   `;,.[]` в EN дают буквы ЙЦУКЕН внутри слова (`cgfcb,j` = «спасибо»), детектор
   ждёт их частью слова. Не добавлять пунктуацию в `boundaryChars`.
@@ -159,10 +180,11 @@ undo-counts.json).
   выдачи — перезапуск (пункт меню «Я выдал разрешения»), TCC-доверие надёжнее
   подхватывается новым процессом.
 - `dist/` пересобирается `build.sh` с нуля (`rm -rf` бандла) каждый раз.
-- Хоткей с обычной клавишей (например ⌘⇧K) физически напечатается: tap
-  `.listenOnly` не подавляет событий. Для конвертации это не мешает (мы стираем
-  и перепечатываем), но назначать «печатающий» keyCode-хоткей стоит осознанно —
-  дефолт `[.option]` ничего не печатает.
+- Хоткей с обычной клавишей (например ⌘⇧K) по-прежнему физически напечатается:
+  Engine возвращает `.pass` для хоткеев (подавление в этом таске не вводилось,
+  хотя активный tap теперь это позволяет). Для конвертации это не мешает (мы
+  стираем и перепечатываем), но назначать «печатающий» keyCode-хоткей стоит
+  осознанно — дефолт `[.option]` ничего не печатает.
 - Левый и правый вариант модификатора НЕ различаются: рекордер и `Engine`
   сводят обе Option к `.option`. Правые `Modifier`-кейсы в модели есть, но
   назначить «только правый Option» нынешний слой не даст — так дефолт срабатывает
@@ -186,8 +208,9 @@ undo-counts.json).
 
 ## Тесты
 
-`swift test` — 43 теста в `Tests/SwitcherCoreTests/`: `EngineCoreTests` (14,
-поток решений + окно отката через инъекцию `now:` + порог отмен), `HotkeyTests`
+`swift test` — 50 тестов в `Tests/SwitcherCoreTests/`: `EngineCoreTests` (15,
+поток решений + окно отката через инъекцию `now:` + порог отмен + режим
+разделителя), `HotkeyTests`
 (7, `matches`/`displayName`/Codable), `HotkeyEngineTests` (5, `.hotkey`-события в
 ядре: convert/toggleAuto, приоритеты), `KeyMapTests` (5), `DetectorTests` (5),
 `SnippetStoreTests` (4), `WordBufferTests` (3). macOS-слой тестами не покрыт
@@ -195,6 +218,8 @@ undo-counts.json).
 
 - Иконка приложения: `Resources/AppIcon.svg` (утка) → `python3 tools/make-icns.py` → `Resources/AppIcon.icns`; build.sh кладёт её в бандл (CFBundleIconFile=AppIcon).
 - Меню-бар показывает текущую раскладку текстом «RU»/«EN» (attributedTitle, в паузе серый + ⏸); обновление по DistributedNotificationCenter (TISNotifySelectedKeyboardInputSourceChanged) + колбэк Engine.onLayoutSwitched после select; поллинга нет.
+
+- Короткие слова: `ShortWords.swift` — словари частотных RU/EN слов 1–4 букв; Detector проверяет их ДО порога длины и биграмм. Контекст (язык предыдущего слова) решает коллизии (of↔ща и т.п.) и обязателен для однобуквенных («plan b» не трогается, «Rfr ns b z» → «Как ты и я» по инерции).
 
 ## Релиз новой версии (ОБЯЗАТЕЛЬНЫЙ ритуал)
 

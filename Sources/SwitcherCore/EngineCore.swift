@@ -8,8 +8,12 @@ public enum InputEvent: Equatable {
     case char(Character)
     /// Backspace: убрать последний символ слова.
     case backspace
-    /// Граница слова (пробел/таб/enter/…). `Character` — сам разделитель:
-    /// он уже напечатан пользователем, поэтому команда замены его сохраняет.
+    /// Граница слова (пробел/таб/enter/…). `Character` — сам разделитель.
+    /// В штатном режиме (`separatorAlreadyTyped == false`, активный tap) он
+    /// ещё НЕ доставлен приложению: если слово исправляется, исполнитель
+    /// обязан подавить нажатие и дослать разделитель после перепечатки
+    /// (`EngineOutcome.reinjectSeparator`). В legacy-режиме разделитель уже
+    /// напечатан, и команда замены его сохраняет.
     case boundary(Character)
     /// Сработал сконфигурированный хоткей. macOS-`Engine` решает, что это за
     /// клавиша (через `Hotkey.matches`), и шлёт соответствующее действие.
@@ -33,9 +37,10 @@ public enum EngineCommand: Equatable {
     /// Ничего не делать.
     case none
     /// Стереть `len` символов Backspace'ами и напечатать `text`; если `switchTo`
-    /// задан — переключить системную раскладку. Разделитель, если он был,
-    /// уже включён в `text` (заменяется слово, но добраться до него можно
-    /// только стерев разделитель — поэтому его перепечатываем).
+    /// задан — переключить системную раскладку. Если разделитель уже стоит в
+    /// тексте (откат/конвертация завершённого слова, legacy-режим границы),
+    /// он включён в `len`/`text`; если ещё не доставлен — его дошлёт
+    /// исполнитель по `EngineOutcome.reinjectSeparator`.
     case replaceLast(len: Int, with: String, switchTo: Lang?)
 }
 
@@ -51,15 +56,23 @@ public struct EngineOutcome: Equatable {
     /// сбросил в 0 при достижении порога): `Engine` обязан сохранить
     /// undo-counts.json. Ключ — исходное слово, регистр как пришёл.
     public let undoCountUpdate: (word: String, count: Int)?
+    /// Непусто, когда ядро исправило слово на границе, а разделитель ещё не
+    /// доставлен приложению (активный tap перехватил его до доставки):
+    /// исполнитель обязан ПОДАВИТЬ исходное нажатие и напечатать этот
+    /// разделитель строго ПОСЛЕ перепечатки слова. `nil` — разделитель
+    /// (если он был) пропускается как есть, без задержки.
+    public let reinjectSeparator: Character?
 
     public init(
         command: EngineCommand,
         excludedWordToPersist: String? = nil,
-        undoCountUpdate: (word: String, count: Int)? = nil
+        undoCountUpdate: (word: String, count: Int)? = nil,
+        reinjectSeparator: Character? = nil
     ) {
         self.command = command
         self.excludedWordToPersist = excludedWordToPersist
         self.undoCountUpdate = undoCountUpdate
+        self.reinjectSeparator = reinjectSeparator
     }
 
     /// Пустой результат — событие ничего не меняет на экране.
@@ -68,7 +81,8 @@ public struct EngineOutcome: Equatable {
     /// Ручной `==`: кортеж `undoCountUpdate` блокирует синтез Equatable.
     public static func == (lhs: EngineOutcome, rhs: EngineOutcome) -> Bool {
         guard lhs.command == rhs.command,
-              lhs.excludedWordToPersist == rhs.excludedWordToPersist else { return false }
+              lhs.excludedWordToPersist == rhs.excludedWordToPersist,
+              lhs.reinjectSeparator == rhs.reinjectSeparator else { return false }
         switch (lhs.undoCountUpdate, rhs.undoCountUpdate) {
         case (nil, nil): return true
         case let (l?, r?): return l.word == r.word && l.count == r.count
@@ -97,6 +111,13 @@ public final class EngineCore {
     /// консистентно с `Detector.isExcluded`). Переживают перезапуск: приходят
     /// в `init` из undo-counts.json и отдаются наружу через `undoCountUpdate`.
     private var undoCounts: [String: Int]
+
+    /// Режим границы слова. `false` (штатный, активный tap): разделитель на
+    /// `.boundary` ещё не доставлен — исправление стирает только слово и
+    /// просит исполнителя дослать разделитель (`reinjectSeparator`). `true`
+    /// (legacy, listen-only tap, ADR 0004): разделитель уже напечатан —
+    /// стирается и перепечатывается вместе со словом.
+    private let separatorAlreadyTyped: Bool
 
     /// Глобальный тумблер автоисправления по детектору. `false` → детектор
     /// молчит, но Option-хоткей и сниппеты продолжают работать (см. spec).
@@ -140,6 +161,7 @@ public final class EngineCore {
         undoWindow: Double = 5,
         undoThreshold: Int = 3,
         undoCounts: [String: Int] = [:],
+        separatorAlreadyTyped: Bool = false,
         now: @escaping () -> Double = { Date().timeIntervalSince1970 }
     ) {
         self.detector = detector
@@ -147,6 +169,7 @@ public final class EngineCore {
         self.autoSwitch = autoSwitch
         self.undoWindow = undoWindow
         self.undoThreshold = undoThreshold
+        self.separatorAlreadyTyped = separatorAlreadyTyped
         // Нормализуем ключи к нижнему регистру — сравнение без учёта регистра.
         self.undoCounts = Dictionary(
             undoCounts.map { ($0.key.lowercased(), $0.value) },
@@ -216,10 +239,7 @@ public final class EngineCore {
         //    к этому слову не применяется.
         if let expansion = snippets.expansion(for: word) {
             lastRegion = Region(word: expansion, separator: sepStr)
-            return EngineOutcome(command: .replaceLast(
-                len: word.count + sepStr.count,
-                with: expansion + sepStr,
-                switchTo: nil))
+            return boundaryReplace(len: word.count, with: expansion, sep: sep, switchTo: nil)
         }
 
         // 2) Автоисправление по детектору (если глобально включено).
@@ -241,13 +261,28 @@ public final class EngineCore {
         let converted = KeyMap.convert(word, to: lang)
         let originalLang: Lang = (lang == .ru) ? .en : .ru
         lastRegion = Region(word: converted, separator: sep)
+        // Для отката запоминаем разделитель: к моменту хоткея он уже стоит в
+        // тексте в обоих режимах (в штатном — его дослал исполнитель).
         lastAuto = AutoCorrection(
             original: word, corrected: converted, separator: sep,
             originalLang: originalLang, time: now())
-        return EngineOutcome(command: .replaceLast(
-            len: word.count + sep.count,
-            with: converted + sep,
-            switchTo: lang))
+        return boundaryReplace(len: word.count, with: converted, sep: Character(sep), switchTo: lang)
+    }
+
+    /// Команда замены слова на границе с учётом режима разделителя.
+    /// Штатно разделитель ещё не доставлен: стираем только слово и просим
+    /// исполнителя дослать `sep` после перепечатки. В legacy-режиме
+    /// разделитель уже напечатан — стираем и перепечатываем его вместе со
+    /// словом (ADR 0004).
+    private func boundaryReplace(
+        len: Int, with text: String, sep: Character, switchTo: Lang?) -> EngineOutcome {
+        if separatorAlreadyTyped {
+            return EngineOutcome(command: .replaceLast(
+                len: len + 1, with: text + String(sep), switchTo: switchTo))
+        }
+        return EngineOutcome(
+            command: .replaceLast(len: len, with: text, switchTo: switchTo),
+            reinjectSeparator: sep)
     }
 
     // MARK: - Конвертация/откат (хоткей .convert, прежний Option)

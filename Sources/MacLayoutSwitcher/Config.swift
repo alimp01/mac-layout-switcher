@@ -106,6 +106,7 @@ public final class Config {
     /// Читает config.json. Нет файла → дефолты и запись. Битый → бэкап
     /// `config.json.broken` и дефолты.
     public func load() {
+        flushPersist()
         ensureDirectory()
         guard let data = try? Data(contentsOf: configURL) else {
             config = .default
@@ -121,24 +122,53 @@ public final class Config {
         config = decoded
     }
 
+    /// Фоновая очередь записи. Все `save*` кодируют снимок на вызывающем
+    /// потоке (микросекунды) и пишут файл здесь: вызовы приходят из колбэка
+    /// активного event tap'а, где дисковый I/O держал бы клавиатуру всей
+    /// системы и грозил `tapDisabledByTimeout`. Очередь последовательная —
+    /// записи одного файла не обгоняют друг друга.
+    private let persistQueue = DispatchQueue(label: "MacLayoutSwitcher.Persist", qos: .utility)
+
     /// Пишет config.json (атомарно, стабильный порядок ключей для диффов).
+    /// Запись асинхронная, на `persistQueue`.
     public func save() {
-        ensureDirectory()
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         guard let data = try? encoder.encode(config) else { return }
-        try? data.write(to: configURL, options: .atomic)
+        persist(data, to: configURL)
     }
 
-    /// Меняет настройки и сразу сохраняет.
+    /// Меняет настройки (в памяти — сразу) и сохраняет (асинхронно).
     public func update(_ mutate: (inout AppConfig) -> Void) {
         mutate(&config)
         save()
     }
 
+    /// Пишет exclusions.json (JSON-массив слов; порядок — как передан,
+    /// `Detector.exclusionList` отдаёт отсортированный). Асинхронно.
+    public func saveExclusions(_ words: [String]) {
+        guard let data = try? JSONEncoder().encode(words) else { return }
+        persist(data, to: exclusionsURL)
+    }
+
+    /// Дожидается всех поставленных записей — перед чтением файлов с диска
+    /// (`load`), чтобы перечитать не устаревшую копию. Только с главного
+    /// потока вне колбэка tap'а.
+    private func flushPersist() {
+        persistQueue.sync {}
+    }
+
+    private func persist(_ data: Data, to url: URL) {
+        persistQueue.async { [self] in
+            ensureDirectory()
+            try? data.write(to: url, options: .atomic)
+        }
+    }
+
     /// Читает счётчики отмен (JSON-словарь слово→число). Отсутствующий или
     /// битый файл означает пустой словарь, а не ошибку (как у exclusions).
     public func loadUndoCounts() -> [String: Int] {
+        flushPersist()
         guard
             let data = try? Data(contentsOf: undoCountsURL),
             let decoded = try? JSONDecoder().decode([String: Int].self, from: data)
@@ -147,12 +177,12 @@ public final class Config {
     }
 
     /// Пишет счётчики отмен (атомарно, стабильный порядок ключей для диффов).
+    /// Запись асинхронная, на `persistQueue`.
     public func saveUndoCounts(_ counts: [String: Int]) {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        ensureDirectory()
         guard let data = try? encoder.encode(counts) else { return }
-        try? data.write(to: undoCountsURL, options: .atomic)
+        persist(data, to: undoCountsURL)
     }
 
     private func ensureDirectory() {
