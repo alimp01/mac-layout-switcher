@@ -9,10 +9,10 @@ window.STATE =
   "tier": "T2",
   "briefFile": "2026-08-29-brief.md",
   "memoryFile": "CLAUDE.md",
-  "skillDir": "/home/claudebot/.claude/skills/autopilot",
+  "skillDir": "/Users/ilyaalimpiev/Documents/Claude/.agents/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-09-15T15:10:00+00:00",
-  "finishedAt": "2026-09-15T15:10:00+00:00",
+  "updatedAt": "2026-09-16T02:52:44.216679+00:00",
+  "finishedAt": null,
   "stages": [
     {
       "id": "preflight",
@@ -47,29 +47,26 @@ window.STATE =
     },
     {
       "id": "build",
-      "status": "done",
+      "status": "in-progress",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "15 тасков готовы",
-      "finishedAt": "2026-09-15T15:10:00+00:00"
+      "note": "15 тасков готовы"
     },
     {
       "id": "review",
-      "status": "done",
+      "status": "pending",
       "startedAt": "2026-08-29T04:05:30+00:00",
-      "note": "проверено 9 из 9",
-      "finishedAt": "2026-08-31T09:20:00+00:00"
+      "note": "проверено 9 из 9"
     },
     {
       "id": "final",
-      "status": "done",
-      "startedAt": "2026-08-29T05:25:00+00:00",
-      "finishedAt": "2026-08-31T09:20:00+00:00"
+      "status": "pending",
+      "startedAt": "2026-08-29T05:25:00+00:00"
     }
   ],
   "requirements": {
-    "total": 20,
+    "total": 21,
     "done": 19,
-    "inTicket": 0,
+    "inTicket": 1,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -222,14 +219,25 @@ window.STATE =
     {
       "id": "06",
       "title": "Порог отмен перед авто-исключением",
-      "requirements": ["G03"],
-      "blockedBy": ["04"],
+      "requirements": [
+        "G03"
+      ],
+      "blockedBy": [
+        "04"
+      ],
       "wave": 5,
-      "zone": ["Sources/SwitcherCore/EngineCore", "Sources/MacLayoutSwitcher/Config", "Sources/MacLayoutSwitcher/Engine"],
+      "zone": [
+        "Sources/SwitcherCore/EngineCore",
+        "Sources/MacLayoutSwitcher/Config",
+        "Sources/MacLayoutSwitcher/Engine"
+      ],
       "status": "done",
       "startedAt": "2026-08-29T06:50:00+00:00",
       "finishedAt": "2026-08-29T07:05:00+00:00",
-      "tests": { "passed": 31, "failed": 0 },
+      "tests": {
+        "passed": 31,
+        "failed": 0
+      },
       "commit": "6df8775",
       "retries": 0,
       "repairs": 0,
@@ -238,14 +246,25 @@ window.STATE =
     {
       "id": "07",
       "title": "Упаковка в .dmg-дистрибутив",
-      "requirements": ["G04"],
-      "blockedBy": ["05"],
+      "requirements": [
+        "G04"
+      ],
+      "blockedBy": [
+        "05"
+      ],
       "wave": 5,
-      "zone": ["build-dmg.sh", "build.sh", "README.md"],
+      "zone": [
+        "build-dmg.sh",
+        "build.sh",
+        "README.md"
+      ],
       "status": "done",
       "startedAt": "2026-08-29T06:58:00+00:00",
       "finishedAt": "2026-08-29T07:20:00+00:00",
-      "tests": { "passed": 31, "failed": 0 },
+      "tests": {
+        "passed": 31,
+        "failed": 0
+      },
       "commit": "5f5ebc1",
       "retries": 0,
       "repairs": 0,
@@ -254,14 +273,28 @@ window.STATE =
     {
       "id": "08",
       "title": "Настройка горячих клавиш",
-      "requirements": ["G05"],
-      "blockedBy": ["04", "06"],
+      "requirements": [
+        "G05"
+      ],
+      "blockedBy": [
+        "04",
+        "06"
+      ],
       "wave": 6,
-      "zone": ["Sources/SwitcherCore/Hotkey", "Sources/SwitcherCore/EngineCore", "Sources/MacLayoutSwitcher/Config", "Sources/MacLayoutSwitcher/Engine", "Sources/MacLayoutSwitcher/UI/"],
+      "zone": [
+        "Sources/SwitcherCore/Hotkey",
+        "Sources/SwitcherCore/EngineCore",
+        "Sources/MacLayoutSwitcher/Config",
+        "Sources/MacLayoutSwitcher/Engine",
+        "Sources/MacLayoutSwitcher/UI/"
+      ],
       "status": "done",
       "startedAt": "2026-08-29T07:12:00+00:00",
       "finishedAt": "2026-08-29T07:35:00+00:00",
-      "tests": { "passed": 43, "failed": 0 },
+      "tests": {
+        "passed": 43,
+        "failed": 0
+      },
       "commit": "9754eb0",
       "retries": 0,
       "repairs": 0,
@@ -270,31 +303,58 @@ window.STATE =
     {
       "id": "09",
       "title": "Автозапуск при входе (launch at login)",
-      "requirements": ["G06"],
-      "blockedBy": ["05", "08"],
+      "requirements": [
+        "G06"
+      ],
+      "blockedBy": [
+        "05",
+        "08"
+      ],
       "wave": 7,
-      "zone": ["Sources/MacLayoutSwitcher/System/LoginItem", "Sources/MacLayoutSwitcher/Config", "Sources/MacLayoutSwitcher/UI/StatusBarUI", "Sources/MacLayoutSwitcher/main.swift"],
+      "zone": [
+        "Sources/MacLayoutSwitcher/System/LoginItem",
+        "Sources/MacLayoutSwitcher/Config",
+        "Sources/MacLayoutSwitcher/UI/StatusBarUI",
+        "Sources/MacLayoutSwitcher/main.swift"
+      ],
       "status": "done",
       "startedAt": "2026-08-31T09:00:00+00:00",
       "finishedAt": "2026-08-31T09:20:00+00:00",
-      "tests": { "passed": 43, "failed": 0 },
+      "tests": {
+        "passed": 43,
+        "failed": 0
+      },
       "commit": "21f8a6b",
       "retries": 0,
       "repairs": 1,
-      "repairFindings": ["register→.requiresApproval снимал галочку без подсказки — пользователь видит «не работает»"],
+      "repairFindings": [
+        "register→.requiresApproval снимал галочку без подсказки — пользователь видит «не работает»"
+      ],
       "handoffs": 0
     },
     {
       "id": "10",
       "title": "Инфраструктура иконки (.icns в бандле)",
-      "requirements": ["G08"],
-      "blockedBy": ["05", "07"],
+      "requirements": [
+        "G08"
+      ],
+      "blockedBy": [
+        "05",
+        "07"
+      ],
       "wave": 8,
-      "zone": ["Resources/", "tools/make-icns.py", "build.sh"],
+      "zone": [
+        "Resources/",
+        "tools/make-icns.py",
+        "build.sh"
+      ],
       "status": "done",
       "startedAt": "2026-08-31T10:10:00+00:00",
       "finishedAt": "2026-08-31T10:40:00+00:00",
-      "tests": { "passed": 43, "failed": 0 },
+      "tests": {
+        "passed": 43,
+        "failed": 0
+      },
       "commit": "f4a2248",
       "retries": 0,
       "repairs": 0,
@@ -303,14 +363,26 @@ window.STATE =
     {
       "id": "11",
       "title": "Утка-иконка + индикация раскладки в трее",
-      "requirements": ["G08", "G09"],
-      "blockedBy": ["10"],
+      "requirements": [
+        "G08",
+        "G09"
+      ],
+      "blockedBy": [
+        "10"
+      ],
       "wave": 9,
-      "zone": ["Resources/AppIcon.icns", "Sources/MacLayoutSwitcher/UI/", "Sources/MacLayoutSwitcher/main.swift"],
+      "zone": [
+        "Resources/AppIcon.icns",
+        "Sources/MacLayoutSwitcher/UI/",
+        "Sources/MacLayoutSwitcher/main.swift"
+      ],
       "status": "done",
       "startedAt": "2026-08-31T10:40:00+00:00",
       "finishedAt": "2026-08-31T11:30:00+00:00",
-      "tests": { "passed": 43, "failed": 0 },
+      "tests": {
+        "passed": 43,
+        "failed": 0
+      },
       "commit": "6fdee31",
       "retries": 0,
       "repairs": 0,
@@ -319,14 +391,24 @@ window.STATE =
     {
       "id": "12",
       "title": "Звук только на исправление",
-      "requirements": ["G10"],
-      "blockedBy": ["11"],
+      "requirements": [
+        "G10"
+      ],
+      "blockedBy": [
+        "11"
+      ],
       "wave": 10,
-      "zone": ["Sources/MacLayoutSwitcher/Engine.swift", "Sources/MacLayoutSwitcher/UI/Sounds.swift"],
+      "zone": [
+        "Sources/MacLayoutSwitcher/Engine.swift",
+        "Sources/MacLayoutSwitcher/UI/Sounds.swift"
+      ],
       "status": "done",
       "startedAt": "2026-08-31T12:05:00+00:00",
       "finishedAt": "2026-08-31T12:25:00+00:00",
-      "tests": { "passed": 43, "failed": 0 },
+      "tests": {
+        "passed": 43,
+        "failed": 0
+      },
       "commit": "30b02db",
       "retries": 0,
       "repairs": 0,
@@ -335,49 +417,117 @@ window.STATE =
     {
       "id": "13",
       "title": "Автообновление через GitHub",
-      "requirements": ["G11"],
-      "blockedBy": ["11"],
+      "requirements": [
+        "G11"
+      ],
+      "blockedBy": [
+        "11"
+      ],
       "wave": 11,
-      "zone": ["VERSION", "Sources/MacLayoutSwitcher/System/Updater", "tools/self-update.sh", "build.sh"],
+      "zone": [
+        "VERSION",
+        "Sources/MacLayoutSwitcher/System/Updater",
+        "tools/self-update.sh",
+        "build.sh"
+      ],
       "status": "done",
       "startedAt": "2026-08-31T12:50:00+00:00",
       "finishedAt": "2026-08-31T13:40:00+00:00",
-      "tests": { "passed": 49, "failed": 0 },
+      "tests": {
+        "passed": 49,
+        "failed": 0
+      },
       "commit": "e73a751",
       "retries": 0,
       "repairs": 1,
-      "repairFindings": ["rm -rf без гарда .app + предложение обновления вне бандла = снос произвольного каталога; interactive-офлайн молчит; замена не атомарна"],
+      "repairFindings": [
+        "rm -rf без гарда .app + предложение обновления вне бандла = снос произвольного каталога; interactive-офлайн молчит; замена не атомарна"
+      ],
       "handoffs": 0
     },
     {
       "id": "14",
       "title": "Исправление ДО доставки разделителя (активный EventTap)",
-      "requirements": ["G12"],
-      "blockedBy": ["13"],
+      "requirements": [
+        "G12"
+      ],
+      "blockedBy": [
+        "13"
+      ],
       "wave": 12,
-      "zone": ["Sources/SwitcherCore/EngineCore", "Sources/MacLayoutSwitcher/System/EventTap", "Sources/MacLayoutSwitcher/System/Typist", "Sources/MacLayoutSwitcher/Engine"],
+      "zone": [
+        "Sources/SwitcherCore/EngineCore",
+        "Sources/MacLayoutSwitcher/System/EventTap",
+        "Sources/MacLayoutSwitcher/System/Typist",
+        "Sources/MacLayoutSwitcher/Engine"
+      ],
       "status": "done",
       "startedAt": "2026-09-15T12:20:00+00:00",
       "finishedAt": "2026-09-15T15:10:00+00:00",
-      "tests": { "passed": 58, "failed": 0 },
+      "tests": {
+        "passed": 58,
+        "failed": 0
+      },
       "commit": "3b51c43",
       "retries": 0,
       "repairs": 1,
-      "repairFindings": ["typeKey молча терял подавленный Enter; гонка ввода во время перепечатки; файловый I/O в колбэке активного tap'а; мёртвый then:"],
+      "repairFindings": [
+        "typeKey молча терял подавленный Enter; гонка ввода во время перепечатки; файловый I/O в колбэке активного tap'а; мёртвый then:"
+      ],
       "handoffs": 0
     },
     {
       "id": "15",
       "title": "Короткие частотные слова: «Как», «ты», «и»",
-      "requirements": ["G13"],
-      "blockedBy": ["02"],
+      "requirements": [
+        "G13"
+      ],
+      "blockedBy": [
+        "02"
+      ],
       "wave": 12,
-      "zone": ["Sources/SwitcherCore/Detector", "Sources/SwitcherCore/ShortWords"],
+      "zone": [
+        "Sources/SwitcherCore/Detector",
+        "Sources/SwitcherCore/ShortWords"
+      ],
       "status": "done",
       "startedAt": "2026-09-15T13:10:00+00:00",
       "finishedAt": "2026-09-15T15:10:00+00:00",
-      "tests": { "passed": 58, "failed": 0 },
+      "tests": {
+        "passed": 58,
+        "failed": 0
+      },
       "commit": "3b51c43",
+      "retries": 0,
+      "repairs": 0,
+      "handoffs": 0
+    },
+    {
+      "id": "16",
+      "title": "Локальная расшифровка WAV через GigaAM v3",
+      "requirements": [
+        "G14"
+      ],
+      "blockedBy": [],
+      "wave": 13,
+      "status": "in-progress",
+      "commit": null,
+      "retries": 0,
+      "repairs": 0,
+      "handoffs": 0
+    },
+    {
+      "id": "17",
+      "title": "Диктовка по удержанию горячей клавиши и вставка в поле",
+      "requirements": [
+        "G14"
+      ],
+      "blockedBy": [
+        "16"
+      ],
+      "wave": 14,
+      "status": "pending",
+      "commit": null,
       "retries": 0,
       "repairs": 0,
       "handoffs": 0
@@ -393,7 +543,17 @@ window.STATE =
     "assumptions": [],
     "emptyEnv": []
   },
-  "additions": [],
+  "additions": [
+    {
+      "id": "G14",
+      "title": "Локальная диктовка по удержанию хоткея, GigaAM v3",
+      "status": "in-ticket",
+      "tickets": [
+        "16",
+        "17"
+      ]
+    }
+  ],
   "coverage": {
     "findings": 0,
     "note": "G2: пропусков нет, полупокрытий нет; 8 позиций «сверх брифа» = R##.n-проработка и A01 с родителем — оставлены"
@@ -424,7 +584,8 @@ window.STATE =
     "CLAUDE.md устарел: «28 тестов» (стало 43) + раздел Архитектура упоминает InputEvent.optionTap (переименован в .hotkey(.convert)); условие: обновить память при финале",
     "T08 Hotkey.swift — rightCommand/rightOption/... в модели, но не порождаются (Engine и рекордер схлопывают лево/право); speculative generality; условие: либо различать, либо убрать кейсы",
     "T08 HotkeyRecorderWindow — рекордер записывает голый печатный keyDown (напр. «K»), который под .listenOnly и сработает, и напечатается; условие: отклонять/предупреждать голый печатный keyCode",
-    "T08 HotkeyTests/HotkeyEngineTests — @testable import избыточен; условие: обычный import"
+    "T08 HotkeyTests/HotkeyEngineTests — @testable import избыточен; условие: обычный import",
+    "2026-09-16: baseline swift build успешен на macOS15.6.1 arm64; swift test на Mac blocked: CLT без XCTest. Тесты выполнять на доступном claudebot-server (Swift6.0.3). v1.2.0 ручная приёмка ещё не выполнена."
   ],
   "reviewers": {
     "manifestSpec": "a3373fd28e916b546",
