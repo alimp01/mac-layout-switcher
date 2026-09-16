@@ -6,7 +6,7 @@
 переключает раскладку и перепечатывает слово. Плюс настраиваемые горячие
 клавиши (конвертация/откат и вкл-выкл авто; дефолт конвертации — одиночный
 Option), автозамена по шаблонам, звуки. Пары языков — RU/EN. Дневника набора нет.
-Swift 5.9 / SwiftPM, без Xcode-проекта, без внешних зависимостей.
+Swift 5.9 / SwiftPM, без Xcode-проекта. Ядро без внешних зависимостей; для диктовки G14 — отдельный нативный helper GigaSTT/ONNX (ADR 0012).
 
 Рабочая машина сборки — Linux; e2e-приёмка только на Mac. Ядро `SwitcherCore`
 компилируется и тестируется на Linux, весь macOS-слой — под `#if os(macOS)`
@@ -21,7 +21,7 @@ export PATH=/home/claudebot/swift-toolchain/swift-6.0.3-RELEASE-ubuntu24.04/usr/
 
 | Команда | Что делает |
 |---------|------------|
-| `swift test` | 58 тестов ядра `SwitcherCore` (зелёные на Linux); один класс — `swift test --filter EngineCoreTests` |
+| `swift test` | 71 тест ядра `SwitcherCore` (зелёные на Linux); один класс — `swift test --filter EngineCoreTests` |
 | `swift build` | Сборка обоих target'ов (на Linux macOS-слой — пустой executable) |
 | `bash -n build.sh` / `bash -n build-dmg.sh` | Шеллчек сборочных скриптов — единственная их проверка на Linux |
 | `./build.sh` | ТОЛЬКО macOS 13+ с Xcode CLT (`xcode-select --install`): релиз + `dist/MacLayoutSwitcher.app` (ad-hoc подпись) |
@@ -142,8 +142,7 @@ undo-counts.json).
   build`/`swift test` обязаны быть зелёными после каждой правки.
 - Тесты — только через публичные сигнатуры `SwitcherCore` (шов один). macOS-код
   компиляцией не проверить: писать по документированным API, консервативно.
-- Зависимостей нет и не добавлять. Нет инструмента → вернуть `BLOCKED`, ничего
-  не ставить.
+- Зависимости не добавлять без необходимости. Узкое исключение G14: закреплённый GigaSTT 2.17.0 только для speech-helper на macOS arm64; ядро остаётся без зависимостей. Нет инструмента → вернуть `BLOCKED`, ничего не ставить.
 - JSON-файлы: битый/отсутствующий config → бэкап `.broken` рядом + дефолты;
   битый snippets/exclusions/undo-counts → пустой набор. config и undo-counts
   пишутся атомарно с `.sortedKeys`. Новые поля в `AppConfig` — только через
@@ -208,18 +207,24 @@ undo-counts.json).
 
 ## Тесты
 
-`swift test` — 50 тестов в `Tests/SwitcherCoreTests/`: `EngineCoreTests` (15,
-поток решений + окно отката через инъекцию `now:` + порог отмен + режим
-разделителя), `HotkeyTests`
-(7, `matches`/`displayName`/Codable), `HotkeyEngineTests` (5, `.hotkey`-события в
-ядре: convert/toggleAuto, приоритеты), `KeyMapTests` (5), `DetectorTests` (5),
-`SnippetStoreTests` (4), `WordBufferTests` (3). macOS-слой тестами не покрыт
-(компиляции нет на Linux) — только ручной чек-лист в `README.md`.
+`swift test` — 71 XCTest через публичный SwitcherCore: прежние 58 и 13 тестов состояния/жестов/нормализации диктовки. Финальный прогон на Linux 2026-09-16 зелёный. На Mac есть Swift 6.1.2 и рабочая сборка, но CLT без XCTest: тесты запускаются на Linux-сервере. Микрофон/TCC/вставка в чужие поля — отдельная ручная приёмка.
 
 - Иконка приложения: `Resources/AppIcon.svg` (утка) → `python3 tools/make-icns.py` → `Resources/AppIcon.icns`; build.sh кладёт её в бандл (CFBundleIconFile=AppIcon).
 - Меню-бар показывает текущую раскладку текстом «RU»/«EN» (attributedTitle, в паузе серый + ⏸); обновление по DistributedNotificationCenter (TISNotifySelectedKeyboardInputSourceChanged) + колбэк Engine.onLayoutSwitched после select; поллинга нет.
 
 - Короткие слова: `ShortWords.swift` — словари частотных RU/EN слов 1–4 букв; Detector проверяет их ДО порога длины и биграмм. Контекст (язык предыдущего слова) решает коллизии (of↔ща и т.п.) и обязателен для однобуквенных («plan b» не трогается, «Rfr ns b z» → «Как ты и я» по инерции).
+
+## Диктовка G14 (v1.3.0, ADR 0012)
+
+- Пользователь выбрал локальное распознавание GigaAM v3 и **удержание** хоткея: ⌃⌥Space записывает, отпускание распознаёт/вставляет. Esc отменяет. Сочетание меняется в существующем окне; конфликты/голые печатные клавиши отклоняются. Максимум 5 минут.
+- Новый пункт «Диктовка…»: явная однократная загрузка 233 MB, SHA256/прогресс/отмена, затем разрешение микрофона. После настройки нужно заново удержать сочетание; запоздавшее разрешение не включает микрофон.
+- GigaSTT 2.17.0 закреплён SwiftPM только на macOS arm64; отдельный Contents/Helpers/SpeechRecognizer связан статически с ONNX. Основная .app по-прежнему macOS13+, диктовка требует Apple Silicon/macOS13.4+ (реальный minimum OS XCFramework выше заявленного package13.0). Intel/Linux не скачивают бинарную зависимость.
+- Helper выполняется Process с приватным CWD и относительным WAV; нет сетевого fallback. Все процессы/загрузки/AX/запись вне EventTap. Записи временные, удаляются при завершении/отмене; текста/аудио в логах нет. Модель живёт в Application Support/MacLayoutSwitcher/SpeechModels отдельно от обновляемого бандла.
+- Sources/SwitcherCore/DictationSession.swift: публичные session/gesture и тесты; Sources/MacLayoutSwitcher/Speech/: coordinator/AVAudioRecorder/AX target; System/SpeechModelStore.swift и SpeechRecognitionProcess.swift; UI/DictationPanel.swift — неактивирующая панель.
+- EventTap теперь слушает keyUp для пары хоткея. При остановке/старте tap и на границах рекордера сочетаний **полный reset** жеста и suppressedKeyUps: cancelHold сохраняет ожидаемый keyUp и здесь недостаточен (исправлено ревью P2).
+- Вставка на общей очереди Typist, Unicode с маркером, без Enter/clipboard/автоконвертации. Контроль фокуса и Secure Input, reset буфера/undo. Если поле сменилось или AX не отдаёт выделение — панель результата с явной кнопкой «Копировать». Пауза/выход отменяют все операции; выход ждёт cleanup.
+- Проверено: 71 Linux XCTest, Mac debug/release, настоящий офлайн ASR, поздняя речь после32с, тишина, ошибки/отмена/таймауты, подпись внутри DMG. Микрофон и вставка в реальные приложения ещё требуют ручной приёмки Ильи; v1.2.0 он также не проверял.
+- iCloud FileProvider в Documents возвращает FinderInfo после codesign. Для проверяемого артефакта задавать `MLS_DIST_DIR` на временный каталог вне Documents и запускать `./build-dmg.sh --rebuild`. Скрипты понимают одинаковый override; DMG staging очищается от xattr и проверяется codesign до упаковки. Автообновление уже собирает во временной папке.
 
 ## Релиз новой версии (ОБЯЗАТЕЛЬНЫЙ ритуал)
 
@@ -238,7 +243,7 @@ undo-counts.json).
 
 ## Репозиторий
 
-GitHub: https://github.com/alimp01/mac-layout-switcher (приватный). Push по HTTPS,
+GitHub: https://github.com/alimp01/mac-layout-switcher (публичный). Push по HTTPS,
 креды в ~/.git-credentials (аккаунт alimp01). Публичный архив для скачивания на Mac:
 https://cat.alimp.space/mac-layout-switcher.tar.gz (обновлять `git archive` после изменений).
 

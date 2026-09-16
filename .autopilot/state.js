@@ -9,10 +9,10 @@ window.STATE =
   "tier": "T2",
   "briefFile": "2026-08-29-brief.md",
   "memoryFile": "CLAUDE.md",
-  "skillDir": "/Users/ilyaalimpiev/Documents/Claude/.agents/skills/autopilot",
+  "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-09-16T02:52:44.216679+00:00",
-  "finishedAt": null,
+  "updatedAt": "2026-09-16T03:13:27.206206+00:00",
+  "finishedAt": "2026-09-16T03:13:27.206206+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -47,26 +47,30 @@ window.STATE =
     },
     {
       "id": "build",
-      "status": "in-progress",
+      "status": "done",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "15 тасков готовы"
+      "note": "17 тасков готовы; v1.3.0 локальная диктовка GigaAM v3",
+      "finishedAt": "2026-09-16T03:13:27.206206+00:00"
     },
     {
       "id": "review",
-      "status": "pending",
+      "status": "done",
       "startedAt": "2026-08-29T04:05:30+00:00",
-      "note": "проверено 9 из 9"
+      "note": "T16/T17: два независимых ревью, P2 исправлен и перепроверен",
+      "finishedAt": "2026-09-16T03:13:27.206206+00:00"
     },
     {
       "id": "final",
-      "status": "pending",
-      "startedAt": "2026-08-29T05:25:00+00:00"
+      "status": "done",
+      "startedAt": "2026-08-29T05:25:00+00:00",
+      "finishedAt": "2026-09-16T03:13:27.206206+00:00",
+      "note": "Mac .dmg проверен; 71 XCTest; ручная приёмка микрофона/вставки ожидается"
     }
   ],
   "requirements": {
     "total": 21,
-    "done": 19,
-    "inTicket": 1,
+    "done": 20,
+    "inTicket": 0,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -510,11 +514,16 @@ window.STATE =
       ],
       "blockedBy": [],
       "wave": 13,
-      "status": "in-progress",
-      "commit": null,
+      "status": "done",
+      "commit": "9a83348",
       "retries": 0,
       "repairs": 0,
-      "handoffs": 0
+      "handoffs": 0,
+      "finishedAt": "2026-09-16T03:13:27.206206+00:00",
+      "tests": {
+        "passed": 71,
+        "failed": 0
+      }
     },
     {
       "id": "17",
@@ -526,17 +535,26 @@ window.STATE =
         "16"
       ],
       "wave": 14,
-      "status": "pending",
-      "commit": null,
+      "status": "done",
+      "commit": "0b378f3",
       "retries": 0,
-      "repairs": 0,
-      "handoffs": 0
+      "repairs": 1,
+      "handoffs": 0,
+      "finishedAt": "2026-09-16T03:13:27.206206+00:00",
+      "tests": {
+        "passed": 71,
+        "failed": 0
+      },
+      "repairFindings": [
+        "P2: потерянный keyUp после паузы/записи хоткея мог съесть первый Space; полный reset жеста и подавленных клавиш, 2 регрессионных теста"
+      ]
     }
   ],
   "singlePass": null,
   "tests": {
-    "passed": 43,
-    "failed": 0
+    "passed": 71,
+    "failed": 0,
+    "note": "Linux Swift6.0.3 full final snapshot. Mac debug/release + offline real ASR + DMG signature verified; manual microphone/field acceptance pending."
   },
   "debt": {
     "placeholders": [],
@@ -547,7 +565,7 @@ window.STATE =
     {
       "id": "G14",
       "title": "Локальная диктовка по удержанию хоткея, GigaAM v3",
-      "status": "in-ticket",
+      "status": "done",
       "tickets": [
         "16",
         "17"
@@ -589,12 +607,26 @@ window.STATE =
   ],
   "reviewers": {
     "manifestSpec": "a3373fd28e916b546",
-    "craft": "a9af146a77a904cc1"
+    "craft": "a9af146a77a904cc1",
+    "G14": {
+      "spec": "review_spec",
+      "standards": "review_standards",
+      "recheck": "P2 resolved, no remaining actionable findings"
+    }
   },
   "blind": {
-    "run": "swift build → Build complete; swift test → 43 passed",
-    "verdict": "все 13 требований done; G06 автозапуск добавлен под #if os(macOS), ядро и 43 теста не тронуты",
-    "note": "e2e автозапуска/переключателя/.dmg — только на Mac; пользователь ранее подтвердил работу переключателя",
+    "run": "Linux swift test71 passed; Mac swift build/release and DMG signature pass; real offline ASR incl speech after32s",
+    "verdict": "G14 implemented; T16/T17 reviewed and committed",
+    "note": "Microphone and external-field interaction not exercised; manual acceptance pending",
     "drift": []
+  },
+  "manualAcceptance": {
+    "version": "1.3.0",
+    "status": "pending",
+    "checks": [
+      "microphone consent and real hold/release dictation",
+      "Esc/focus change/physical typing during insertion",
+      "v1.2 Enter/Shift+Enter/fast typing regression acceptance"
+    ]
   }
 }
