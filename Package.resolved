@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "gigastt-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ekhodzitsky/gigastt-swift",
+      "state" : {
+        "revision" : "e66dbd0b44fbc89b4ffdf283f7435400c0129b7b",
+        "version" : "2.17.0"
+      }
+    }
+  ],
+  "version" : 2
+}

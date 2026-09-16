@@ -28,7 +28,7 @@ cd "$SCRIPT_DIR"
 # --- Константы образа ---------------------------------------------------------
 APP_NAME="MacLayoutSwitcher"                 # = имя бандла, что делает build.sh
 VOL_NAME="MacLayoutSwitcher"                 # имя тома при монтировании
-DIST_DIR="$SCRIPT_DIR/dist"
+DIST_DIR="${MLS_DIST_DIR:-$SCRIPT_DIR/dist}"
 APP_BUNDLE="$DIST_DIR/$APP_NAME.app"
 DMG_PATH="$DIST_DIR/$APP_NAME.dmg"
 
@@ -67,6 +67,11 @@ fi
 STAGING="$(mktemp -d "${TMPDIR:-/tmp}/maclayoutswitcher-dmg.XXXXXX")"
 echo "==> Готовлю staging $STAGING"
 cp -R "$APP_BUNDLE" "$STAGING/$APP_NAME.app"
+# FileProvider may attach FinderInfo to a bundle in Documents after signing.
+# The staging copy is outside that synced directory; remove metadata and verify
+# the sealed contents before producing a distributable image.
+xattr -cr "$STAGING/$APP_NAME.app"
+codesign --verify --deep --strict "$STAGING/$APP_NAME.app"
 # Ярлык «Программы»: пользователь перетаскивает .app на него — установка.
 ln -s /Applications "$STAGING/Applications"
 

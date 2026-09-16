@@ -257,3 +257,47 @@ JSON «сокращение → раскрытие». Разворачивает
 при откате), нет GUI-редактора шаблонов (правятся как JSON), нет подписи/
 нотаризации (личная сборка на своём Mac). Пары языков — RU/EN; ядро
 расширяемо.
+
+## Локальный backend диктовки (GigaAM v3)
+
+Нативный движок GigaAM v3 E2E RNNT входит в arm64-сборку приложения.
+Для диктовки нужны Apple Silicon и macOS **13.4+**. На Intel и macOS
+13.0–13.3 функции переключения раскладки работают, диктовка недоступна.
+Python, Homebrew и сервер распознавания не нужны.
+
+Первая настройка явно загружает **233 МБ** весов (232 576 763 байта).
+Каждый файл проверяется по размеру и SHA256; повреждённая или неполная
+модель не считается готовой. При отмене временная загрузка удаляется.
+Веса хранятся отдельно от .app в
+`~/Library/Application Support/MacLayoutSwitcher/SpeechModels/` и переживают
+обновление приложения. После загрузки распознавание полностью офлайн.
+Запись не отправляется на сервер, аудио и текст не пишутся в логи.
+
+`./build.sh` на Apple Silicon разрешает точную SwiftPM-зависимость
+[GigaSTT 2.17.0](https://github.com/ekhodzitsky/gigastt-swift/tree/v2.17.0)
+и скачивает проверяемый SwiftPM XCFramework (~78 МБ) при первой сборке.
+Готовая .app включает подписанный `Contents/Helpers/SpeechRecognizer` и
+`Contents/Resources/Licenses`. Linux и Intel не скачивают этот binary target.
+Для cross-сборки Intel на arm64-хосте отключите helper явно:
+`MLS_DISABLE_SPEECH=1 swift build --triple x86_64-apple-macosx13.0`.
+Обычная сборка arm64: `swift build` или `./build.sh`.
+Каталог вывода .app/.dmg можно задать через `MLS_DIST_DIR=/path/to/output ./build.sh`
+или `MLS_DIST_DIR=/path/to/output ./build-dmg.sh --rebuild`.
+Для подписи выбирайте локальный каталог вне синхронизируемого iCloud Documents:
+FileProvider может добавлять FinderInfo к .app уже после подписи.
+
+Для диагностики готового backend (WAV должен находиться в текущем каталоге):
+
+```sh
+/path/to/MacLayoutSwitcher.app/Contents/Helpers/SpeechRecognizer \
+  "$HOME/Library/Application Support/MacLayoutSwitcher/SpeechModels/gigaam-v3-e2e-2026-06-22" \
+  recording.wav
+```
+
+Helper возвращает JSON с `text` и код 0 либо JSON с `error` и ненулевой код.
+Тишина — `no_speech`, отсутствующая/нечитаемая модель — `model_load_failed`.
+Приложение запускает его в приватной рабочей папке, ограничивает время и
+объём ответа, завершает процесс при отмене и удаляет временную копию WAV.
+Длинные записи обрабатываются окнами движка без обрезки после 25 секунд.
+Технические решения и фактическая проверка описаны в
+[ADR 0012](docs/adr/0012-local-gigaam-helper.md).

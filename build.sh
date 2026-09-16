@@ -53,7 +53,7 @@ fi
 # --- 2. Раскладка бандла ------------------------------------------------------
 # Кладём .app в dist/ рядом с репозиторием; полностью пересобираем каждый раз,
 # чтобы не тащить старые файлы Contents.
-DIST_DIR="$SCRIPT_DIR/dist"
+DIST_DIR="${MLS_DIST_DIR:-$SCRIPT_DIR/dist}"
 APP_BUNDLE="$DIST_DIR/$APP_NAME.app"
 MACOS_DIR="$APP_BUNDLE/Contents/MacOS"
 RESOURCES_DIR="$APP_BUNDLE/Contents/Resources"
@@ -65,6 +65,22 @@ mkdir -p "$MACOS_DIR"
 # Исполняемый файл.
 cp "$BIN_PATH" "$MACOS_DIR/$APP_NAME"
 chmod +x "$MACOS_DIR/$APP_NAME"
+
+# Native offline recognizer is available only in arm64 builds. Main executable
+# remains macOS 13.0; the helper has its own 13.4 minimum.
+if [[ "$(uname -m)" == "arm64" && "${MLS_DISABLE_SPEECH:-0}" != "1" ]]; then
+    HELPER_PATH="$BIN_DIR/SpeechRecognizer"
+    if [[ ! -x "$HELPER_PATH" ]]; then
+        echo "!! SpeechRecognizer отсутствует в arm64-сборке" >&2
+        exit 1
+    fi
+    mkdir -p "$APP_BUNDLE/Contents/Helpers"
+    cp "$HELPER_PATH" "$APP_BUNDLE/Contents/Helpers/SpeechRecognizer"
+    chmod +x "$APP_BUNDLE/Contents/Helpers/SpeechRecognizer"
+    codesign --force --sign - "$APP_BUNDLE/Contents/Helpers/SpeechRecognizer"
+fi
+mkdir -p "$RESOURCES_DIR/Licenses"
+cp "$SCRIPT_DIR"/Resources/Licenses/* "$RESOURCES_DIR/Licenses/"
 
 # Иконка приложения (Finder, «Программы», Dock при запуске, .dmg).
 # Генерируется на Linux-машине: python3 tools/make-icns.py (из Resources/AppIcon.svg)
@@ -120,6 +136,8 @@ ${ICON_PLIST_KEYS}
     <true/>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Микрофон нужен для локальной диктовки. Аудио распознаётся на этом Mac и не отправляется на сервер.</string>
     <key>NSHumanReadableCopyright</key>
     <string>Свой аналог Punto/Caramba. Открытый код.</string>
 </dict>
@@ -134,6 +152,9 @@ printf 'APPL????' > "$APP_BUNDLE/Contents/PkgInfo"
 # выданные разрешения между запусками. --deep подписывает вложенное, --force
 # перекрывает прежнюю подпись при пересборке.
 echo "==> codesign (ad-hoc)"
+# Finder / downloaded source archives can carry resource forks or FinderInfo.
+# Strip metadata only from our freshly assembled output, before sealing it.
+xattr -cr "$APP_BUNDLE"
 codesign --force --deep --sign - "$APP_BUNDLE"
 
 # --- 4. Итог ------------------------------------------------------------------
