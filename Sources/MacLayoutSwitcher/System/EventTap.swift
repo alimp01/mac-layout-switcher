@@ -61,6 +61,7 @@ public final class EventTap {
 
         let mask: CGEventMask =
             (1 << CGEventType.keyDown.rawValue) |
+            (1 << CGEventType.keyUp.rawValue) |
             (1 << CGEventType.flagsChanged.rawValue)
 
         let selfPtr = Unmanaged.passUnretained(self).toOpaque()
@@ -123,7 +124,7 @@ public final class EventTap {
             }
             return .pass
 
-        case .keyDown, .flagsChanged:
+        case .keyDown, .keyUp, .flagsChanged:
             // Собственная синтетика (перепечатка и досланный разделитель)
             // возвращается в tap через .cghidEventTap — пропускаем её без
             // обработки: подавить или зациклить свои же события нельзя.
@@ -142,7 +143,7 @@ public final class EventTap {
                 )
             } else {
                 stroke = KeyStroke(
-                    kind: .flagsChanged,
+                    kind: type == .keyUp ? .keyUp : .flagsChanged,
                     keyCode: keyCode,
                     characters: "",
                     flags: event.flags,

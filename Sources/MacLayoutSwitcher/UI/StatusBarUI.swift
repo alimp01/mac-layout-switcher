@@ -48,6 +48,7 @@ public final class StatusBarUI: NSObject {
     public var onOpenHotkeys: (() -> Void)?
     /// «Проверить обновления…» — ручная проверка (main дёргает Updater).
     public var onCheckUpdates: (() -> Void)?
+    public var onDictation: (() -> Void)?
     public var onQuit: (() -> Void)?
 
     private var state: State
@@ -56,6 +57,7 @@ public final class StatusBarUI: NSObject {
     // Индикатор раскладки: что показывать на кнопке статус-итема.
     // nil → «--» (источник не опознан как RU/EN: IME, другой язык).
     private var layoutLang: Lang?
+    private var dictationStatus = ""
     // Приглушить индикатор (пауза перехвата): серый цвет + значок паузы.
     private var layoutPaused = false
 
@@ -118,6 +120,11 @@ public final class StatusBarUI: NSObject {
         refresh()
     }
 
+    public func setDictationStatus(_ status: String) {
+        dictationStatus = status
+        renderLayoutIndicator()
+    }
+
     // MARK: - Построение меню
 
     private func buildMenu() -> NSMenu {
@@ -148,6 +155,10 @@ public final class StatusBarUI: NSObject {
         launch.target = self
         launchItem = launch
         menu.addItem(launch)
+
+        let dictation = NSMenuItem(title: "Диктовка…", action: #selector(openDictation), keyEquivalent: "")
+        dictation.target = self
+        menu.addItem(dictation)
 
         let hotkeys = NSMenuItem(
             title: "Горячие клавиши…", action: #selector(openHotkeys), keyEquivalent: "")
@@ -202,7 +213,7 @@ public final class StatusBarUI: NSObject {
         guard let button = statusItem?.button else { return }
         let paused = layoutPaused || state.paused
         let lang = layoutLang.map { $0.rawValue.uppercased() } ?? "--"
-        let text = paused ? "⏸ " + lang : lang
+        let text = (paused ? "⏸ " + lang : lang) + (dictationStatus.isEmpty ? "" : " " + dictationStatus)
         let attributes: [NSAttributedString.Key: Any] = [
             .font: NSFont.monospacedSystemFont(ofSize: 12, weight: .bold),
             .foregroundColor: paused ? NSColor.secondaryLabelColor : NSColor.labelColor,
@@ -238,6 +249,7 @@ public final class StatusBarUI: NSObject {
         onToggleLaunchAtLogin?(!state.launchAtLogin)
     }
 
+    @objc private func openDictation() { onDictation?() }
     @objc private func openSnippets() { onOpenSnippets?() }
     @objc private func openConfig() { onOpenConfig?() }
     @objc private func openHotkeys() { onOpenHotkeys?() }

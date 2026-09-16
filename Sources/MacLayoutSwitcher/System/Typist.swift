@@ -85,6 +85,29 @@ public final class Typist {
         }
     }
 
+    /// Inserts speech on the same queue as replacements and physical-key
+    /// replays. Recheck focus/security before every character, and report any
+    /// uninserted suffix rather than silently losing or copying it.
+    func insertDictation(_ text: String, target: DictationTarget,
+                         permit: DictationInsertionPermit,
+                         completion: @escaping (String) -> Void) {
+        enqueue {
+            let characters = Array(text)
+            var inserted = 0
+            if permit.isAllowed && target.isCurrent(checkSelection: true) {
+                for character in characters {
+                    guard permit.isAllowed, target.isCurrent(checkSelection: false),
+                          let press = Self.makeUnicodePress(character) else { break }
+                    Self.post(press.down)
+                    Self.post(press.up)
+                    inserted += 1
+                }
+            }
+            let remaining = String(characters.dropFirst(inserted))
+            DispatchQueue.main.async { completion(remaining) }
+        }
+    }
+
     /// Создаёт (синхронно, без отправки) нажатие клавиши по виртуальному коду.
     /// `flags` — модификаторы исходного нажатия (Shift+Enter в чате = перенос
     /// строки, а не отправка — их надо сохранить). `nil` — система отказала

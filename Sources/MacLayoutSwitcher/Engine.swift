@@ -42,6 +42,22 @@ public final class Engine {
     private let typist: Typist
     private let config: Config
     private let tap = EventTap()
+    let dictation = DictationCoordinator()
+    private var dictationGesture = DictationGesture()
+    private var dictationRequested = false
+    private var suppressedKeyUps: Set<UInt16> = []
+    private var waitForRecorderModifiersUp = false
+    var isRecordingHotkey = false {
+        didSet {
+            resetPhysicalInputState()
+            if isRecordingHotkey {
+                dictation.cancel()
+                _ = core.handle(.reset)
+            } else {
+                waitForRecorderModifiersUp = true
+            }
+        }
+    }
 
     /// Озвучка ввода (истории G02/G10). Инжектится из `main` после создания
     /// Engine; nil → работаем молча. Звучат только исправление и откат
@@ -102,19 +118,45 @@ public final class Engine {
             undoThreshold: config.config.undoThreshold,
             undoCounts: undoCounts,
             separatorAlreadyTyped: false)
+        dictation.shortcutName = { [weak config] in config?.config.dictationHotkey.displayName ?? "" }
+        dictation.onInsert = { [weak self] text, target, permit, completion in
+            guard let self else { completion(text); return }
+            _ = self.core.handle(.reset)
+            self.typist.insertDictation(text, target: target, permit: permit) { [weak self] remaining in
+                _ = self?.core.handle(.reset)
+                completion(remaining)
+            }
+        }
     }
 
     /// Включает перехват. `false` — система отказала (нет разрешений).
     @discardableResult
     public func start() -> Bool {
-        tap.start { [weak self] stroke in
+        resetPhysicalInputState()
+        dictation.paused = false
+        return tap.start { [weak self] stroke in
             self?.handle(keyEvent: stroke) ?? .pass
         }
     }
 
     /// Останавливает перехват.
     public func stop() {
+        dictation.paused = true
+        dictation.cancel()
+        resetPhysicalInputState()
+        _ = core.handle(.reset)
         tap.stop()
+    }
+
+    /// Tap suspension and shortcut recording can hide any corresponding key-up.
+    /// No ownership or modifier-tap state may survive those boundaries.
+    private func resetPhysicalInputState() {
+        dictationGesture.reset()
+        dictationRequested = false
+        suppressedKeyUps.removeAll()
+        modifierGesturePeak = []
+        modifierGestureDirty = false
+        waitForRecorderModifiersUp = false
     }
 
     /// Глобальный тумблер автоисправления (пункт меню). Option-хоткей и сниппеты
@@ -143,10 +185,81 @@ public final class Engine {
     /// на одном слове, тяжёлая работа уходит на очередь `Typist`.
     @discardableResult
     public func handle(keyEvent stroke: KeyStroke) -> TapDecision {
-        // Автопауза: пароли и приложения-исключения — молчим полностью.
-        core.isPaused = SecureInput.isActive || isExcludedApp()
+        // Dictation is explicitly requested even in auto-excluded editors.
+        // The event callback only tracks keys and schedules work on main.
+        let secure = SecureInput.isActive
+        core.isPaused = secure || isExcludedApp()
+        if stroke.kind == .keyUp, suppressedKeyUps.remove(stroke.keyCode) != nil { return .suppress }
+        if isRecordingHotkey {
+            modifierGesturePeak = []
+            modifierGestureDirty = true
+            return .pass
+        }
+        if waitForRecorderModifiersUp {
+            if modifierSet(from: stroke.flags).isEmpty { waitForRecorderModifiersUp = false }
+            modifierGesturePeak = []
+            modifierGestureDirty = true
+            if stroke.kind != .keyDown || waitForRecorderModifiersUp { return .pass }
+        }
+        if stroke.kind == .keyDown, stroke.keyCode == 53, dictationRequested || dictation.isActive {
+            dictationRequested = false
+            dictationGesture.cancelHold()
+            suppressedKeyUps.insert(stroke.keyCode)
+            DispatchQueue.main.async { [weak self] in self?.dictation.cancel() }
+            _ = core.handle(.reset)
+            return .suppress
+        }
+        let modifiers = modifierSet(from: stroke.flags)
+        let gestureEvent: DictationGesture.Event
+        switch stroke.kind {
+        case .keyDown: gestureEvent = .down(stroke.keyCode, repeatKey: stroke.isAutorepeat)
+        case .keyUp: gestureEvent = .up(stroke.keyCode)
+        case .flagsChanged: gestureEvent = .modifiers
+        }
+        let chosen = config.config.dictationHotkey
+        let valid = chosen.dictationValidationError(convert: config.config.convertHotkey,
+                                                     toggleAuto: config.config.toggleAutoHotkey) == nil
+        let action = dictationGesture.handle(gestureEvent, modifiers: modifiers,
+                                             hotkey: !secure && valid ? chosen : nil)
+        switch action {
+        case .begin:
+            modifierGesturePeak.formUnion(modifiers)
+            modifierGestureDirty = true
+            dictationRequested = true
+            _ = core.handle(.reset)
+            DispatchQueue.main.async { [weak self] in self?.dictation.hold() }
+            return stroke.kind == .keyDown ? .suppress : .pass
+        case .end, .endPassingEvent:
+            modifierGestureDirty = true
+            dictationRequested = false
+            DispatchQueue.main.async { [weak self] in self?.dictation.release() }
+            // An unrelated key that happens to reveal released modifiers must
+            // retain its ordinary behavior. Only the consumed key-up is hidden.
+            if action == .end { return .suppress }
+            if stroke.kind == .flagsChanged { return .pass }
+        case .consume: return .suppress
+        case .pass: break
+        }
+        if secure, dictation.isActive {
+            DispatchQueue.main.async { [weak self] in self?.dictation.cancel() }
+        }
+        if dictation.isInserting, !secure {
+            // No layout correction can race speech insertion. Physical keys
+            // replay behind it, through the same serial Typist queue.
+            _ = core.handle(.reset)
+            if stroke.kind == .keyDown,
+               let replay = Self.replayPress(for: stroke, events: translate(stroke)) {
+                modifierGestureDirty = true
+                suppressedKeyUps.insert(stroke.keyCode)
+                typist.send(replay)
+                return .suppress
+            }
+            return .pass
+        }
 
         switch stroke.kind {
+        case .keyUp:
+            return .pass
         case .flagsChanged:
             if let event = modifierTapEvent(for: stroke) {
                 dispatch(event)

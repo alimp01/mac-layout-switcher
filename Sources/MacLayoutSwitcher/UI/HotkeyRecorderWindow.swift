@@ -13,6 +13,8 @@ import SwitcherCore
 /// каждом событии, поэтому смена применяется сразу (перезапуск не требуется).
 public final class HotkeyRecorderWindow: NSObject, NSWindowDelegate {
 
+    public var onRecordingChanged: ((Bool) -> Void)?
+    private let errorLabel = NSTextField(wrappingLabelWithString: "")
     private let config: Config
     private var window: NSWindow?
 
@@ -42,7 +44,7 @@ public final class HotkeyRecorderWindow: NSObject, NSWindowDelegate {
 
     private func build() {
         let win = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 460, height: 180),
+            contentRect: NSRect(x: 0, y: 0, width: 520, height: 250),
             styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false)
@@ -62,6 +64,10 @@ public final class HotkeyRecorderWindow: NSObject, NSWindowDelegate {
         rows.addArrangedSubview(makeRow(
             tag: 1, title: "Вкл/выкл авто:"))
 
+        rows.addArrangedSubview(makeRow(tag: 2, title: "Диктовка (удерживать):"))
+        errorLabel.textColor = .systemRed
+        errorLabel.font = .systemFont(ofSize: 11)
+        rows.addArrangedSubview(errorLabel)
         let hint = NSTextField(labelWithString:
             "«Записать» — нажмите нужное сочетание. Esc — отмена записи.")
         hint.font = NSFont.systemFont(ofSize: 11)
@@ -111,6 +117,7 @@ public final class HotkeyRecorderWindow: NSObject, NSWindowDelegate {
     }
 
     private func refreshValues() {
+        valueLabels[2]?.stringValue = config.config.dictationHotkey.displayName
         valueLabels[0]?.stringValue = config.config.convertHotkey.displayName
         valueLabels[1]?.stringValue = config.config.toggleAutoHotkey?.displayName ?? "не назначено"
     }
@@ -119,6 +126,8 @@ public final class HotkeyRecorderWindow: NSObject, NSWindowDelegate {
 
     @objc private func startRecording(_ sender: NSButton) {
         if monitor != nil { stopRecording() }
+        onRecordingChanged?(true)
+        errorLabel.stringValue = ""
         recordingTag = sender.tag
         pendingModifiers = []
         for (_, b) in recordButtons { b.isEnabled = false }
@@ -160,10 +169,19 @@ public final class HotkeyRecorderWindow: NSObject, NSWindowDelegate {
     }
 
     private func finalize(tag: Int, hotkey: Hotkey) {
-        if tag == 0 {
-            config.update { $0.convertHotkey = hotkey }
-        } else {
-            config.update { $0.toggleAutoHotkey = hotkey }
+        let dictation = tag == 2 ? hotkey : config.config.dictationHotkey
+        let convert = tag == 0 ? hotkey : config.config.convertHotkey
+        let toggle = tag == 1 ? hotkey : config.config.toggleAutoHotkey
+        if let error = dictation.dictationValidationError(convert: convert, toggleAuto: toggle) {
+            stopRecording()
+            errorLabel.stringValue = error
+            refreshValues()
+            return
+        }
+        config.update {
+            if tag == 0 { $0.convertHotkey = hotkey }
+            else if tag == 1 { $0.toggleAutoHotkey = hotkey }
+            else { $0.dictationHotkey = hotkey }
         }
         stopRecording()
         refreshValues()
@@ -172,6 +190,7 @@ public final class HotkeyRecorderWindow: NSObject, NSWindowDelegate {
     private func stopRecording() {
         if let m = monitor { NSEvent.removeMonitor(m) }
         monitor = nil
+        onRecordingChanged?(false)
         recordingTag = nil
         pendingModifiers = []
         for (t, b) in recordButtons {
@@ -183,12 +202,13 @@ public final class HotkeyRecorderWindow: NSObject, NSWindowDelegate {
 
     @objc private func resetRow(_ sender: NSButton) {
         if monitor != nil { stopRecording() }
-        if sender.tag == 0 {
-            config.update { $0.convertHotkey = .defaultConvert }
-        } else {
+        if sender.tag == 1 {
             config.update { $0.toggleAutoHotkey = nil }
+            errorLabel.stringValue = ""
+            refreshValues()
+        } else {
+            finalize(tag: sender.tag, hotkey: sender.tag == 0 ? .defaultConvert : .defaultDictation)
         }
-        refreshValues()
     }
 
     // MARK: - NSWindowDelegate

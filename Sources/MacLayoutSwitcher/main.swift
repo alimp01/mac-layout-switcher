@@ -43,6 +43,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        guard let engine else { return .terminateNow }
+        engine.stop()
+        engine.dictation.shutdown { sender.reply(toApplicationShouldTerminate: true) }
+        return .terminateLater
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        engine?.stop()
+    }
+
     // MARK: - Рабочий режим
 
     private func startSwitcher() {
@@ -114,6 +125,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         ui.onOpenHotkeys = { [weak self] in self?.showHotkeys() }
         ui.onCheckUpdates = { [weak self] in self?.updater.check(interactive: true) }
+        ui.onDictation = { [weak engine] in engine?.dictation.showSetup() }
+        engine.dictation.onStatus = { [weak ui] status in ui?.setDictationStatus(status) }
         ui.onQuit = { NSApp.terminate(nil) }
         ui.install()
 
@@ -165,6 +178,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func showHotkeys() {
         if hotkeyWindow == nil {
             hotkeyWindow = HotkeyRecorderWindow(config: config)
+            hotkeyWindow?.onRecordingChanged = { [weak self] recording in
+                self?.engine?.isRecordingHotkey = recording
+            }
         }
         hotkeyWindow?.show()
     }

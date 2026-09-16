@@ -13,6 +13,7 @@ public struct KeyStroke {
     public enum Kind {
         /// Нажатие клавиши (`CGEventType.keyDown`).
         case keyDown
+        case keyUp
         /// Изменение модификаторов (`CGEventType.flagsChanged`) — нужно
         /// Engine'у, чтобы ловить одиночный тап Option.
         case flagsChanged
