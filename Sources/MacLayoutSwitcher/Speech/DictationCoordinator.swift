@@ -140,10 +140,14 @@ final class DictationCoordinator {
             switch result {
             case .success: self.askMicrophone(token)
             case .failure(let error):
-                let megabytes = Int((SpeechModelStore.totalDownloadBytes + 999_999) / 1_000_000)
-                self.panel.show("\(error.localizedDescription)\nОднократная загрузка: \(megabytes) МБ. Затем речь распознаётся на этом Mac без интернета.",
-                    primaryTitle: "Загрузить модель", primaryAction: { [weak self] in self?.download(token) },
-                    cancelTitle: "Отмена", cancelAction: { [weak self] in self?.cancel() })
+                // One repair attempt per explicit opening/hold. Cancellation,
+                // offline/download and filesystem errors never recursively retry.
+                if let error = error as? SpeechError,
+                   error == .missingModel || error == .damagedModel {
+                    self.download(token)
+                } else {
+                    self.fail(token, error.localizedDescription)
+                }
             }
         }
     }
@@ -152,7 +156,8 @@ final class DictationCoordinator {
         guard token == session.id, session.phase == .preparing else { return }
         let update: (Double) -> Void = { [weak self] fraction in
             guard let self, self.session.id == token, self.session.phase == .preparing else { return }
-            self.panel.show("Загрузка и проверка модели: \(Int(fraction * 100))%", progress: fraction,
+            let megabytes = Int((SpeechModelStore.totalDownloadBytes + 999_999) / 1_000_000)
+            self.panel.show("Подготовка диктовки: загрузка и проверка \(megabytes) МБ — \(Int(fraction * 100))%.\nЗатем распознавание работает без интернета. Запись начнётся при следующем удержании сочетания.", progress: fraction,
                             cancelTitle: "Отмена", cancelAction: { [weak self] in self?.cancel() })
         }
         update(0)

@@ -20,8 +20,8 @@ enum SpeechError: LocalizedError {
         switch self {
         case .cancelled: return "Диктовка отменена."
         case .busy: return "Предыдущая операция диктовки ещё завершается."
-        case .missingModel: return "Сначала загрузите модель диктовки (233 МБ)."
-        case .damagedModel: return "Модель неполная или повреждена. Загрузите её заново."
+        case .missingModel: return "Модель диктовки ещё не установлена."
+        case .damagedModel: return "Модель неполная или повреждена. Повторите подготовку диктовки."
         case .download: return "Не удалось загрузить модель. Проверьте интернет и повторите."
         case .unsupported: return "Диктовка требует Apple Silicon и macOS 13.4 или новее."
         case .missingHelper: return "Движок диктовки отсутствует. Пересоберите или обновите приложение."
@@ -138,9 +138,26 @@ final class SpeechModelStore {
     }
 
     private func validate(directory: URL, task: SpeechTask) throws {
-        // Extra encoders/manifest could make upstream select another model.
-        let names = try FileManager.default.contentsOfDirectory(atPath: directory.path)
-        guard Set(names) == Set(Self.artifacts.map(\.name)) else { throw SpeechError.damagedModel }
+        let values = try directory.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
+        guard values.isDirectory == true, values.isSymbolicLink != true else { throw SpeechError.damagedModel }
+        // The pinned CPU helper creates this one derived encoder cache. Keep
+        // rejecting other encoders/manifests that could change model selection.
+        let names = Set(try FileManager.default.contentsOfDirectory(atPath: directory.path))
+        let required = Set(Self.artifacts.map(\.name))
+        guard names == required || names == required.union(["optimized_cache"]) else {
+            throw SpeechError.damagedModel
+        }
+        if names.contains("optimized_cache") {
+            let cache = directory.appendingPathComponent("optimized_cache", isDirectory: true)
+            let values = try cache.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey])
+            guard values.isDirectory == true, values.isSymbolicLink != true else { throw SpeechError.damagedModel }
+            let entries = try FileManager.default.contentsOfDirectory(atPath: cache.path)
+            for name in entries {
+                guard name == "v3_e2e_rnnt_encoder_int8_optimized.ort" else { throw SpeechError.damagedModel }
+                let file = try cache.appendingPathComponent(name).resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey])
+                guard file.isRegularFile == true, file.isSymbolicLink != true else { throw SpeechError.damagedModel }
+            }
+        }
         for artifact in Self.artifacts {
             try Self.validate(file: directory.appendingPathComponent(artifact.name), artifact: artifact, task: task)
         }
