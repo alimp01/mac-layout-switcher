@@ -46,14 +46,19 @@ public final class Typist {
     func replaceLastWord(expected: String, with text: String,
                          ticket: InputFocusGuard.Ticket, separator: KeyPress?,
                          separatorCharacter: Character?, navigates: Bool,
+                         conversionPermit: InputFocusGuard.Permit? = nil, conversionSelection: CFRange? = nil,
                          completion: @escaping (Bool) -> Void) {
         enqueue {
             let inlineSpace = separatorCharacter == " "
             let completed: Bool
-            if ticket.allowsReplacement, let range = ticket.target.sourceRange(expected) {
+            let allowed = { ticket.allowsReplacement && (conversionPermit?.isAllowed ?? true) }
+            let selectionMatches = conversionSelection.map { original in
+                ticket.target.selection().map { $0.location == original.location && $0.length == original.length } == true
+            } ?? true
+            if allowed(), selectionMatches, let range = ticket.target.sourceRange(expected) {
                 completed = ticket.target.replace(range: range, expected: expected,
                     with: text + (inlineSpace ? " " : ""),
-                    originalSelection: CFRange(location: range.location + range.length, length: 0), allowed: { ticket.allowsReplacement })
+                    originalSelection: CFRange(location: range.location + range.length, length: 0), allowed: allowed)
             } else { completed = false }
             if !completed { ticket.replacementPermit.cancel() }
             // A failed correction still delivers its physical separator in the

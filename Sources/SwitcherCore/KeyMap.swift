@@ -40,6 +40,14 @@ public enum KeyMap {
     private static let ruToEn: [Character: Character] =
         Dictionary(uniqueKeysWithValues: enToRu.map { ($1, $0) })
 
+    /// Manual selection conversion follows the existing word convention:
+    /// mapped Cyrillic anywhere chooses EN; otherwise choose RU. Mixed-script
+    /// selections therefore leave their existing Latin portion unchanged.
+    public static func selectionConversion(_ text: String) -> (text: String, language: Lang) {
+        let language: Lang = text.contains { ruToEn[$0] != nil } ? .en : .ru
+        return (convert(text, to: language), language)
+    }
+
     /// Переводит строку в указанную раскладку.
     /// Символы вне карты остаются без изменений.
     public static func convert(_ s: String, to lang: Lang) -> String {

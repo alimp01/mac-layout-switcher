@@ -6,6 +6,24 @@ final class KeyMapTests: XCTestCase {
     // Ожидаемые значения — разобранные вручную пары по раскладке
     // ЙЦУКЕН/QWERTY (пример из спецификации: ghbdtn → привет).
 
+    func testSelectionConversionPreservesMultilineCaseAndUnknownCharacters() {
+        let result = KeyMap.selectionConversion("Ghbdtn\tVbh\r\n123 🙂 café")
+        XCTAssertEqual(result.text, "Привет\tМир\r\n123 🙂 сфаé")
+        XCTAssertEqual(result.language, .ru)
+    }
+
+    func testSelectionConversionUsesEnglishForMappedCyrillicEvenInMixedText() {
+        let result = KeyMap.selectionConversion("ПРИВЕТ\nHello 123🙂")
+        XCTAssertEqual(result.text, "GHBDTN\nHello 123🙂")
+        XCTAssertEqual(result.language, .en)
+    }
+
+    func testSelectionConversionMapsPhysicalPunctuationKeys() {
+        XCTAssertEqual(KeyMap.selectionConversion("{J: ;bpym").text, "ХОЖ жизнь")
+        XCTAssertEqual(KeyMap.selectionConversion("ЭЮБЁ").text, "\"><~")
+        XCTAssertEqual(KeyMap.selectionConversion("123 🙂\t\n").text, "123 🙂\t\n")
+    }
+
     func testConvertEnToRuLowercase() {
         XCTAssertEqual(KeyMap.convert("ghbdtn", to: .ru), "привет")
         XCTAssertEqual(KeyMap.convert("vjcrdf", to: .ru), "москва")

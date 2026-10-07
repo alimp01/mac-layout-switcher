@@ -21,11 +21,14 @@ public final class Engine {
     private let config: Config
     private let tap = EventTap()
     private let inputFocus = InputFocusGuard()
+    private let selectionConverter = SelectionConverter()
+    private lazy var conversionNotice = ConversionNotice()
     private var queuedNavigation = false
     let dictation = DictationCoordinator()
     private var dictationGesture = DictationGesture()
     private var dictationRequested = false
     private var suppressedKeyUps: Set<UInt16> = []
+    private var shortcutKeysDown: Set<UInt16> = []
     private var waitForRecorderModifiersUp = false
     var isRecordingHotkey = false {
         didSet {
@@ -100,6 +103,7 @@ public final class Engine {
             undoCounts: undoCounts,
             separatorAlreadyTyped: false)
         inputFocus.onChange = { [weak self] in
+            self?.selectionConverter.cancel()
             _ = self?.core.handle(.reset)
             self?.queuedNavigation = false
         }
@@ -143,9 +147,11 @@ public final class Engine {
     /// Tap suspension and shortcut recording can hide any corresponding key-up.
     /// No ownership or modifier-tap state may survive those boundaries.
     private func resetPhysicalInputState() {
+        selectionConverter.cancel()
         dictationGesture.reset()
         dictationRequested = false
         suppressedKeyUps.removeAll()
+        shortcutKeysDown.removeAll()
         modifierGesturePeak = []
         modifierGestureDirty = false
         waitForRecorderModifiersUp = false
@@ -170,13 +176,20 @@ public final class Engine {
     // MARK: - Приём события от tap
 
     /// Транслирует один `KeyStroke` в события ядра, исполняет команды и
-    /// возвращает решение активному tap'у. `.suppress` — только для
-    /// разделителя, на котором ядро исправило слово (он будет дослан после
-    /// перепечатки); всё остальное — `.pass`. Вызывается в колбэке tap'а, на
+    /// возвращает решение активному tap'у. Подавляет пары обычных хоткеев,
+    /// исправляемые разделители и ввод для последовательного переигрывания.
+    /// Вызывается в колбэке tap'а, на
     /// главном потоке: никакого I/O и sleep здесь — решение ядра это детектор
     /// на одном слове, тяжёлая работа уходит на очередь `Typist`.
     @discardableResult
     public func handle(keyEvent stroke: KeyStroke) -> TapDecision {
+        // Consumed shortcuts own their repeats as well as their key-up, even
+        // if the user releases a modifier before releasing the ordinary key.
+        if stroke.kind == .keyDown, shortcutKeysDown.contains(stroke.keyCode) { return .suppress }
+        if stroke.kind == .keyDown, selectionConverter.cancel() {
+            // Provisional manual undo/word state must not contaminate new input.
+            _ = core.handle(.reset)
+        }
         if stroke.kind == .contextChanged {
             inputFocus.invalidate()
             modifierGestureDirty = true
@@ -187,7 +200,10 @@ public final class Engine {
         let secure = SecureInput.isActive
         core.isPaused = secure || isExcludedApp()
         if core.isPaused { inputFocus.invalidate() }
-        if stroke.kind == .keyUp, suppressedKeyUps.remove(stroke.keyCode) != nil { return .suppress }
+        if stroke.kind == .keyUp {
+            shortcutKeysDown.remove(stroke.keyCode)
+            if suppressedKeyUps.remove(stroke.keyCode) != nil { return .suppress }
+        }
         if isRecordingHotkey {
             modifierGesturePeak = []
             modifierGestureDirty = true
@@ -267,13 +283,13 @@ public final class Engine {
         case .keyDown:
             // Любая печатная/командная клавиша рвёт «чистый» тап модификатора.
             modifierGestureDirty = true
-            // Хоткей с обычной клавишей (например ⌘⇧K)? Тогда это хоткей, а не
-            // набор — шлём действие вместо трансляции символа. Нажатие
-            // пропускаем как и раньше (хоткеи в этом таске без изменений).
+            // Consume the full ordinary-key shortcut pair, including repeats.
             if let event = hotkeyEvent(
                 keyCode: stroke.keyCode, modifiers: modifierSet(from: stroke.flags)) {
-                dispatch(event)
-                return .pass
+                shortcutKeysDown.insert(stroke.keyCode)
+                suppressedKeyUps.insert(stroke.keyCode)
+                if !stroke.isAutorepeat { dispatch(event) }
+                return .suppress
             }
             let events = translate(stroke)
             if events.contains(.reset) {
@@ -350,7 +366,10 @@ public final class Engine {
     private func dispatch(
         _ event: InputEvent, stroke: KeyStroke? = nil, prepared: Typist.KeyPress? = nil
     ) -> TapDecision {
-        if event == .hotkey(.convert), typist.isBusy { return .pass }
+        if event == .hotkey(.convert) {
+            requestConversion()
+            return .pass
+        }
         let outcome = core.handle(event)
         let decision = execute(outcome, stroke: stroke, prepared: prepared)
         if case .hotkey(.toggleAuto) = event {
@@ -358,6 +377,49 @@ public final class Engine {
             onAutoSwitchChanged?(core.autoSwitch)
         }
         return decision
+    }
+
+    /// Selection takes priority before the core can choose stale undo/last-word
+    /// state. An inaccessible selection never falls through to word conversion.
+    private func requestConversion() {
+        guard !typist.isBusy, !dictation.isActive, !dictationRequested else { return }
+        guard !core.isPaused, let capturedTicket = inputFocus.ticket else {
+            _ = core.handle(.reset)
+            DispatchQueue.main.async { [weak self] in self?.conversionNotice.show() }
+            return
+        }
+        selectionConverter.capture(expected: capturedTicket.target) { [weak self] captured, permit in
+            guard let self, permit.isAllowed else { return }
+            self.conversionNotice.hide()
+            switch captured {
+            case .unavailable:
+                self.selectionConverter.finish(permit)
+                _ = self.core.handle(.reset)
+                self.conversionNotice.show()
+            case .empty(let target, let range):
+                guard let ticket = self.inputFocus.ticket, ticket.target.matches(target),
+                      !self.typist.isBusy else {
+                    self.selectionConverter.finish(permit)
+                    _ = self.core.handle(.reset)
+                    return
+                }
+                let outcome = self.core.handle(.hotkey(.convert))
+                self.execute(outcome, conversionPermit: permit, conversionSelection: range)
+            case .selected(let selection):
+                _ = self.core.handle(.reset)
+                self.selectionConverter.replace(selection, permit: permit, typist: self.typist) { [weak self] completed, language in
+                    guard let self else { return }
+                    self.selectionConverter.finish(permit)
+                    guard permit.isAllowed else { return }
+                    _ = self.core.handle(.reset)
+                    if completed {
+                        LayoutSwitcher.select(language)
+                        self.onLayoutSwitched?(language)
+                        self.sounds?.playCorrection()
+                    } else { self.conversionNotice.show() }
+                }
+            }
+        }
     }
 
     /// Звук по итогу события: откат авто-исправления (в исключения ушло слово) —
@@ -464,11 +526,19 @@ public final class Engine {
     /// in the same target and discard provisional core state on completion.
     @discardableResult
     private func execute(
-        _ outcome: EngineOutcome, stroke: KeyStroke? = nil, prepared: Typist.KeyPress? = nil
+        _ outcome: EngineOutcome, stroke: KeyStroke? = nil, prepared: Typist.KeyPress? = nil,
+        conversionPermit: InputFocusGuard.Permit? = nil, conversionSelection: CFRange? = nil
     ) -> TapDecision {
-        guard case .replaceLast(_, let text, let switchTo) = outcome.command else { return .pass }
+        guard case .replaceLast(_, let text, let switchTo) = outcome.command else {
+            if let conversionPermit { selectionConverter.finish(conversionPermit) }
+            return .pass
+        }
         guard let expected = outcome.expectedText, let ticket = inputFocus.ticket else {
             core.discardReplacement(outcome)
+            if let conversionPermit {
+                selectionConverter.finish(conversionPermit)
+                if conversionPermit.isAllowed { conversionNotice.show() }
+            }
             return .pass
         }
         let separator: Typist.KeyPress?
@@ -482,13 +552,17 @@ public final class Engine {
         } else { separator = nil }
         typist.replaceLastWord(expected: expected, with: text, ticket: ticket, separator: separator,
                                separatorCharacter: outcome.reinjectSeparator,
-                               navigates: outcome.reinjectSeparator.map { $0 != " " } ?? false) { [weak self] completed in
+                               navigates: outcome.reinjectSeparator.map { $0 != " " } ?? false,
+                               conversionPermit: conversionPermit, conversionSelection: conversionSelection) { [weak self] completed in
             guard let self else { return }
+            if let conversionPermit { self.selectionConverter.finish(conversionPermit) }
             guard completed else {
-                self.core.discardReplacement(outcome, resetContext: self.inputFocus.reject(ticket))
+                let rejected = self.inputFocus.reject(ticket)
+                self.core.discardReplacement(outcome, resetContext: conversionPermit?.isAllowed != false && rejected)
+                if conversionPermit?.isAllowed == true { self.conversionNotice.show() }
                 return
             }
-            if ticket.permit.isAllowed, let lang = switchTo {
+            if ticket.permit.isAllowed, conversionPermit?.isAllowed != false, let lang = switchTo {
                 LayoutSwitcher.select(lang)
                 self.onLayoutSwitched?(lang)
             }
