@@ -8,13 +8,15 @@
 
 ## Текущее состояние — 2026-10-07
 
-Версия v1.4.0, G15–G17: защита от чужого префикса перед ozon, одиночные
+Версия v1.4.1, G18: системное покрытие восьми однобуквенных RU слов,
+41 словарное дополнение, безопасные !?()/исключения, контекстные коллизии.
+Предыдущие G15–G17: защита от чужого префикса перед ozon, одиночные
 b/B/z/Z → и/И/я/Я, повторное использование модели с runtime cache,
 автоматическая подготовка модели, конвертация выделения существующим хоткеем.
 Актуальные статусы/доказательства — .autopilot/state.js, manifest.md,
-input-repair-spec.md и input-repair-qa.md в каталоге прогона.
-На Mac пользователя пока установлена1.3.0; новая1.4.0 поставляется обновлением/DMG.
-Полный Linux XCTest85/85, Mac debug/release и mounted DMG/helper прошли;
+word-coverage-spec.md /word-coverage-qa.md и input-repair-qa.md в каталоге прогона.
+На Mac пользователя пока установлена1.3.0; новая1.4.1 поставляется обновлением/DMG.
+Полный Linux XCTest95/95; Mac release и mounted DMG1.4.1 codesign/version/helper прошли;
 пользователь сообщил ошибки скриншотами, а не подтвердил полную приёмку.
 
 ## Среда и команды
@@ -26,7 +28,7 @@ input-repair-spec.md и input-repair-qa.md в каталоге прогона.
   snapshot; основной checkout сервера не использовать как песочницу.
 - Swift на сервере: export PATH=/home/claudebot/swift-toolchain/swift-6.0.3-RELEASE-ubuntu24.04/usr/bin:$PATH
 - swift test — публичные тесты SwitcherCore; swift test --filter ClassName
-  для targeted red/green. Последний полный прогон:85тестов,0ошибок; доказательства в state/QA.
+  для targeted red/green. Последний полный прогон:95тестов,0ошибок; доказательства в state/QA.
 - swift build — Mac app + native helper (на Linux пустой executable).
 - ./build.sh — release .app; ./build-dmg.sh --rebuild — подписанный ad-hoc DMG.
 - bash -n build.sh build-dmg.sh tools/self-update.sh — shell syntax.
@@ -93,9 +95,23 @@ Apple binary не скачивается. Основная app macOS13+, дик�
 
 - reset, пауза, смена поля/клик/команда очищают слово/undo/язык. Enter/Tab
   принимают решение исправления, затем не оставляют undo для нового поля.
-- Одиночные b/B/z/Z исправляются и без предыдущего русского слова. Явный
-  английский контекст (plan b), пользовательские исключения, правильные
-  и/И/я/Я и I/a сохраняются. Остальные одиночные буквы не угадывать агрессивно.
+- Все восемь однобуквенных RU слов а/в/и/к/о/с/у/я исправляются из
+  f/d/b/r/j/c/e/z с регистром и без контекста. Явный EN-контекст (plan b,
+  drive C), исключения, правильные RU слова и I/a сохраняются. Свежая
+  английская метка может быть ошибочно принята за RU: это языковое предпочтение.
+- G18: 41 bounded lexical addition без снижения порогов; ShortWords1–4,
+  15 длинных слов в Detector.everydayRussian. файл/BBC/BRB/RFC/XML защищены.
+  ns↔ты, jq↔ой, herb↔руки, tv↔ем, ev↔ум, ble↔иду: свежий контекст не
+  исправляет, предыдущий язык разрешает коллизию. jr/ye/tot сохраняют прежнее RU предпочтение.
+- Нормализация только enclosing() затем trailing!?; (yt!) намеренно mixed.
+  Не обрезать mapped punctuation ,.;:"[] и т.п. Bare exclusion защищает
+  wrapped token; undo учит точный исходный токен, rollback не расширять.
+  Полный исходник идёт в expectedText и KeyMap.
+- Независимые frozen fixtures и baseline/final audit лежат в
+  .autopilot/2026-08-29-mac-layout-switcher/audit/word-coverage/.
+  459RU/692EN curated words отдельно от production-union; не выдавать за
+  реальную точность. WordCoverageTests — literal регрессии, не генерировать
+  ожидаемые пары из production словаря.
 - Неподдерживающий запись AXSelectedText редактор получает исходный ввод;
   явный хоткей объясняет отказ. После нового фокуса первые очень быстрые буквы
   могут быть забыты до async binding, тогда исправление пропускается.
@@ -157,6 +173,9 @@ Unicode на общей очереди. Если поле поменялось �
 2. Fast-forward чистого серверного checkout и git archive --format=tar.gz
    --prefix=mac-layout-switcher/ в /var/www/cat.alimp.space/mac-layout-switcher.tar.gz.
    Публиковать атомарно через временный файл + mv.
+   Локальный HTTPS push может не иметь credentials; рабочий путь — git bundle
+   с новыми коммитами, scp на сервер, fetch bundle + merge --ff-only чистого
+   серверного checkout, git push origin main существующей серверной авторизацией.
 3. Проверить raw VERSION main и содержимое публичного архива
    https://cat.alimp.space/mac-layout-switcher.tar.gz. Без VERSION клиенты не увидят релиз.
 4. Mac DMG из финального кода, mounted read-only проверить версию,

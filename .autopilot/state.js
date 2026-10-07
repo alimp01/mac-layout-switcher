@@ -11,8 +11,8 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-07",
-  "finishedAt": null,
+  "updatedAt": "2026-10-07T07:44:01.810778+00:00",
+  "finishedAt": "2026-10-07T07:44:01.810778+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -43,34 +43,34 @@ window.STATE =
       "status": "done",
       "startedAt": "2026-08-29T03:44:20+00:00",
       "finishedAt": "2026-08-29T03:52:30+00:00",
-      "note": "20 тикетов, дополнения G15–G17 2026-10-07"
+      "note": "21 тикет; G18 системная полнота исправлений"
     },
     {
       "id": "build",
       "status": "done",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "20 тикетов готовы; v1.4.0 input integrity, selection conversion, automatic model setup",
-      "finishedAt": "2026-10-07T04:51:01.114396+00:00"
+      "note": "21 тикет готов; G18 systemic word coverage, VERSION1.4.1",
+      "finishedAt": "2026-10-07T07:44:01.810778+00:00"
     },
     {
       "id": "review",
       "status": "done",
       "startedAt": "2026-08-29T04:05:30+00:00",
-      "note": "G15–G17: два независимых integrated ревью, все существенные замечания исправлены и перепроверены",
-      "finishedAt": "2026-10-07T04:51:01.114396+00:00"
+      "note": "G18 Spec+Standards approved, zero actionable findings; frozen audit confirms only declared collision changes",
+      "finishedAt": "2026-10-07T07:44:01.810778+00:00"
     },
     {
       "id": "final",
       "status": "done",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "finishedAt": "2026-10-07T04:51:01.114396+00:00",
-      "note": "85 XCTest; Mac debug/release, подписанный mounted DMG/helper offline verified; ручная AX/микрофон приёмка ожидается"
+      "note": "95/95 Linux tests; Mac release, mounted DMG codesign/version/helper passed; live UI acceptance pending",
+      "finishedAt": "2026-10-07T07:44:01.810778+00:00"
     }
   ],
   "requirements": {
     "total": 25,
-    "done": 23,
-    "inTicket": 1,
+    "done": 24,
+    "inTicket": 0,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -599,15 +599,22 @@ window.STATE =
         "G18"
       ],
       "blockedBy": [],
-      "status": "ready",
-      "wave": 17
+      "status": "done",
+      "wave": 17,
+      "commit": "fec1515",
+      "finishedAt": "2026-10-07T07:44:01.810778+00:00",
+      "tests": {
+        "passed": 95,
+        "failed": 0
+      },
+      "validation": "49 targeted tests;95 fullLinux; two independent approvals; frozen audit; native release/DMG verification"
     }
   ],
   "singlePass": null,
   "tests": {
-    "passed": 85,
+    "passed": 95,
     "failed": 0,
-    "note": "Linux85/85; tested core/tests byte-identical. Mac debug/release and mounted DMG signature/helper offline pass. Live AX/microphone acceptance not claimed."
+    "note": "Full actual Sources/Tests Linux snapshot53files byte-identical; Mac release and mounted signed DMG1.4.1 passed. Live UI acceptance not claimed."
   },
   "debt": {
     "placeholders": [],
@@ -651,7 +658,7 @@ window.STATE =
     {
       "id": "G18",
       "title": "Системный аудит замен",
-      "status": "in_progress",
+      "status": "done",
       "tickets": [
         "21"
       ]
@@ -702,29 +709,45 @@ window.STATE =
       "spec": "review_repairs_spec",
       "standards": "review_repairs_standards",
       "result": "Both approved integrated code; last cancellation fix rechecked"
+    },
+    "G18": {
+      "spec": "review_word_spec",
+      "standards": "review_word_standards",
+      "result": "Both approved finaldiff with zero actionable findings"
     }
   },
   "blind": {
-    "run": "Linux85tests passed; native Macdebug/release; mountedDMG codesign/version/helper offline passed",
-    "verdict": "G15–G17 implemented and reviewed, VERSION1.4.0",
-    "note": "Installed app1.3.0 unchanged; live AX/editor/microphone acceptance pending; initialfocus latency documented ADR0013",
+    "run": "Linux95tests, native release, mountedDMG codesign/version/helper passed",
+    "verdict": "G18 implemented/reviewed VERSION1.4.1",
+    "note": "User installedapp unchanged; live AX/microphone acceptance pending. No macOS layer changes this ticket.",
     "drift": []
   },
   "manualAcceptance": {
-    "version": "1.4.0",
+    "version": "1.4.1",
     "status": "pending",
     "checks": [
       "ozon после смены поля; b/B/z/Z и plan b",
       "Option по выделению с переносами и без выделения",
       "Enter/Shift+Enter и быстрый ghbdtn+Tab+abc",
-      "диктовка после перезапуска без скачивания; новый hold после подготовки"
+      "диктовка после перезапуска без скачивания; новый hold после подготовки",
+      "f/d/r/j/c/e одиночные + Englishlabels; ни/буду/могу/люблю; rfr?/ghbdtn!/(yt)"
     ]
   },
   "release": {
-    "version": "1.4.0",
-    "codeCommit": "12cc6de",
-    "artifact": "MacLayoutSwitcher-1.4.0.dmg",
-    "sha256": "87e8726fdbbd47575be2423b7f06b5231471723be137648e3e80e5e144570046",
-    "bytes": 10909995
+    "version": "1.4.1",
+    "codeCommit": "fec1515",
+    "artifact": "MacLayoutSwitcher-1.4.1.dmg",
+    "sha256": "776f2d28c2e5fabd6f2633c76d08bfac4e534365ae9400be54719b9ed0f6d574",
+    "bytes": 10912361
+  },
+  "wordCoverageAudit": {
+    "independentRU": 459,
+    "independentEN": 692,
+    "frozenInputRows": 2934,
+    "verdicts": 8802,
+    "newUndeclaredValidCorrections": 0,
+    "newWrongDirections": 0,
+    "intentionalNewContextualCollisionRows": 9,
+    "note": "Curated diagnostics, not statistical accuracy; see word-coverage-qa.md"
   }
 }

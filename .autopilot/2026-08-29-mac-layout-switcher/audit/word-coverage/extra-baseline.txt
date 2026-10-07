@@ -1,0 +1,53 @@
+plan:unsure	b:unsure
+drive:unsure	c:unsure
+vitamin:unsure	d:unsure
+option:unsure	f:unsure
+model:unsure	r:unsure
+team:unsure	e:unsure
+channel:unsure	j:unsure
+привет:unsure	b:ru
+привет:unsure	d:ru
+привет:unsure	c:ru
+hello:unsure	b:unsure
+hello:unsure	z:unsure
+люблю	люблю	k.,k.	unsure	unsure	unsure
+Люблю	Люблю	K.,k.	unsure	unsure	unsure
+ЛЮБЛЮ	ЛЮБЛЮ	K><K>	unsure	unsure	unsure
+k.,k.	люблю	k.,k.	unsure	unsure	unsure
+K.,k.	Люблю	K.,k.	unsure	unsure	unsure
+K><K>	ЛЮБЛЮ	K><K>	unsure	unsure	unsure
+bbc	иис	bbc	ru	ru	ru
+brb	ики	brb	ru	ru	ru
+rfc	кас	rfc	ru	ru	ru
+xml	чьд	xml	ru	ru	ru
+файл	файл	afqk	en	en	en
+Файл	Файл	Afqk	en	en	en
+ФАЙЛ	ФАЙЛ	AFQK	en	en	en
+f	а	f	unsure	ru	unsure
+F	А	F	unsure	ru	unsure
+d	в	d	unsure	ru	unsure
+D	В	D	unsure	ru	unsure
+e	у	e	unsure	ru	unsure
+E	У	E	unsure	ru	unsure
+r	к	r	unsure	ru	unsure
+R	К	R	unsure	ru	unsure
+c	с	c	unsure	ru	unsure
+C	С	C	unsure	ru	unsure
+j	о	j	unsure	ru	unsure
+J	О	J	unsure	ru	unsure
+b	и	b	ru	ru	unsure
+B	И	B	ru	ru	unsure
+z	я	z	ru	ru	unsure
+Z	Я	Z	ru	ru	unsure
+a	ф	a	unsure	unsure	unsure
+A	Ф	A	unsure	unsure	unsure
+i	ш	i	unsure	unsure	unsure
+I	Ш	I	unsure	unsure	unsure
+,	б	,	unsure	unsure	unsure
+;	ж	;	unsure	unsure	unsure
+.	ю	.	unsure	unsure	unsure
+'	э	'	unsure	unsure	unsure
+[	х	[	unsure	unsure	unsure
+]	ъ	]	unsure	unsure	unsure
+`	ё	`	unsure	unsure	unsure
+~	Ё	~	unsure	unsure	unsure

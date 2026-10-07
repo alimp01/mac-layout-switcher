@@ -1,0 +1,15 @@
+{
+  "Sources/SwitcherCore/Detector.swift": "6771603fc8db50211ae16b6c10ff0238619dba0cd6c75f8b78232c79b1aea9f1",
+  "Sources/SwitcherCore/DetectorBigrams.swift": "844f9aefaa8cc23c2f67c3958f8c5c0a408a6f0a141d4f01cc577b68541165a9",
+  "Sources/SwitcherCore/DictationSession.swift": "618e87f89fac5c2bd7867e6652f09f94212c46bd7b3fc18feeba2e088ae8af47",
+  "Sources/SwitcherCore/EngineCore.swift": "0f45078d92f5ff7af5924f7e074cb33e6b9fcb04983ef40e75e637391b31d514",
+  "Sources/SwitcherCore/Hotkey.swift": "70ac4c31684cc84f290df9e6b985842ce11e912425a22a42a32a73d4f59c84ce",
+  "Sources/SwitcherCore/InputReplayPolicy.swift": "ab91695f1873fe91e2f71d1e2b304c759e3fd4127a133c5c7bf6bf86aa9222ee",
+  "Sources/SwitcherCore/KeyMap.swift": "e136a278f56426e7e8f41d2de2f98bed7f2417d22e683bb88fbc13ad511c1114",
+  "Sources/SwitcherCore/Lang.swift": "e02b7c4ad469735b92531f5585c7f5c2ffb7e390a33fe7bde475850a6948fb26",
+  "Sources/SwitcherCore/ReplacementSource.swift": "69edae07bb47abd48dd923420e11616f714eead8d4c48fed55ca303b8eb47f5f",
+  "Sources/SwitcherCore/SemVer.swift": "26bd1ae36c2429505a80b14fe317d60c9c16cacd1bb5459f8586fd1330538e9e",
+  "Sources/SwitcherCore/ShortWords.swift": "570a7db73f487247bb147cc11efa055ea06d25f7740894d00536394c21675613",
+  "Sources/SwitcherCore/SnippetStore.swift": "24a71a8daf13cab3b776aa51a325295a3ef136f18a0f216274214a05d17d44b6",
+  "Sources/SwitcherCore/WordBuffer.swift": "b114b36c5c27a952e4eaeb903a54c578b559bc032b1a59e5826e843689cf8042"
+}

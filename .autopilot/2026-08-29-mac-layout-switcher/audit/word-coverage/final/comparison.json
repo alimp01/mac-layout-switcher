@@ -1,0 +1,2069 @@
+{
+  "baseline_head": "bb2ee61",
+  "scope": "Frozen curated diagnostic fixtures, not statistical accuracy",
+  "independent_words": {
+    "ru": 459,
+    "en": 692
+  },
+  "frozen_union_words": {
+    "ru": 575,
+    "en": 892
+  },
+  "independent_counts": {
+    "ru": {
+      "fresh": {
+        "baseline": {
+          "valid_words_corrected": 1,
+          "mapped_forms_unsure": 111,
+          "mapped_forms_detected": 348,
+          "mapped_forms_wrong_direction": 0
+        },
+        "final": {
+          "valid_words_corrected": 0,
+          "mapped_forms_unsure": 72,
+          "mapped_forms_detected": 387,
+          "mapped_forms_wrong_direction": 0
+        }
+      },
+      "ruContext": {
+        "baseline": {
+          "valid_words_corrected": 1,
+          "mapped_forms_unsure": 104,
+          "mapped_forms_detected": 355,
+          "mapped_forms_wrong_direction": 0
+        },
+        "final": {
+          "valid_words_corrected": 0,
+          "mapped_forms_unsure": 60,
+          "mapped_forms_detected": 399,
+          "mapped_forms_wrong_direction": 0
+        }
+      },
+      "enContext": {
+        "baseline": {
+          "valid_words_corrected": 7,
+          "mapped_forms_unsure": 111,
+          "mapped_forms_detected": 348,
+          "mapped_forms_wrong_direction": 0
+        },
+        "final": {
+          "valid_words_corrected": 12,
+          "mapped_forms_unsure": 73,
+          "mapped_forms_detected": 386,
+          "mapped_forms_wrong_direction": 0
+        }
+      }
+    },
+    "en": {
+      "fresh": {
+        "baseline": {
+          "valid_words_corrected": 9,
+          "mapped_forms_unsure": 298,
+          "mapped_forms_detected": 394,
+          "mapped_forms_wrong_direction": 0
+        },
+        "final": {
+          "valid_words_corrected": 3,
+          "mapped_forms_unsure": 294,
+          "mapped_forms_detected": 398,
+          "mapped_forms_wrong_direction": 0
+        }
+      },
+      "ruContext": {
+        "baseline": {
+          "valid_words_corrected": 10,
+          "mapped_forms_unsure": 298,
+          "mapped_forms_detected": 394,
+          "mapped_forms_wrong_direction": 0
+        },
+        "final": {
+          "valid_words_corrected": 9,
+          "mapped_forms_unsure": 294,
+          "mapped_forms_detected": 398,
+          "mapped_forms_wrong_direction": 0
+        }
+      },
+      "enContext": {
+        "baseline": {
+          "valid_words_corrected": 9,
+          "mapped_forms_unsure": 297,
+          "mapped_forms_detected": 395,
+          "mapped_forms_wrong_direction": 0
+        },
+        "final": {
+          "valid_words_corrected": 3,
+          "mapped_forms_unsure": 288,
+          "mapped_forms_detected": 404,
+          "mapped_forms_wrong_direction": 0
+        }
+      }
+    }
+  },
+  "frozen_union_counts": {
+    "ru": {
+      "fresh": {
+        "baseline": {
+          "valid_words_corrected": 1,
+          "mapped_forms_unsure": 116,
+          "mapped_forms_detected": 459,
+          "mapped_forms_wrong_direction": 0
+        },
+        "final": {
+          "valid_words_corrected": 0,
+          "mapped_forms_unsure": 72,
+          "mapped_forms_detected": 503,
+          "mapped_forms_wrong_direction": 0
+        }
+      },
+      "ruContext": {
+        "baseline": {
+          "valid_words_corrected": 1,
+          "mapped_forms_unsure": 104,
+          "mapped_forms_detected": 471,
+          "mapped_forms_wrong_direction": 0
+        },
+        "final": {
+          "valid_words_corrected": 0,
+          "mapped_forms_unsure": 60,
+          "mapped_forms_detected": 515,
+          "mapped_forms_wrong_direction": 0
+        }
+      },
+      "enContext": {
+        "baseline": {
+          "valid_words_corrected": 7,
+          "mapped_forms_unsure": 118,
+          "mapped_forms_detected": 457,
+          "mapped_forms_wrong_direction": 0
+        },
+        "final": {
+          "valid_words_corrected": 12,
+          "mapped_forms_unsure": 80,
+          "mapped_forms_detected": 495,
+          "mapped_forms_wrong_direction": 0
+        }
+      }
+    },
+    "en": {
+      "fresh": {
+        "baseline": {
+          "valid_words_corrected": 9,
+          "mapped_forms_unsure": 305,
+          "mapped_forms_detected": 587,
+          "mapped_forms_wrong_direction": 0
+        },
+        "final": {
+          "valid_words_corrected": 3,
+          "mapped_forms_unsure": 301,
+          "mapped_forms_detected": 591,
+          "mapped_forms_wrong_direction": 0
+        }
+      },
+      "ruContext": {
+        "baseline": {
+          "valid_words_corrected": 15,
+          "mapped_forms_unsure": 305,
+          "mapped_forms_detected": 587,
+          "mapped_forms_wrong_direction": 0
+        },
+        "final": {
+          "valid_words_corrected": 14,
+          "mapped_forms_unsure": 301,
+          "mapped_forms_detected": 591,
+          "mapped_forms_wrong_direction": 0
+        }
+      },
+      "enContext": {
+        "baseline": {
+          "valid_words_corrected": 9,
+          "mapped_forms_unsure": 297,
+          "mapped_forms_detected": 595,
+          "mapped_forms_wrong_direction": 0
+        },
+        "final": {
+          "valid_words_corrected": 3,
+          "mapped_forms_unsure": 288,
+          "mapped_forms_detected": 604,
+          "mapped_forms_wrong_direction": 0
+        }
+      }
+    }
+  },
+  "new_valid_word_corrections": [],
+  "new_valid_word_corrections_intentional_collisions": [
+    {
+      "kind": "valid",
+      "lang": "ru",
+      "word": "ем",
+      "input": "ем",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true,
+      "collision": {
+        "en": "tv",
+        "ru": "ем",
+        "reason": "G18 story4: valid words/technical labels in both layouts; fresh context preserves input, explicit prior language resolves."
+      }
+    },
+    {
+      "kind": "valid",
+      "lang": "ru",
+      "word": "иду",
+      "input": "иду",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true,
+      "collision": {
+        "en": "ble",
+        "ru": "иду",
+        "reason": "G18 story4: valid words/technical labels in both layouts; fresh context preserves input, explicit prior language resolves."
+      }
+    },
+    {
+      "kind": "valid",
+      "lang": "ru",
+      "word": "ой",
+      "input": "ой",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true,
+      "collision": {
+        "en": "jq",
+        "ru": "ой",
+        "reason": "G18 story4: valid words/technical labels in both layouts; fresh context preserves input, explicit prior language resolves."
+      }
+    },
+    {
+      "kind": "valid",
+      "lang": "ru",
+      "word": "руки",
+      "input": "руки",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true,
+      "collision": {
+        "en": "herb",
+        "ru": "руки",
+        "reason": "G18 story4: valid words/technical labels in both layouts; fresh context preserves input, explicit prior language resolves."
+      }
+    },
+    {
+      "kind": "valid",
+      "lang": "ru",
+      "word": "ты",
+      "input": "ты",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true,
+      "collision": {
+        "en": "ns",
+        "ru": "ты",
+        "reason": "G18 story4: valid words/technical labels in both layouts; fresh context preserves input, explicit prior language resolves."
+      }
+    },
+    {
+      "kind": "valid",
+      "lang": "ru",
+      "word": "ум",
+      "input": "ум",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true,
+      "collision": {
+        "en": "ev",
+        "ru": "ум",
+        "reason": "G18 story4: valid words/technical labels in both layouts; fresh context preserves input, explicit prior language resolves."
+      }
+    },
+    {
+      "kind": "valid",
+      "lang": "en",
+      "word": "ev",
+      "input": "ev",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true,
+      "collision": {
+        "en": "ev",
+        "ru": "ум",
+        "reason": "G18 story4: valid words/technical labels in both layouts; fresh context preserves input, explicit prior language resolves."
+      }
+    },
+    {
+      "kind": "valid",
+      "lang": "en",
+      "word": "herb",
+      "input": "herb",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true,
+      "collision": {
+        "en": "herb",
+        "ru": "руки",
+        "reason": "G18 story4: valid words/technical labels in both layouts; fresh context preserves input, explicit prior language resolves."
+      }
+    },
+    {
+      "kind": "valid",
+      "lang": "en",
+      "word": "tv",
+      "input": "tv",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true,
+      "collision": {
+        "en": "tv",
+        "ru": "ем",
+        "reason": "G18 story4: valid words/technical labels in both layouts; fresh context preserves input, explicit prior language resolves."
+      }
+    }
+  ],
+  "resolved_valid_word_corrections": [
+    {
+      "kind": "valid",
+      "lang": "ru",
+      "word": "файл",
+      "input": "файл",
+      "context": "fresh",
+      "baseline": "en",
+      "final": "unsure",
+      "independent": true
+    },
+    {
+      "kind": "valid",
+      "lang": "ru",
+      "word": "файл",
+      "input": "файл",
+      "context": "ruContext",
+      "baseline": "en",
+      "final": "unsure",
+      "independent": true
+    },
+    {
+      "kind": "valid",
+      "lang": "ru",
+      "word": "файл",
+      "input": "файл",
+      "context": "enContext",
+      "baseline": "en",
+      "final": "unsure",
+      "independent": true
+    },
+    {
+      "kind": "valid",
+      "lang": "en",
+      "word": "bbc",
+      "input": "bbc",
+      "context": "fresh",
+      "baseline": "ru",
+      "final": "unsure",
+      "independent": true
+    },
+    {
+      "kind": "valid",
+      "lang": "en",
+      "word": "bbc",
+      "input": "bbc",
+      "context": "ruContext",
+      "baseline": "ru",
+      "final": "unsure",
+      "independent": true
+    },
+    {
+      "kind": "valid",
+      "lang": "en",
+      "word": "bbc",
+      "input": "bbc",
+      "context": "enContext",
+      "baseline": "ru",
+      "final": "unsure",
+      "independent": true
+    },
+    {
+      "kind": "valid",
+      "lang": "en",
+      "word": "brb",
+      "input": "brb",
+      "context": "fresh",
+      "baseline": "ru",
+      "final": "unsure",
+      "independent": true
+    },
+    {
+      "kind": "valid",
+      "lang": "en",
+      "word": "brb",
+      "input": "brb",
+      "context": "ruContext",
+      "baseline": "ru",
+      "final": "unsure",
+      "independent": true
+    },
+    {
+      "kind": "valid",
+      "lang": "en",
+      "word": "brb",
+      "input": "brb",
+      "context": "enContext",
+      "baseline": "ru",
+      "final": "unsure",
+      "independent": true
+    },
+    {
+      "kind": "valid",
+      "lang": "en",
+      "word": "jq",
+      "input": "jq",
+      "context": "fresh",
+      "baseline": "ru",
+      "final": "unsure",
+      "independent": true
+    },
+    {
+      "kind": "valid",
+      "lang": "en",
+      "word": "jq",
+      "input": "jq",
+      "context": "enContext",
+      "baseline": "ru",
+      "final": "unsure",
+      "independent": true
+    },
+    {
+      "kind": "valid",
+      "lang": "en",
+      "word": "ns",
+      "input": "ns",
+      "context": "fresh",
+      "baseline": "ru",
+      "final": "unsure",
+      "independent": true
+    },
+    {
+      "kind": "valid",
+      "lang": "en",
+      "word": "ns",
+      "input": "ns",
+      "context": "enContext",
+      "baseline": "ru",
+      "final": "unsure",
+      "independent": true
+    },
+    {
+      "kind": "valid",
+      "lang": "en",
+      "word": "rfc",
+      "input": "rfc",
+      "context": "fresh",
+      "baseline": "ru",
+      "final": "unsure",
+      "independent": true
+    },
+    {
+      "kind": "valid",
+      "lang": "en",
+      "word": "rfc",
+      "input": "rfc",
+      "context": "ruContext",
+      "baseline": "ru",
+      "final": "unsure",
+      "independent": true
+    },
+    {
+      "kind": "valid",
+      "lang": "en",
+      "word": "rfc",
+      "input": "rfc",
+      "context": "enContext",
+      "baseline": "ru",
+      "final": "unsure",
+      "independent": true
+    },
+    {
+      "kind": "valid",
+      "lang": "en",
+      "word": "xml",
+      "input": "xml",
+      "context": "fresh",
+      "baseline": "ru",
+      "final": "unsure",
+      "independent": true
+    },
+    {
+      "kind": "valid",
+      "lang": "en",
+      "word": "xml",
+      "input": "xml",
+      "context": "ruContext",
+      "baseline": "ru",
+      "final": "unsure",
+      "independent": true
+    },
+    {
+      "kind": "valid",
+      "lang": "en",
+      "word": "xml",
+      "input": "xml",
+      "context": "enContext",
+      "baseline": "ru",
+      "final": "unsure",
+      "independent": true
+    }
+  ],
+  "previously_detected_now_unsure": [
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "ой",
+      "input": "jq",
+      "context": "fresh",
+      "baseline": "ru",
+      "final": "unsure",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "ой",
+      "input": "jq",
+      "context": "enContext",
+      "baseline": "ru",
+      "final": "unsure",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "ты",
+      "input": "ns",
+      "context": "fresh",
+      "baseline": "ru",
+      "final": "unsure",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "ты",
+      "input": "ns",
+      "context": "enContext",
+      "baseline": "ru",
+      "final": "unsure",
+      "independent": true
+    }
+  ],
+  "new_wrong_direction": [],
+  "newly_detected": [
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "а",
+      "input": "f",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": false
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "буду",
+      "input": ",ele",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "буду",
+      "input": ",ele",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "буду",
+      "input": ",ele",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "будут",
+      "input": ",elen",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "будут",
+      "input": ",elen",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "будут",
+      "input": ",elen",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "в",
+      "input": "d",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": false
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "вашу",
+      "input": "dfie",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "вашу",
+      "input": "dfie",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "вашу",
+      "input": "dfie",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "вечер",
+      "input": "dtxth",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "вечер",
+      "input": "dtxth",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "вечер",
+      "input": "dtxth",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "взял",
+      "input": "dpzk",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "взял",
+      "input": "dpzk",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "взял",
+      "input": "dpzk",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "выше",
+      "input": "dsit",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "выше",
+      "input": "dsit",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "выше",
+      "input": "dsit",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "двум",
+      "input": "ldev",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "двум",
+      "input": "ldev",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "двум",
+      "input": "ldev",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "двух",
+      "input": "lde[",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "двух",
+      "input": "lde[",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "двух",
+      "input": "lde[",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "еда",
+      "input": "tlf",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "еда",
+      "input": "tlf",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "еда",
+      "input": "tlf",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "едва",
+      "input": "tldf",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "едва",
+      "input": "tldf",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "едва",
+      "input": "tldf",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "едим",
+      "input": "tlbv",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "едим",
+      "input": "tlbv",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "едим",
+      "input": "tlbv",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "едят",
+      "input": "tlzn",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "едят",
+      "input": "tlzn",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "едят",
+      "input": "tlzn",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "ем",
+      "input": "tv",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "ест",
+      "input": "tcn",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "ест",
+      "input": "tcn",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "ест",
+      "input": "tcn",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "знал",
+      "input": "pyfk",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "знал",
+      "input": "pyfk",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "знал",
+      "input": "pyfk",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "иду",
+      "input": "ble",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "иногда",
+      "input": "byjulf",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "иногда",
+      "input": "byjulf",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "иногда",
+      "input": "byjulf",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "к",
+      "input": "r",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": false
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "когда",
+      "input": "rjulf",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "когда",
+      "input": "rjulf",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "когда",
+      "input": "rjulf",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "кофе",
+      "input": "rjat",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "кофе",
+      "input": "rjat",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "кофе",
+      "input": "rjat",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "круто",
+      "input": "rhenj",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "круто",
+      "input": "rhenj",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "круто",
+      "input": "rhenj",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "лучше",
+      "input": "kexit",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "лучше",
+      "input": "kexit",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "лучше",
+      "input": "kexit",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "меньше",
+      "input": "vtymit",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "меньше",
+      "input": "vtymit",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "меньше",
+      "input": "vtymit",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "могу",
+      "input": "vjue",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "могу",
+      "input": "vjue",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "могу",
+      "input": "vjue",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "могут",
+      "input": "vjuen",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "могут",
+      "input": "vjuen",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "могут",
+      "input": "vjuen",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "нашу",
+      "input": "yfie",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "нашу",
+      "input": "yfie",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "нашу",
+      "input": "yfie",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "нему",
+      "input": "ytve",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "нему",
+      "input": "ytve",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "нему",
+      "input": "ytve",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "ни",
+      "input": "yb",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "ни",
+      "input": "yb",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "ни",
+      "input": "yb",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "о",
+      "input": "j",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": false
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "перед",
+      "input": "gthtl",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "перед",
+      "input": "gthtl",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "перед",
+      "input": "gthtl",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "пусть",
+      "input": "gecnm",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "пусть",
+      "input": "gecnm",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "пусть",
+      "input": "gecnm",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "рад",
+      "input": "hfl",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "рад",
+      "input": "hfl",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "рад",
+      "input": "hfl",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "рады",
+      "input": "hfls",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "рады",
+      "input": "hfls",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "рады",
+      "input": "hfls",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "руки",
+      "input": "herb",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "с",
+      "input": "c",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "сел",
+      "input": "ctk",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "сел",
+      "input": "ctk",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "сел",
+      "input": "ctk",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "спят",
+      "input": "cgzn",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "спят",
+      "input": "cgzn",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "спят",
+      "input": "cgzn",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "среди",
+      "input": "chtlb",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "среди",
+      "input": "chtlb",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "среди",
+      "input": "chtlb",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "супер",
+      "input": "cegth",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "супер",
+      "input": "cegth",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "супер",
+      "input": "cegth",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "тогда",
+      "input": "njulf",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "тогда",
+      "input": "njulf",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "тогда",
+      "input": "njulf",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "у",
+      "input": "e",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": false
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "угу",
+      "input": "eue",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "угу",
+      "input": "eue",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "угу",
+      "input": "eue",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "ум",
+      "input": "ev",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "файл",
+      "input": "afqk",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "файл",
+      "input": "afqk",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "файл",
+      "input": "afqk",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "файлы",
+      "input": "afqks",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "файлы",
+      "input": "afqks",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "файлы",
+      "input": "afqks",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "хз",
+      "input": "[p",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "хз",
+      "input": "[p",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "хз",
+      "input": "[p",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "хлеб",
+      "input": "[kt,",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "хлеб",
+      "input": "[kt,",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "хлеб",
+      "input": "[kt,",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "хм",
+      "input": "[v",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "хм",
+      "input": "[v",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "ru",
+      "word": "хм",
+      "input": "[v",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "ru",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "en",
+      "word": "bbc",
+      "input": "иис",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "en",
+      "word": "bbc",
+      "input": "иис",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "en",
+      "word": "bbc",
+      "input": "иис",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "en",
+      "word": "brb",
+      "input": "ики",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "en",
+      "word": "brb",
+      "input": "ики",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "en",
+      "word": "brb",
+      "input": "ики",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "en",
+      "word": "ev",
+      "input": "ум",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "en",
+      "word": "herb",
+      "input": "руки",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "en",
+      "word": "jq",
+      "input": "ой",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "en",
+      "word": "ns",
+      "input": "ты",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "en",
+      "word": "rfc",
+      "input": "кас",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "en",
+      "word": "rfc",
+      "input": "кас",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "en",
+      "word": "rfc",
+      "input": "кас",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "en",
+      "word": "tv",
+      "input": "ем",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "en",
+      "word": "xml",
+      "input": "чьд",
+      "context": "fresh",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "en",
+      "word": "xml",
+      "input": "чьд",
+      "context": "ruContext",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true
+    },
+    {
+      "kind": "wrong",
+      "lang": "en",
+      "word": "xml",
+      "input": "чьд",
+      "context": "enContext",
+      "baseline": "unsure",
+      "final": "en",
+      "independent": true
+    }
+  ],
+  "declared_intentional_collisions": [
+    {
+      "en": "ns",
+      "ru": "ты",
+      "reason": "G18 story4: valid words/technical labels in both layouts; fresh context preserves input, explicit prior language resolves."
+    },
+    {
+      "en": "jq",
+      "ru": "ой",
+      "reason": "G18 story4: valid words/technical labels in both layouts; fresh context preserves input, explicit prior language resolves."
+    },
+    {
+      "en": "herb",
+      "ru": "руки",
+      "reason": "G18 story4: valid words/technical labels in both layouts; fresh context preserves input, explicit prior language resolves."
+    },
+    {
+      "en": "tv",
+      "ru": "ем",
+      "reason": "G18 story4: valid words/technical labels in both layouts; fresh context preserves input, explicit prior language resolves."
+    },
+    {
+      "en": "ev",
+      "ru": "ум",
+      "reason": "G18 story4: valid words/technical labels in both layouts; fresh context preserves input, explicit prior language resolves."
+    },
+    {
+      "en": "ble",
+      "ru": "иду",
+      "reason": "G18 story4: valid words/technical labels in both layouts; fresh context preserves input, explicit prior language resolves."
+    }
+  ]
+}
