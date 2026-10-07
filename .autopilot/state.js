@@ -11,8 +11,8 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-07",
-  "finishedAt": null,
+  "updatedAt": "2026-10-07T04:51:01.114396+00:00",
+  "finishedAt": "2026-10-07T04:51:01.114396+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -43,33 +43,33 @@ window.STATE =
       "status": "done",
       "startedAt": "2026-08-29T03:44:20+00:00",
       "finishedAt": "2026-08-29T03:52:30+00:00",
-      "note": "5 тасков, ярус T2"
+      "note": "20 тикетов, дополнения G15–G17 2026-10-07"
     },
     {
       "id": "build",
       "status": "done",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "17 тасков готовы; v1.3.0 локальная диктовка GigaAM v3",
-      "finishedAt": "2026-09-16T03:13:27.206206+00:00"
+      "note": "20 тикетов готовы; v1.4.0 input integrity, selection conversion, automatic model setup",
+      "finishedAt": "2026-10-07T04:51:01.114396+00:00"
     },
     {
       "id": "review",
       "status": "done",
       "startedAt": "2026-08-29T04:05:30+00:00",
-      "note": "T16/T17: два независимых ревью, P2 исправлен и перепроверен",
-      "finishedAt": "2026-09-16T03:13:27.206206+00:00"
+      "note": "G15–G17: два независимых integrated ревью, все существенные замечания исправлены и перепроверены",
+      "finishedAt": "2026-10-07T04:51:01.114396+00:00"
     },
     {
       "id": "final",
       "status": "done",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "finishedAt": "2026-09-16T03:13:27.206206+00:00",
-      "note": "Mac .dmg проверен; 71 XCTest; ручная приёмка микрофона/вставки ожидается"
+      "finishedAt": "2026-10-07T04:51:01.114396+00:00",
+      "note": "85 XCTest; Mac debug/release, подписанный mounted DMG/helper offline verified; ручная AX/микрофон приёмка ожидается"
     }
   ],
   "requirements": {
-    "total": 21,
-    "done": 20,
+    "total": 24,
+    "done": 23,
     "inTicket": 0,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
@@ -556,8 +556,11 @@ window.STATE =
         "G15"
       ],
       "blockedBy": [],
-      "status": "ready",
-      "wave": 15
+      "status": "done",
+      "wave": 15,
+      "commit": "321eba8",
+      "validation": "36 focused Linux tests passed; Mac build passed; both reviewers approved after repairs",
+      "repairs": 1
     },
     {
       "id": "19",
@@ -566,8 +569,10 @@ window.STATE =
         "G16"
       ],
       "blockedBy": [],
-      "status": "ready",
-      "wave": 15
+      "status": "done",
+      "wave": 15,
+      "commit": "2bb8f1f",
+      "validation": "Native real model cache/restarts/download/cancel/offline PASS; Spec+Standards no findings"
     },
     {
       "id": "20",
@@ -578,15 +583,21 @@ window.STATE =
       "blockedBy": [
         "18"
       ],
-      "status": "ready",
-      "wave": 16
+      "status": "done",
+      "wave": 16,
+      "commit": "12cc6de",
+      "tests": {
+        "passed": 85,
+        "failed": 0
+      },
+      "validation": "Native debug + integrated Spec/Standards approved; live AX acceptance pending"
     }
   ],
   "singlePass": null,
   "tests": {
-    "passed": 71,
+    "passed": 85,
     "failed": 0,
-    "note": "Linux Swift6.0.3 full final snapshot. Mac debug/release + offline real ASR + DMG signature verified; manual microphone/field acceptance pending."
+    "note": "Linux85/85; tested core/tests byte-identical. Mac debug/release and mounted DMG signature/helper offline pass. Live AX/microphone acceptance not claimed."
   },
   "debt": {
     "placeholders": [],
@@ -606,7 +617,7 @@ window.STATE =
     {
       "id": "G15",
       "title": "Целостность ввода и одиночные и/я",
-      "status": "in_progress",
+      "status": "done",
       "tickets": [
         "18"
       ]
@@ -614,7 +625,7 @@ window.STATE =
     {
       "id": "G16",
       "title": "Автоматическая подготовка модели",
-      "status": "in_progress",
+      "status": "done",
       "tickets": [
         "19"
       ]
@@ -622,7 +633,7 @@ window.STATE =
     {
       "id": "G17",
       "title": "Конвертация выделенного текста",
-      "status": "in_progress",
+      "status": "done",
       "tickets": [
         "20"
       ]
@@ -668,21 +679,34 @@ window.STATE =
       "spec": "review_spec",
       "standards": "review_standards",
       "recheck": "P2 resolved, no remaining actionable findings"
+    },
+    "G15-G17": {
+      "spec": "review_repairs_spec",
+      "standards": "review_repairs_standards",
+      "result": "Both approved integrated code; last cancellation fix rechecked"
     }
   },
   "blind": {
-    "run": "Linux swift test71 passed; Mac swift build/release and DMG signature pass; real offline ASR incl speech after32s",
-    "verdict": "G14 implemented; T16/T17 reviewed and committed",
-    "note": "Microphone and external-field interaction not exercised; manual acceptance pending",
+    "run": "Linux85tests passed; native Macdebug/release; mountedDMG codesign/version/helper offline passed",
+    "verdict": "G15–G17 implemented and reviewed, VERSION1.4.0",
+    "note": "Installed app1.3.0 unchanged; live AX/editor/microphone acceptance pending; initialfocus latency documented ADR0013",
     "drift": []
   },
   "manualAcceptance": {
-    "version": "1.3.0",
+    "version": "1.4.0",
     "status": "pending",
     "checks": [
-      "microphone consent and real hold/release dictation",
-      "Esc/focus change/physical typing during insertion",
-      "v1.2 Enter/Shift+Enter/fast typing regression acceptance"
+      "ozon после смены поля; b/B/z/Z и plan b",
+      "Option по выделению с переносами и без выделения",
+      "Enter/Shift+Enter и быстрый ghbdtn+Tab+abc",
+      "диктовка после перезапуска без скачивания; новый hold после подготовки"
     ]
+  },
+  "release": {
+    "version": "1.4.0",
+    "codeCommit": "12cc6de",
+    "artifact": "MacLayoutSwitcher-1.4.0.dmg",
+    "sha256": "87e8726fdbbd47575be2423b7f06b5231471723be137648e3e80e5e144570046",
+    "bytes": 10909995
   }
 }

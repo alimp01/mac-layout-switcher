@@ -1,258 +1,173 @@
 <!-- autopilot:start -->
 # Mac Layout Switcher
 
-Аналог Punto Switcher / Caramba Switcher для macOS: меню-бар-приложение,
-которое замечает текст в неверной раскладке («ghbdtn» → «привет»),
-переключает раскладку и перепечатывает слово. Плюс настраиваемые горячие
-клавиши (конвертация/откат и вкл-выкл авто; дефолт конвертации — одиночный
-Option), автозамена по шаблонам, звуки. Пары языков — RU/EN. Дневника набора нет.
-Swift 5.9 / SwiftPM, без Xcode-проекта. Ядро без внешних зависимостей; для диктовки G14 — отдельный нативный helper GigaSTT/ONNX (ADR 0012).
+Личный аналог Punto/Caramba для macOS, SwiftPM. RU/EN автоисправление,
+конвертация/откат по Option, настраиваемые хоткеи, сниппеты, звуки только на
+исправление, автозапуск, индикатор RU/EN и утка, самообновление, локальная
+диктовка GigaAM v3. Дневника набора нет.
 
-Рабочая машина сборки — Linux; e2e-приёмка только на Mac. Ядро `SwitcherCore`
-компилируется и тестируется на Linux, весь macOS-слой — под `#if os(macOS)`
-(на Linux target даёт пустой executable).
+## Текущее состояние — 2026-10-07
 
-## Команды (проверенные)
+Версия v1.4.0, G15–G17: защита от чужого префикса перед ozon, одиночные
+b/B/z/Z → и/И/я/Я, повторное использование модели с runtime cache,
+автоматическая подготовка модели, конвертация выделения существующим хоткеем.
+Актуальные статусы/доказательства — .autopilot/state.js, manifest.md,
+input-repair-spec.md и input-repair-qa.md в каталоге прогона.
+На Mac пользователя пока установлена1.3.0; новая1.4.0 поставляется обновлением/DMG.
+Полный Linux XCTest85/85, Mac debug/release и mounted DMG/helper прошли;
+пользователь сообщил ошибки скриншотами, а не подтвердил полную приёмку.
 
-Swift не в PATH — в начале каждой bash-сессии:
-```sh
-export PATH=/home/claudebot/swift-toolchain/swift-6.0.3-RELEASE-ubuntu24.04/usr/bin:$PATH
-```
+## Среда и команды
 
-| Команда | Что делает |
-|---------|------------|
-| `swift test` | 71 тест ядра `SwitcherCore` (зелёные на Linux); один класс — `swift test --filter EngineCoreTests` |
-| `swift build` | Сборка обоих target'ов (на Linux macOS-слой — пустой executable) |
-| `bash -n build.sh` / `bash -n build-dmg.sh` | Шеллчек сборочных скриптов — единственная их проверка на Linux |
-| `./build.sh` | ТОЛЬКО macOS 13+ с Xcode CLT (`xcode-select --install`): релиз + `dist/MacLayoutSwitcher.app` (ad-hoc подпись) |
-| `./build-dmg.sh` | ТОЛЬКО macOS: собирает `.app` (через `build.sh`, если его нет; `--rebuild` — заново) и упаковывает в `dist/MacLayoutSwitcher.dmg` |
-| `open dist/MacLayoutSwitcher.app` | Запуск .app (первый раз — правый клик по .app → «Открыть») |
+- Локальный checkout: work/mac-layout-switcher в текущей задаче Codex на Mac.
+- Серверный checkout: /home/claudebot/mac-layout-switcher, ssh claudebot-server.
+- Mac15.6.1 arm64, Swift6.1.2: native debug/release build доступен. CLT не
+  содержит XCTest, поэтому тесты ядра выполняются на Linux в отдельном /tmp
+  snapshot; основной checkout сервера не использовать как песочницу.
+- Swift на сервере: export PATH=/home/claudebot/swift-toolchain/swift-6.0.3-RELEASE-ubuntu24.04/usr/bin:$PATH
+- swift test — публичные тесты SwitcherCore; swift test --filter ClassName
+  для targeted red/green. Последний полный прогон:85тестов,0ошибок; доказательства в state/QA.
+- swift build — Mac app + native helper (на Linux пустой executable).
+- ./build.sh — release .app; ./build-dmg.sh --rebuild — подписанный ad-hoc DMG.
+- bash -n build.sh build-dmg.sh tools/self-update.sh — shell syntax.
+- MLS_DIST_DIR задаёт каталог .app/.dmg; использовать временный каталог вне
+  Documents. iCloud FileProvider может возвращать FinderInfo после codesign,
+  а mmap ModuleCache/.git временами зависает. Надёжная финальная сборка —
+  из git archive во временном каталоге вне Documents. Упаковщик очищает xattr
+  staging и проверяет codesign --verify --deep --strict перед DMG.
+- MLS_DISABLE_SPEECH=1 swift build позволяет проверить app без бинарной
+  зависимости; SwiftPM при этом может удалить Package.resolved — восстановить
+  точный файл HEAD, не коммитить случайное удаление. Финальный DMG включает speech.
 
-## Структура
+## Работа через Autopilot
 
-```
-Package.swift                 3 target'а: SwitcherCore, MacLayoutSwitcher (exe), SwitcherCoreTests
-build.sh                      сборка .app в dist/ + ad-hoc codesign (только macOS)
-build-dmg.sh                  упаковка .app в dist/MacLayoutSwitcher.dmg (только macOS)
-Sources/
-  SwitcherCore/               ядро, платформонезависимое (тестируется на Linux)
-    Lang.swift KeyMap.swift KeyMap-раскладки, DetectorBigrams.swift-таблицы
-    WordBuffer.swift Detector.swift SnippetStore.swift EngineCore.swift
-    Hotkey.swift              модель настраиваемой горячей клавиши (matches/displayName)
-  MacLayoutSwitcher/          macOS-слой, весь под #if os(macOS)
-    main.swift Engine.swift Config.swift
-    System/  EventTap Typist LayoutSwitcher SecureInput FrontApp
-             KeyStroke KeyTranslator Permissions LoginItem (автозапуск, SMAppService)
-    UI/      StatusBarUI.swift Sounds.swift HotkeyRecorderWindow.swift
-Tests/SwitcherCoreTests/      XCTest, только через публичный шов SwitcherCore
-```
+Любая доработка: дополнение в бриф → G## в manifest → spec/отдельный тикет →
+свежий субагент-исполнитель → два независимых ревью (Spec/Standards) → коммит.
+Оркестратор код проекта не пишет, работает с .autopilot/, CLAUDE.md и git.
+Непересекающиеся зоны можно выполнять параллельно, интеграцию зависимых —
+последовательно. Список concerns в state.js исторический; проверять, не
+устарела ли находка после ADR0013. Строки manifest снимает только пользователь.
+Навык доступен на Mac: /Users/ilyaalimpiev/Documents/Claude/.agents/skills/autopilot/SKILL.md.
 
-Настройки — `~/Library/Application Support/MacLayoutSwitcher/`: `config.json`
-(`AppConfig`: autoSwitch/sounds/excludedApps/undoThreshold/convertHotkey/
-toggleAutoHotkey/launchAtLogin), `snippets.json`, `exclusions.json`, `undo-counts.json`
-(счётчики отмен per-word).
+## Архитектура и ключевые файлы
 
-## Ключевые файлы
+Sources/SwitcherCore — чистое платформонезависимое ядро без зависимостей.
+Sources/MacLayoutSwitcher целиком под #if os(macOS). Package.swift подключает
+закреплённый GigaSTT2.17.0 только speech-helper на Mac arm64. На Intel/Linux
+Apple binary не скачивается. Основная app macOS13+, диктовка arm64/macOS13.4+.
 
-- `Sources/MacLayoutSwitcher/main.swift` — точка входа: `NSApplication(.accessory)`, `AppDelegate` (онбординг разрешений → старт Engine + меню-бар; открывает окно рекордера хоткеев).
-- `Sources/SwitcherCore/EngineCore.swift` — вся логика решений «что сделать на событие»; шов тестов. Ниже это `EngineCore`, а не macOS-`Engine`. `InputEvent.hotkey(HotkeyAction{convert,toggleAuto})` — абстрактное хоткей-событие; порог отмен (`undoThreshold`, счётчики `undoCounts`) тоже здесь.
-- `Sources/SwitcherCore/Hotkey.swift` — модель настраиваемой клавиши: `keyCode: UInt16?` (nil = только модификатор) + `Set<Modifier>`; `matches(keyCode:modifiers:)` (точное сравнение) и `displayName` для меню/окна. Платформонезависима, покрыта тестами.
-- `Sources/MacLayoutSwitcher/Engine.swift` — macOS-обвязка: `EventTap`→`KeyStroke`→события `EngineCore`→исполнение через `Typist`/`LayoutSwitcher`; детекция тапа модификаторов, сопоставление с хоткеями через `Hotkey.matches`, автопауза, персист undo-counts.json.
-- `Sources/MacLayoutSwitcher/UI/HotkeyRecorderWindow.swift` — окно «Горячие клавиши…»: две строки (конвертация/откат, вкл-выкл авто), «Записать» ловит следующее сочетание локальным NSEvent-монитором, «Сброс»; пишет в общий `Config`, работающий `Engine` читает живьём (перезапуск не нужен).
-- `Sources/MacLayoutSwitcher/System/EventTap.swift` — CGEventTap АКТИВНЫЙ (`.defaultTap`): handler возвращает `TapDecision` (`.pass`/`.suppress`), свою синтетику пропускает по маркеру без обработки, re-enable после timeout.
-- `Sources/MacLayoutSwitcher/System/Typist.swift` — синтетический ввод на своей последовательной очереди: `replaceLastWord(len:with:)` (Backspace-серия + юникод) и `send(KeyPress)` — отправка ЗАРАНЕЕ созданного нажатия (`makeKeyPress(keyCode:flags:)` / `makeUnicodePress(_:)`, синхронно, `nil` = система отказала) строго после всего поставленного раньше; `isBusy` — очередь ещё не опустела.
-- `Sources/MacLayoutSwitcher/Config.swift` — `AppConfig` (autoSwitch/sounds/excludedApps/undoThreshold/convertHotkey/toggleAutoHotkey/launchAtLogin, свой `init(from:)` — старый config.json без новых полей грузится) + пути к config/snippets/exclusions/undo-counts JSON и load/save undo-counts. `launchAtLogin: Bool` (дефолт false) — лишь ЖЕЛАЕМОЕ состояние автозапуска; факт спрашивается у системы (`LoginItem`).
-- `Sources/MacLayoutSwitcher/System/LoginItem.swift` — обёртка `SMAppService.mainApp` (`enable`/`disable`/`isEnabled`/`requiresApproval`/`openLoginItemsSettings`), `@available(macOS 13.0, *)`. Источник истины по автозапуску — `SMAppService.status`, а НЕ config: пользователь мог снять объект входа в Системных настройках. Ошибки `enable/disable` не глотаются — пробрасываются наверх.
-- `Sources/SwitcherCore/Detector.swift` (+ `DetectorBigrams.swift`) — вердикт RU/EN/unsure, исключения.
+- EventTap/KeyStroke/KeyTranslator: активный CGEventTap (.defaultTap), keyDown,
+  keyUp, flagsChanged и события изменения контекста (клик/перетаскивание,
+  прерывание tap). Перевод клавиш Carbon UCKeyTranslate. Своя синтетика
+  помечена eventSourceUserData=0xC0FFEE и не возвращается в ядро.
+- Engine переводит события в EngineCore, исполняет outcome через Typist,
+  связывает конфигурацию, хоткеи и диктовку. Никакого AX/I/O/sleep в callback.
+- EngineCore/WordBuffer/Detector/ShortWords/KeyMap: решения, язык, буфер,
+  отмена. Приоритет на пробеле: snippets, авто-детектор, иначе кандидат ручной
+  конвертации. Граница слова только пробельные символы; пунктуация может быть
+  русскими буквами в неверной EN-раскладке (cgfcb,j=спасибо).
+- EngineOutcome.expectedText содержит точный исходник для независимой проверки
+  исполнителем. discardReplacement отменяет provisional undo teaching при
+  отказе. Старый callback не должен сбрасывать состояние нового поля.
+- InputFocusGuard: фоновые AX-снимки, отдельные permits фокуса и исправлений;
+  быстрый reset по навигации. ReplacementSource проверяет пустой caret,
+  UTF16 диапазон, точный текст и начало слова, а не только совпавший хвост.
+- Typist: единая serial queue для targeted AX замены, реальных replay клавиш
+  и диктовки. Исправление слова — выбрать проверенный диапазон и ОДИН
+  AXSelectedText setter с повторной проверкой фокуса/исходника/permit.
+  Полный AXValue чужого поля не перезаписывать. Backspace-цикла больше нет:
+  прерывание цикла оставляло уже стёртый префикс (ADR0013).
+- Пробел входит в атомарную замену; Enter/Tab досылаются исходным keyCode и
+  flags только после записи либо безопасного отказа в том же поле. Shift+Enter
+  сохраняется. Legacy-перепечатки после доставленного Enter больше нет.
+- InputReplayPolicy: физические клавиши за явно queued Tab/Enter следуют
+  native-порядку до idle; автозамены в этой части очереди выключены. Ошибка
+  исправления отменяет зависимые исправления, но не реальные клавиши.
+- SelectionConverter/ConversionNotice: явная конвертация выделения вне tap,
+  захват диапазона/текста, приоритет перед undo. Тот же targeted AX setter;
+  без clipboard/Enter. Отказ объясняется неактивирующим окном. KeyMap выбирает
+  EN при наличии mapped Cyrillic, иначе RU; неизвестные символы и whitespace
+  сохраняются, пунктуация физических RU-буквенных клавиш конвертируется.
 
-## Архитектура
+## Ввод и ограничения
 
-Поток: клавиша → `EventTap` (CGEvent) → `Engine.handle(keyEvent:)` транслирует
-`KeyStroke` в `InputEvent` (`char/backspace/boundary/hotkey(HotkeyAction)/reset`)
-→ `EngineCore.handle(_:)` копит слово в `WordBuffer` и возвращает `EngineOutcome`
-(`command: .none | .replaceLast(len,with,switchTo)` + `excludedWordToPersist` +
-`undoCountUpdate` + `reinjectSeparator`) → `Engine.execute` вызывает
-`LayoutSwitcher.select`, затем (если `reinjectSeparator` непуст) СНАЧАЛА
-синхронно создаёт событие досылки (`Typist.makeKeyPress` по keyCode/флагам
-исходного нажатия) и только при успехе ставит `replaceLastWord` + `send(press)`
-и возвращает tap'у `.suppress`; не создалось — `.pass` + NSLog, исправление в
-legacy-варианте (слово вместе с доставленным разделителем). Разделитель не
-теряется никогда.
+- reset, пауза, смена поля/клик/команда очищают слово/undo/язык. Enter/Tab
+  принимают решение исправления, затем не оставляют undo для нового поля.
+- Одиночные b/B/z/Z исправляются и без предыдущего русского слова. Явный
+  английский контекст (plan b), пользовательские исключения, правильные
+  и/И/я/Я и I/a сохраняются. Остальные одиночные буквы не угадывать агрессивно.
+- Неподдерживающий запись AXSelectedText редактор получает исходный ввод;
+  явный хоткей объясняет отказ. После нового фокуса первые очень быстрые буквы
+  могут быть забыты до async binding, тогда исправление пропускается.
+- AX+CGEvent не общая транзакция: остаётся узкое окно внешней смены фокуса
+  между проверкой и доставкой Enter/Tab. Несвязанная навигация отменяет старые
+  pending действия вместо переадресации в произвольное поле. ADR0013.
+- Проверяющий командный процесс имеет AXIsProcessTrusted()==false. Нативная
+  компиляция и pure core tests НЕ являются живой UI-приёмкой. Не выдавать
+  разрешения принудительно, не печатать тесты в текущие тексты пользователя.
+- Автопауза: SecureInput либо excludedApps, ядро не накапливает текст.
+  toggleAuto работает и в автопаузе. Ручная пауза останавливает tap/диктовку.
 
-Шов — публичный API `SwitcherCore` (`EngineCore`/`Hotkey`/…): платформонезависимо
-и детерминированно, поэтому тестируется на Linux; macOS-`Engine` только переводит
-CGEvent-мир в события ядра и обратно. `EngineCore.init` принимает `now:` для теста
-окна отката.
+## Настройки и пользовательские функции
 
-Хоткеи. `Engine` не знает про Option как таковой: он собирает описание нажатия
-(`keyCode` + набор модификаторов) — из тапа чистых модификаторов
-(`modifierTapEvent`, жест с `peak`/`dirty`) или из keyDown с модификаторами — и
-спрашивает `config.convertHotkey`/`toggleAutoHotkey` через `Hotkey.matches`.
-Совпало → `.hotkey(.convert)` (приоритет) или `.hotkey(.toggleAuto)`. Дефолт
-`convertHotkey` — `[.option]` (одиночный Option, обратная совместимость),
-`toggleAutoHotkey` — не назначен. Левый и правый вариант модификатора НЕ
-различаются (обе Option → `.option`) — симметрично в `Engine` и в рекордере.
-`.toggleAuto` обрабатывается ДО `guard isPaused` — переключает авто даже на
-автопаузе, персистит config и дёргает `onAutoSwitchChanged` (галочка в меню).
+Application Support/MacLayoutSwitcher/: config.json, snippets.json,
+exclusions.json, undo-counts.json. Новые поля AppConfig — decodeIfPresent с
+дефолтом. Битые файлы: config.broken/дефолты, прочие пустые наборы. Персист на
+фоновой Config queue; не звать load из tap. load() синхронизирует очередь.
 
-На границе слова (`boundary`) `EngineCore` в порядке приоритета: (1) сниппет
-`SnippetStore.expansion` — если есть, детектор к слову не применяется;
-(2) при `autoSwitch` — `Detector.verdict` → авто-исправление; (3) иначе слово
-остаётся кандидатом на ручной Option. Разделитель на `boundary` ещё НЕ
-доставлен (активный tap перехватил его): `replaceLast(len: word.count)` стирает
-только слово, а `EngineOutcome.reinjectSeparator` велит исполнителю дослать
-разделитель ПОСЛЕ перепечатки. Legacy-режим `EngineCore(separatorAlreadyTyped:
-true)` (ADR 0004: разделитель уже напечатан, стирается и перепечатывается
-вместе со словом) сохранён для совместимости и покрыт тестом.
+convertHotkey по умолчанию одиночный Option: выделение, иначе отмена свежего
+автоисправления (5с), иначе текущее/последнее слово. Настройка через окно
+«Горячие клавиши…». Левая/правая версии модификаторов схлопнуты. Диктовка —
+Ctrl+Option+Space. Голые печатные клавиши/конфликты диктовки отклоняются.
+undoThreshold по умолчанию3: исключение после повторных откатов, счётчики
+переживают запуск. engine.reload не меняет let-порог, нужен перезапуск.
 
-Конвертация/откат (`.hotkey(.convert)`, дефолтом — одиночный Option). В окне
-`undoWindow` (5 с) после авто-исправления → откат всегда возвращает как было; в
-исключения (`Detector.addExclusion`, персист `exclusions.json`) слово уходит НЕ
-с первого раза, а по достижении порога `undoThreshold` (дефолт 3): каждый откат
-инкрементит счётчик слова, при `>= порога` слово исключается и счётчик
-сбрасывается. Счётчики per-word живут в `undo-counts.json` (ключ — слово в нижнем
-регистре) и переживают перезапуск. Порог `1` воспроизводит прежнее поведение
-(исключение с первого отката). Вне окна → ручная конвертация текущего/последнего
-слова (кириллица → EN, иначе → RU, так повторный хоткей возвращает как было).
+SMAppService.mainApp (macOS13): login item факт берётся из системы, не config;
+requiresApproval объяснить и открыть настройки. RU/EN в меню — системное TIS
+уведомление + onLayoutSwitched. SVG→icns: tools/make-icns.py, иконка утка.
 
-Автопауза считается на каждое событие: `core.isPaused = SecureInput.isActive ||
-isExcludedApp()` (bundle id из `FrontApp` против `config.excludedApps`). На паузе
-ядро молчит и не буферизует.
+## Диктовка GigaAM v3
 
-Своя синтетика `Typist` возвращается в tap — отсекается по маркеру
-`EventTap.syntheticMarker = 0xC0FFEE` в `eventSourceUserData` (защита от цикла
-перепечатки), не по времени.
+Удержание хоткея записывает, отпускание распознаёт и вставляет без Enter;
+Esc отменяет, максимум5мин. Настраивается в общем окне хоткеев.
+SpeechModels/gigaam-v3-e2e-2026-06-22 отдельно от обновляемого .app.
+Первое открытие/удержание автоматически проверяет и при необходимости
+загружает233МБ, с прогрессом/отменой. Ошибка не вызывает бесконечного повтора.
+После подготовки/позднего разрешения нужна новая попытка удержания: микрофон
+не включается сам. Существующие корректные файлы не перекачиваются.
 
-Меню-бар (`StatusBarUI`) даёт колбэки: пауза = `engine.stop()/start()` (ручной
-паузы внутри Engine нет), автопереключение = `setAutoSwitch` (пишет config;
-`setAutoSwitchState` синхронизирует галочку, когда авто переключил хоткей),
-звуки, тумблер «Запускать при входе» = `onToggleLaunchAtLogin` (шлёт ЖЕЛАЕМОЕ
-состояние; `LoginItem` пробует enable/disable, факт возвращается галочке через
-`setLaunchAtLoginState` — галочка по факту `LoginItem.isEnabled`, не по config),
-«Горячие клавиши…» = `onOpenHotkeys` → `HotkeyRecorderWindow`, открыть
-snippets.json/config.json. Настройки — `~/Library/Application Support/
-MacLayoutSwitcher/` (config.json + snippets.json + exclusions.json +
-undo-counts.json).
+Проверка размеров+SHA256 обязательна. Runtime создаёт
+optimized_cache/v3_e2e_rnnt_encoder_int8_optimized.ort — это не порча модели!
+Разрешены только эти производные cache dir/file, без symlinks/лишних моделей;
+битый .ort runtime перестраивает из исходных файлов. T19 проверен реальным
+повторным offline helper + checkInstalled, download/repair/cancel/offline.
 
-## Соглашения кода
+Contents/Helpers/SpeechRecognizer — статически связанный ONNX helper.
+SpeechRecognitionProcess запускает Process в приватном CWD с относительным
+WAV, без сетевого fallback. Записи временные, удаляются; текст/аудио не логируют.
+DictationSession/DictationGesture в core: session identity, отмена, hotkey
+keyUp/autorepeat. reset жестов при остановке tap/рекордере хоткея обязательный.
+DictationTarget проверяет защищённое поле/фокус/выделение; Typist вставляет
+Unicode на общей очереди. Если поле поменялось или AX недоступен, результат
+в панели с явным «Копировать»; автоматическая вставка clipboard не трогает.
 
-- Ядро (`Sources/SwitcherCore/`) — без импортов платформы, компилируется на
-  Linux. Весь `Sources/MacLayoutSwitcher/` (включая `System/`, `UI/`) целиком
-  обёрнут `#if os(macOS)` … `#endif` — на Linux это пустой executable, `swift
-  build`/`swift test` обязаны быть зелёными после каждой правки.
-- Тесты — только через публичные сигнатуры `SwitcherCore` (шов один). macOS-код
-  компиляцией не проверить: писать по документированным API, консервативно.
-- Зависимости не добавлять без необходимости. Узкое исключение G14: закреплённый GigaSTT 2.17.0 только для speech-helper на macOS arm64; ядро остаётся без зависимостей. Нет инструмента → вернуть `BLOCKED`, ничего не ставить.
-- JSON-файлы: битый/отсутствующий config → бэкап `.broken` рядом + дефолты;
-  битый snippets/exclusions/undo-counts → пустой набор. config и undo-counts
-  пишутся атомарно с `.sortedKeys`. Новые поля в `AppConfig` — только через
-  `decodeIfPresent` с дефолтом (старый config.json обязан грузиться).
+## Релиз — обязательно
 
-## Подводные камни
+1. Бамп VERSION, commit, git push в public https://github.com/alimp01/mac-layout-switcher.
+2. Fast-forward чистого серверного checkout и git archive --format=tar.gz
+   --prefix=mac-layout-switcher/ в /var/www/cat.alimp.space/mac-layout-switcher.tar.gz.
+   Публиковать атомарно через временный файл + mv.
+3. Проверить raw VERSION main и содержимое публичного архива
+   https://cat.alimp.space/mac-layout-switcher.tar.gz. Без VERSION клиенты не увидят релиз.
+4. Mac DMG из финального кода, mounted read-only проверить версию,
+   codesign --verify --deep --strict, helper, symlink Applications.
 
-- Tap АКТИВНЫЙ (`.defaultTap`, с v1.2.0 — G12, ADR 0004 пересмотрен ADR 0011):
-  разделитель на границе слова подавляется ТОЛЬКО когда ядро исправляет слово,
-  и досылается `Typist.send` после перепечатки (тем же keyCode и флагами —
-  Shift+Enter остаётся переносом строки). Хоткеи/flagsChanged — `.pass`. Колбэк
-  обязан оставаться быстрым: решение = детектор на одном слове, без I/O —
-  весь персист (`Config.save/saveUndoCounts/saveExclusions`) кодирует снимок
-  на месте и пишет файл на фоновой `persistQueue`; `load*` ждут её (`sync {}`)
-  — не звать `load` из колбэка tap'а.
-- Гонка ввода во время перепечатки (~150–200 мс): пока `typist.isBusy`,
-  пользовательские keyDown (буквы/Backspace/разделители/команды) подавляются
-  и ПЕРЕИГРЫВАЮТСЯ той же очередью следом — в исходном порядке, с маркером
-  синтетики (tap повторно не обработает), а ядро получает их сразу, в колбэке.
-  Буква переигрывается юникодом (`makeUnicodePress` — то, что ядро уже
-  получило), остальное — keyCode+флаги. Не удалось создать событие → обычный
-  путь (`.pass`, ляжет посреди синтетики — лучше, чем потерять).
-- Граница слова = ТОЛЬКО пробелы (` \t\n\r`). Пунктуация НЕ граница: клавиши
-  `;,.[]` в EN дают буквы ЙЦУКЕН внутри слова (`cgfcb,j` = «спасибо»), детектор
-  ждёт их частью слова. Не добавлять пунктуацию в `boundaryChars`.
-- Звуки только на исправление/откат (клика клавиш нет — убран по просьбе пользователя);
-  в паузе тишина сама собой: ядро не выдаёт replaceLast.
-- `usleep` внутри колбэка tap'а вызвал бы `tapDisabledByTimeout` — вся синтетика
-  `Typist` уходит на отдельную очередь. Не переносить печать в колбэк.
-- Ad-hoc подпись (`codesign -s -`): без неё TCC не запомнит выданные разрешения
-  между запусками. Gatekeeper при первом запуске ругнётся — правый клик по .app
-  → «Открыть» (один раз). Нотаризации нет — это личная сборка.
-- Приложению нужны ДВА разрешения (Accessibility + Input Monitoring); после
-  выдачи — перезапуск (пункт меню «Я выдал разрешения»), TCC-доверие надёжнее
-  подхватывается новым процессом.
-- `dist/` пересобирается `build.sh` с нуля (`rm -rf` бандла) каждый раз.
-- Хоткей с обычной клавишей (например ⌘⇧K) по-прежнему физически напечатается:
-  Engine возвращает `.pass` для хоткеев (подавление в этом таске не вводилось,
-  хотя активный tap теперь это позволяет). Для конвертации это не мешает (мы
-  стираем и перепечатываем), но назначать «печатающий» keyCode-хоткей стоит
-  осознанно — дефолт `[.option]` ничего не печатает.
-- Левый и правый вариант модификатора НЕ различаются: рекордер и `Engine`
-  сводят обе Option к `.option`. Правые `Modifier`-кейсы в модели есть, но
-  назначить «только правый Option» нынешний слой не даст — так дефолт срабатывает
-  на любой Option.
-- `HotkeyRecorderWindow` и правки Engine/UI/main собраны ВСЛЕПУЮ (компиляции
-  macOS-слоя на Linux нет). Вся проверяемая логика хоткеев вынесена в
-  `SwitcherCore.Hotkey` и покрыта тестами; AppKit-обвязка — по документированным
-  API, консервативно.
-- Автозапуск: на современных macOS `SMAppService.mainApp.register()` часто НЕ
-  бросает ошибку, а переводит статус в `.requiresApproval` (объект входа создан,
-  но выключен, пока пользователь не подтвердит его в «Системные настройки →
-  Основные → Объекты входа») — это НЕ ошибка. Приложение показывает подсказку и
-  открывает панель «Объекты входа» (`openLoginItemsSettings`). Факт из
-  `SMAppService.status` — источник истины, галочка меню ставится по факту
-  (`LoginItem.isEnabled`), а не по желаемому config-флагу; `requiresApproval` →
-  галочка НЕ загорается (не показываем ложный успех). `AppConfig.launchAtLogin`
-  синхронизируется с фактом при старте и после каждой попытки.
-- `Engine.reload()` НЕ переприменяет `undoThreshold` (в `EngineCore` он `let`) —
-  правка порога в config.json подхватывается только перезапуском. Сами хоткеи,
-  наоборот, читаются живьём из `Config` при каждом событии.
-
-## Тесты
-
-`swift test` — 71 XCTest через публичный SwitcherCore: прежние 58 и 13 тестов состояния/жестов/нормализации диктовки. Финальный прогон на Linux 2026-09-16 зелёный. На Mac есть Swift 6.1.2 и рабочая сборка, но CLT без XCTest: тесты запускаются на Linux-сервере. Микрофон/TCC/вставка в чужие поля — отдельная ручная приёмка.
-
-- Иконка приложения: `Resources/AppIcon.svg` (утка) → `python3 tools/make-icns.py` → `Resources/AppIcon.icns`; build.sh кладёт её в бандл (CFBundleIconFile=AppIcon).
-- Меню-бар показывает текущую раскладку текстом «RU»/«EN» (attributedTitle, в паузе серый + ⏸); обновление по DistributedNotificationCenter (TISNotifySelectedKeyboardInputSourceChanged) + колбэк Engine.onLayoutSwitched после select; поллинга нет.
-
-- Короткие слова: `ShortWords.swift` — словари частотных RU/EN слов 1–4 букв; Detector проверяет их ДО порога длины и биграмм. Контекст (язык предыдущего слова) решает коллизии (of↔ща и т.п.) и обязателен для однобуквенных («plan b» не трогается, «Rfr ns b z» → «Как ты и я» по инерции).
-
-## Диктовка G14 (v1.3.0, ADR 0012)
-
-- Пользователь выбрал локальное распознавание GigaAM v3 и **удержание** хоткея: ⌃⌥Space записывает, отпускание распознаёт/вставляет. Esc отменяет. Сочетание меняется в существующем окне; конфликты/голые печатные клавиши отклоняются. Максимум 5 минут.
-- Новый пункт «Диктовка…»: явная однократная загрузка 233 MB, SHA256/прогресс/отмена, затем разрешение микрофона. После настройки нужно заново удержать сочетание; запоздавшее разрешение не включает микрофон.
-- GigaSTT 2.17.0 закреплён SwiftPM только на macOS arm64; отдельный Contents/Helpers/SpeechRecognizer связан статически с ONNX. Основная .app по-прежнему macOS13+, диктовка требует Apple Silicon/macOS13.4+ (реальный minimum OS XCFramework выше заявленного package13.0). Intel/Linux не скачивают бинарную зависимость.
-- Helper выполняется Process с приватным CWD и относительным WAV; нет сетевого fallback. Все процессы/загрузки/AX/запись вне EventTap. Записи временные, удаляются при завершении/отмене; текста/аудио в логах нет. Модель живёт в Application Support/MacLayoutSwitcher/SpeechModels отдельно от обновляемого бандла.
-- Sources/SwitcherCore/DictationSession.swift: публичные session/gesture и тесты; Sources/MacLayoutSwitcher/Speech/: coordinator/AVAudioRecorder/AX target; System/SpeechModelStore.swift и SpeechRecognitionProcess.swift; UI/DictationPanel.swift — неактивирующая панель.
-- EventTap теперь слушает keyUp для пары хоткея. При остановке/старте tap и на границах рекордера сочетаний **полный reset** жеста и suppressedKeyUps: cancelHold сохраняет ожидаемый keyUp и здесь недостаточен (исправлено ревью P2).
-- Вставка на общей очереди Typist, Unicode с маркером, без Enter/clipboard/автоконвертации. Контроль фокуса и Secure Input, reset буфера/undo. Если поле сменилось или AX не отдаёт выделение — панель результата с явной кнопкой «Копировать». Пауза/выход отменяют все операции; выход ждёт cleanup.
-- Проверено: 71 Linux XCTest, Mac debug/release, настоящий офлайн ASR, поздняя речь после32с, тишина, ошибки/отмена/таймауты, подпись внутри DMG. Микрофон и вставка в реальные приложения ещё требуют ручной приёмки Ильи; v1.2.0 он также не проверял.
-- iCloud FileProvider в Documents возвращает FinderInfo после codesign. Для проверяемого артефакта задавать `MLS_DIST_DIR` на временный каталог вне Documents и запускать `./build-dmg.sh --rebuild`. Скрипты понимают одинаковый override; DMG staging очищается от xattr и проверяется codesign до упаковки. Автообновление уже собирает во временной папке.
-
-## Релиз новой версии (ОБЯЗАТЕЛЬНЫЙ ритуал)
-
-Приложения пользователей проверяют raw `VERSION` с main GitHub. Любое изменение,
-которое должно доехать до пользователей:
-1. Бампни `VERSION` (semver, одна строка).
-2. commit + `git push` (репо публичное: github.com/alimp01/mac-layout-switcher).
-3. Обнови архив: `git archive --format=tar.gz --prefix=mac-layout-switcher/ -o /var/www/cat.alimp.space/mac-layout-switcher.tar.gz HEAD`
-Не бампнул VERSION → приложения обновления НЕ увидят.
-
-- Автообновление: Updater (raw VERSION с GitHub, при старте + раз в 24 ч + пункт меню)
-  → алерт → tools/self-update.sh (скачивает main.tar.gz, собирает во временном,
-  атомарно заменяет .app, перезапускает; лог ~/Library/Logs/MacLayoutSwitcher-update.log).
-  После обновления TCC-разрешения выдаются заново (ad-hoc). Вне .app-бандла
-  Updater обновление не предлагает.
-
-## Репозиторий
-
-GitHub: https://github.com/alimp01/mac-layout-switcher (публичный). Push по HTTPS,
-креды в ~/.git-credentials (аккаунт alimp01). Публичный архив для скачивания на Mac:
-https://cat.alimp.space/mac-layout-switcher.tar.gz (обновлять `git archive` после изменений).
-
-## Как здесь работает Autopilot
-
-Сборка ведётся навыком `/autopilot`. Требования, спецификация и таски — в `.autopilot/`.
-Прогресс — `.autopilot/dashboard.html`. Правило: требование из `manifest.md`
-может снять только пользователь.
-
-Если работа продолжается — скажи «продолжи автопилот»: состояние поднимется
-из `.autopilot/state.js`, переспрашивать ничего не нужно.
+Updater проверяет raw VERSION при запуске/раз в сутки/по меню. По согласию
+запускает Resources/self-update.sh: скачатьmain, собрать вtemp, атомарно
+заменить.app, перезапустить. Лог ~/Library/Logs/MacLayoutSwitcher-update.log.
+Вне.app обновление не предлагается. Подпись ad-hoc, DeveloperID/notarization
+нет. После обновления TCC может снова запросить Accessibility/Input Monitoring;
+микрофон — отдельно. Полную установленную.app пользователя не заменять молча
+посреди набора: выдать обновление/DMG и точные шаги. Не обещать AppStore
+совместимость (sandbox + cross-app AX + self-updater требуют отдельного проекта).
 <!-- autopilot:end -->
