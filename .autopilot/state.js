@@ -11,8 +11,8 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-07T04:51:01.114396+00:00",
-  "finishedAt": "2026-10-07T04:51:01.114396+00:00",
+  "updatedAt": "2026-10-07",
+  "finishedAt": null,
   "stages": [
     {
       "id": "preflight",
@@ -68,9 +68,9 @@ window.STATE =
     }
   ],
   "requirements": {
-    "total": 24,
+    "total": 25,
     "done": 23,
-    "inTicket": 0,
+    "inTicket": 1,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -591,6 +591,16 @@ window.STATE =
         "failed": 0
       },
       "validation": "Native debug + integrated Spec/Standards approved; live AX acceptance pending"
+    },
+    {
+      "id": "21",
+      "title": "Системная полнота исправлений и защита правильных слов",
+      "requirements": [
+        "G18"
+      ],
+      "blockedBy": [],
+      "status": "ready",
+      "wave": 17
     }
   ],
   "singlePass": null,
@@ -636,6 +646,14 @@ window.STATE =
       "status": "done",
       "tickets": [
         "20"
+      ]
+    },
+    {
+      "id": "G18",
+      "title": "Системный аудит замен",
+      "status": "in_progress",
+      "tickets": [
+        "21"
       ]
     }
   ],
