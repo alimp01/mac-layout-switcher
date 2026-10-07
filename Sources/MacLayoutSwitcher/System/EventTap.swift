@@ -62,7 +62,11 @@ public final class EventTap {
         let mask: CGEventMask =
             (1 << CGEventType.keyDown.rawValue) |
             (1 << CGEventType.keyUp.rawValue) |
-            (1 << CGEventType.flagsChanged.rawValue)
+            (1 << CGEventType.flagsChanged.rawValue) |
+            (1 << CGEventType.leftMouseDown.rawValue) |
+            (1 << CGEventType.rightMouseDown.rawValue) |
+            (1 << CGEventType.otherMouseDown.rawValue) |
+            (1 << CGEventType.leftMouseDragged.rawValue)
 
         let selfPtr = Unmanaged.passUnretained(self).toOpaque()
 
@@ -117,11 +121,16 @@ public final class EventTap {
     private func process(type: CGEventType, event: CGEvent) -> TapDecision {
         switch type {
         case .tapDisabledByTimeout, .tapDisabledByUserInput:
+            _ = handler?(KeyStroke(kind: .contextChanged, keyCode: 0, characters: "", flags: [], isAutorepeat: false))
             // Система отключила tap (медленный колбэк или secure input) —
             // включаем обратно, иначе перехват молча умирает навсегда.
             if let tap = tap {
                 CGEvent.tapEnable(tap: tap, enable: true)
             }
+            return .pass
+
+        case .leftMouseDown, .rightMouseDown, .otherMouseDown, .leftMouseDragged:
+            _ = handler?(KeyStroke(kind: .contextChanged, keyCode: 0, characters: "", flags: event.flags, isAutorepeat: false))
             return .pass
 
         case .keyDown, .keyUp, .flagsChanged:

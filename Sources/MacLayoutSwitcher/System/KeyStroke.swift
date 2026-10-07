@@ -14,6 +14,8 @@ public struct KeyStroke {
         /// Нажатие клавиши (`CGEventType.keyDown`).
         case keyDown
         case keyUp
+        /// Click, drag or interrupted tap: current text ownership ended.
+        case contextChanged
         /// Изменение модификаторов (`CGEventType.flagsChanged`) — нужно
         /// Engine'у, чтобы ловить одиночный тап Option.
         case flagsChanged

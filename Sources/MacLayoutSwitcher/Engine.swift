@@ -5,35 +5,13 @@ import Foundation
 import CoreGraphics
 import SwitcherCore
 
-/// Оркестрация: `EventTap` → трансляция `KeyStroke` в абстрактные события
-/// `EngineCore` → исполнение команд через `Typist`/`LayoutSwitcher`.
+/// Translates the event tap into core decisions. Replacement requests carry an
+/// exact source-text precondition and a focus-generation ticket. AX reads/writes
+/// run outside the tap on Typist's serial queue; only completed replacements
+/// change layout, play sounds or persist undo teaching.
 ///
-/// Вся логика решений живёт в платформонезависимом `EngineCore` (тесты на
-/// Linux). Здесь — только перевод CGEvent-мира в события ядра и обратно:
-/// детекция одиночного Option, автопауза (secure input / приложение-исключение),
-/// разбор модификаторов и разделителей.
-///
-/// Tap АКТИВНЫЙ (`.defaultTap`, G12 — пересмотр ADR 0004): разделитель
-/// (Enter/пробел/Tab) перехватывается ДО доставки. Если слово надо исправить
-/// (детектор или сниппет), исходное нажатие подавляется (`.suppress`), слово
-/// стирается и перепечатывается на очереди `Typist`, раскладка переключается,
-/// и ТОЛЬКО ПОТОМ разделитель досылается синтетически — тем же keyCode и с
-/// теми же модификаторами, что нажал пользователь. Так Enter в чате не улетает
-/// как отправка сообщения с опечаткой. Если исправлять нечего — `.pass`, без
-/// задержки. Хоткеи и flagsChanged — всегда `.pass`.
-///
-/// Три инварианта активного tap'а:
-/// 1. Разделитель не теряется: `.suppress` возвращается ТОЛЬКО когда события
-///    досылки уже созданы (`Typist.makeKeyPress`, синхронно); не удалось —
-///    нажатие проходит как есть, а исправление уходит в legacy-варианте
-///    (стереть слово вместе с доставленным разделителем и перепечатать оба).
-/// 2. Ввод во время перепечатки не перемешивается с синтетикой: пока очередь
-///    `Typist` занята, пользовательские keyDown (буквы/Backspace/разделители/
-///    команды) прогоняются через ядро сразу (порядок решений сохраняется), а
-///    само нажатие подавляется и переигрывается той же очередью следом — в
-///    исходном порядке, с маркером синтетики (tap его повторно не обработает).
-/// 3. В колбэке нет I/O: персист exclusions/undo-counts/config уходит на
-///    фоновую очередь `Config`; колбэк только решает и ставит задания.
+/// Physical input arriving during a write is replayed in order. Tab/Enter may
+/// intentionally move its destination; correction text never follows that route.
 public final class Engine {
 
     private let core: EngineCore
@@ -42,6 +20,8 @@ public final class Engine {
     private let typist: Typist
     private let config: Config
     private let tap = EventTap()
+    private let inputFocus = InputFocusGuard()
+    private var queuedNavigation = false
     let dictation = DictationCoordinator()
     private var dictationGesture = DictationGesture()
     private var dictationRequested = false
@@ -50,6 +30,7 @@ public final class Engine {
     var isRecordingHotkey = false {
         didSet {
             resetPhysicalInputState()
+            inputFocus.invalidate()
             if isRecordingHotkey {
                 dictation.cancel()
                 _ = core.handle(.reset)
@@ -118,10 +99,19 @@ public final class Engine {
             undoThreshold: config.config.undoThreshold,
             undoCounts: undoCounts,
             separatorAlreadyTyped: false)
+        inputFocus.onChange = { [weak self] in
+            _ = self?.core.handle(.reset)
+            self?.queuedNavigation = false
+        }
+        inputFocus.shouldSample = { [weak self] in self?.typist.isBusy == false }
+        typist.onIdle = { [weak self] in
+            guard let self, !self.typist.isBusy, self.queuedNavigation else { return }
+            self.inputFocus.invalidate()
+        }
         dictation.shortcutName = { [weak config] in config?.config.dictationHotkey.displayName ?? "" }
         dictation.onInsert = { [weak self] text, target, permit, completion in
             guard let self else { completion(text); return }
-            _ = self.core.handle(.reset)
+            self.inputFocus.invalidate()
             self.typist.insertDictation(text, target: target, permit: permit) { [weak self] remaining in
                 _ = self?.core.handle(.reset)
                 completion(remaining)
@@ -134,6 +124,7 @@ public final class Engine {
     public func start() -> Bool {
         resetPhysicalInputState()
         dictation.paused = false
+        inputFocus.start()
         return tap.start { [weak self] stroke in
             self?.handle(keyEvent: stroke) ?? .pass
         }
@@ -146,6 +137,7 @@ public final class Engine {
         resetPhysicalInputState()
         _ = core.handle(.reset)
         tap.stop()
+        inputFocus.stop()
     }
 
     /// Tap suspension and shortcut recording can hide any corresponding key-up.
@@ -185,10 +177,16 @@ public final class Engine {
     /// на одном слове, тяжёлая работа уходит на очередь `Typist`.
     @discardableResult
     public func handle(keyEvent stroke: KeyStroke) -> TapDecision {
+        if stroke.kind == .contextChanged {
+            inputFocus.invalidate()
+            modifierGestureDirty = true
+            return .pass
+        }
         // Dictation is explicitly requested even in auto-excluded editors.
         // The event callback only tracks keys and schedules work on main.
         let secure = SecureInput.isActive
         core.isPaused = secure || isExcludedApp()
+        if core.isPaused { inputFocus.invalidate() }
         if stroke.kind == .keyUp, suppressedKeyUps.remove(stroke.keyCode) != nil { return .suppress }
         if isRecordingHotkey {
             modifierGesturePeak = []
@@ -214,7 +212,7 @@ public final class Engine {
         switch stroke.kind {
         case .keyDown: gestureEvent = .down(stroke.keyCode, repeatKey: stroke.isAutorepeat)
         case .keyUp: gestureEvent = .up(stroke.keyCode)
-        case .flagsChanged: gestureEvent = .modifiers
+        case .flagsChanged, .contextChanged: gestureEvent = .modifiers
         }
         let chosen = config.config.dictationHotkey
         let valid = chosen.dictationValidationError(convert: config.config.convertHotkey,
@@ -251,13 +249,14 @@ public final class Engine {
                let replay = Self.replayPress(for: stroke, events: translate(stroke)) {
                 modifierGestureDirty = true
                 suppressedKeyUps.insert(stroke.keyCode)
-                typist.send(replay)
+                typist.send(replay, ticket: inputFocus.ticket)
                 return .suppress
             }
             return .pass
         }
 
         switch stroke.kind {
+        case .contextChanged: return .pass
         case .keyUp:
             return .pass
         case .flagsChanged:
@@ -277,12 +276,23 @@ public final class Engine {
                 return .pass
             }
             let events = translate(stroke)
+            if events.contains(.reset) {
+                inputFocus.invalidate()
+                return .pass
+            }
 
             // Гонка ввода: перепечатка ещё идёт. Нажатие переигрывается той же
             // очередью ПОСЛЕ синтетики; ядро получает его прямо сейчас, чтобы
             // порядок решений совпадал с порядком доставки. Не смогли создать
             // событие для переигрывания — ведём себя как в спокойном режиме.
-            if typist.isBusy, let replay = Self.replayPress(for: stroke, events: events) {
+            if typist.isBusy, let ticket = inputFocus.ticket, let replay = Self.replayPress(for: stroke, events: events) {
+                let navigates = events.contains(where: Self.isNavigationBoundary)
+                if queuedNavigation {
+                    _ = core.handle(.reset)
+                    typist.send(replay, ticket: ticket, navigates: navigates)
+                    suppressedKeyUps.insert(stroke.keyCode)
+                    return .suppress
+                }
                 var consumed = false
                 for event in events {
                     // Разделитель на границе: если ядро исправляет слово, execute
@@ -292,8 +302,10 @@ public final class Engine {
                     }
                 }
                 if !consumed {
-                    typist.send(replay)
+                    typist.send(replay, ticket: ticket, navigates: navigates)
                 }
+                if navigates { queuedNavigation = true }
+                suppressedKeyUps.insert(stroke.keyCode)
                 return .suppress
             }
 
@@ -303,8 +315,17 @@ public final class Engine {
                     decision = .suppress
                 }
             }
+            if events.contains(where: Self.isNavigationBoundary) {
+                if decision == .pass { inputFocus.invalidate() }
+                else { queuedNavigation = true }
+            }
             return decision
         }
+    }
+
+    private static func isNavigationBoundary(_ event: InputEvent) -> Bool {
+        if case .boundary(let separator) = event { return separator != " " }
+        return false
     }
 
     /// Событие для переигрывания нажатия, попавшего в окно перепечатки.
@@ -329,9 +350,9 @@ public final class Engine {
     private func dispatch(
         _ event: InputEvent, stroke: KeyStroke? = nil, prepared: Typist.KeyPress? = nil
     ) -> TapDecision {
+        if event == .hotkey(.convert), typist.isBusy { return .pass }
         let outcome = core.handle(event)
         let decision = execute(outcome, stroke: stroke, prepared: prepared)
-        playSound(for: outcome)
         if case .hotkey(.toggleAuto) = event {
             config.update { $0.autoSwitch = core.autoSwitch }
             onAutoSwitchChanged?(core.autoSwitch)
@@ -438,57 +459,49 @@ public final class Engine {
 
     // MARK: - Исполнение команд
 
-    /// Исполняет команду ядра. Возвращает `.suppress`, когда исходный
-    /// разделитель надо подавить и дослать после перепечатки.
-    ///
-    /// Решение принимается ДО постановки заданий: событие досылки создаётся
-    /// синхронно (`prepared`, иначе `Typist.makeKeyPress` по keyCode/флагам
-    /// реального нажатия — numpad Enter, Shift+Enter = перенос строки; символ —
-    /// запасной путь). Если создать не удалось — разделитель НЕ подавляется, а
-    /// исправление уходит в legacy-варианте (ADR 0004): стереть слово вместе с
-    /// доставленным разделителем и перепечатать оба. Разделитель не теряется.
-    ///
-    /// Порядок на очереди `Typist` (последовательная): Backspace-серия →
-    /// символы → досланный разделитель. Переключение раскладки — синхронно
-    /// здесь, как и раньше (TIS-вызов быстрый; печать юникодом от раскладки не
-    /// зависит, а Return/Tab/Space по keyCode — тоже).
+    /// Schedule a guarded targeted replacement; suppress a separator only when
+    /// its replay already exists. Failed preconditions preserve physical input
+    /// in the same target and discard provisional core state on completion.
     @discardableResult
     private func execute(
         _ outcome: EngineOutcome, stroke: KeyStroke? = nil, prepared: Typist.KeyPress? = nil
     ) -> TapDecision {
-        var decision = TapDecision.pass
-        switch outcome.command {
-        case .none:
-            break
-        case .replaceLast(let len, let text, let switchTo):
-            if let lang = switchTo {
+        guard case .replaceLast(_, let text, let switchTo) = outcome.command else { return .pass }
+        guard let expected = outcome.expectedText, let ticket = inputFocus.ticket else {
+            core.discardReplacement(outcome)
+            return .pass
+        }
+        let separator: Typist.KeyPress?
+        if let sep = outcome.reinjectSeparator {
+            guard let press = prepared ?? separatorPress(stroke: stroke, sep: sep) else {
+                // Never run a delayed legacy replacement after a delivered Enter.
+                core.discardReplacement(outcome)
+                return .pass
+            }
+            separator = press
+        } else { separator = nil }
+        typist.replaceLastWord(expected: expected, with: text, ticket: ticket, separator: separator,
+                               separatorCharacter: outcome.reinjectSeparator,
+                               navigates: outcome.reinjectSeparator.map { $0 != " " } ?? false) { [weak self] completed in
+            guard let self else { return }
+            guard completed else {
+                self.core.discardReplacement(outcome, resetContext: self.inputFocus.reject(ticket))
+                return
+            }
+            if ticket.permit.isAllowed, let lang = switchTo {
                 LayoutSwitcher.select(lang)
-                onLayoutSwitched?(lang)
+                self.onLayoutSwitched?(lang)
             }
-            if let sep = outcome.reinjectSeparator {
-                if let press = prepared ?? separatorPress(stroke: stroke, sep: sep) {
-                    typist.replaceLastWord(len: len, with: text)
-                    typist.send(press)
-                    decision = .suppress
-                } else {
-                    NSLog("MacLayoutSwitcher: не удалось создать событие досылки разделителя — пропускаю нажатие, исправляю в legacy-режиме")
-                    typist.replaceLastWord(len: len + 1, with: text + String(sep))
-                }
-            } else {
-                typist.replaceLastWord(len: len, with: text)
+            self.playSound(for: outcome)
+            if outcome.excludedWordToPersist != nil {
+                self.config.saveExclusions(self.detector.exclusionList)
+            }
+            if let update = outcome.undoCountUpdate {
+                self.undoCounts[update.word.lowercased()] = update.count
+                self.config.saveUndoCounts(self.undoCounts)
             }
         }
-        // Откат авто-исправления добавил слово в исключения — персистим на диск
-        // (запись на фоновой очереди Config; здесь только снимок).
-        if outcome.excludedWordToPersist != nil {
-            config.saveExclusions(detector.exclusionList)
-        }
-        // Счётчик отмен изменился — сохраняем, чтобы пережить перезапуск.
-        if let upd = outcome.undoCountUpdate {
-            undoCounts[upd.word.lowercased()] = upd.count
-            config.saveUndoCounts(undoCounts)
-        }
-        return decision
+        return separator == nil ? .pass : .suppress
     }
 
     /// Событие досылки разделителя: по реальному нажатию (keyCode + флаги),

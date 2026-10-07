@@ -136,10 +136,10 @@ final class DetectorTests: XCTestCase {
         }
     }
 
-    func testSingleLetterWordsNeedConfirmingContext() {
-        // Однобуквенные (b = и, d = в, z = я) без контекста — не трогать:
-        // «plan b» в английском тексте не должен стать «plan и».
-        for word in ["b", "d", "z", "c", "ы", "в"] {
+    func testOtherSingleLetterWordsNeedConfirmingContext() {
+        // Only b/z gain fresh-context correction; other one-letter labels
+        // still need context, and an explicit English context preserves b.
+        for word in ["d", "c", "ы", "в"] {
             XCTAssertEqual(Detector().verdict(for: word), .unsure, "«\(word)» без контекста")
         }
 
@@ -163,7 +163,7 @@ final class DetectorTests: XCTestCase {
         XCTAssertEqual(detector.verdict(for: "ф"), .unsure)
 
         detector.resetContext()
-        XCTAssertEqual(detector.verdict(for: "b"), .unsure)
+        XCTAssertEqual(detector.verdict(for: "b"), .ru)
     }
 
     func testValidShortWordsAreLeftAloneWithoutContext() {

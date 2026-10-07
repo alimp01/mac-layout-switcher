@@ -143,6 +143,8 @@ public final class Detector {
         exclusions.insert(word.lowercased())
     }
 
+    func removeExclusion(_ word: String) { exclusions.remove(word.lowercased()) }
+
     /// Есть ли слово в исключениях (без учёта регистра).
     public func isExcluded(_ word: String) -> Bool {
         return exclusions.contains(word.lowercased())
@@ -220,8 +222,8 @@ public final class Detector {
     /// языка, а само оно — не частотное слово своего, исправляется; если
     /// частотны обе стороны (коллизия), решает контекст, без контекста —
     /// `.unsure`. Слово из своего словаря — валидное, не трогаем.
-    /// Однобуквенные слова (b/d/z → и/в/я, ф → a) исправляются ТОЛЬКО при
-    /// подтверждающем контексте: «plan b» в английском тексте не должен стать
+    /// b/z → и/я также исправляются без контекста. Остальные однобуквенные
+    /// слова требуют подтверждающего контекста: «plan b» в английском тексте не должен стать
     /// «plan и», а в «Rfr ns b z» контекст после «Rfr»→«Как» уже RU.
     private func shortWordVerdict(lowered: String, alphabet: Alphabet) -> Verdict? {
         let ownLang: Lang = (alphabet == .latin) ? .en : .ru
@@ -234,6 +236,7 @@ public final class Detector {
         switch (inOwn, inOther) {
         case (false, true):
             guard lowered.count > 1 else {
+                if alphabet == .latin, ["b", "z"].contains(lowered), lastContextLang == nil { return .ru }
                 return lastContextLang == otherLang ? fix : .unsure
             }
             return fix

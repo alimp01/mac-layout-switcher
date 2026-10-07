@@ -3,32 +3,11 @@
 import Foundation
 import CoreGraphics
 
-/// Синтетический ввод: стереть последнее слово, напечатать замену и — когда
-/// разделитель был перехвачен активным tap'ом — дослать его следом.
-///
-/// Стирание — len × Backspace (виртуальный код 51) парами keyDown/keyUp.
-/// Печать — посимвольно юникодом через `CGEvent.keyboardSetUnicodeString`:
-/// символ кладётся прямо в событие, поэтому результат не зависит от активной
-/// раскладки (можно сначала перепечатать, потом переключить раскладку — или
-/// наоборот, порядок решает Engine).
-///
-/// Каждое событие помечается маркером `EventTap.syntheticMarker` в
-/// `CGEventField.eventSourceUserData` — по нему наш собственный tap отличает
-/// эту синтетику от ввода пользователя (защита от цикла; активный tap её не
-/// подавляет). Отправка — через `CGEvent.post(tap: .cghidEventTap)` с
-/// микрозадержками, чтобы приложения успевали применять события по порядку.
-///
-/// Работа идёт на собственной ПОСЛЕДОВАТЕЛЬНОЙ очереди: usleep внутри колбэка
-/// event tap'а привёл бы к `tapDisabledByTimeout`. Последовательность очереди
-/// — единственная гарантия порядка «backspaces → символы → разделитель →
-/// переигранные нажатия пользователя»: всё, что должно случиться ПОСЛЕ
-/// перепечатки, ставится в ту же очередь (`send`).
-///
-/// События для `send` создаются СИНХРОННО вызывающей стороной
-/// (`makeKeyPress`/`makeUnicodePress`) — ещё до того, как tap'у возвращено
-/// решение «подавить». Так подавленное нажатие никогда не теряется: если
-/// `CGEvent` создать не удалось, Engine это узнаёт сразу и пропускает нажатие
-/// как есть.
+/// Serial execution of targeted text replacements, speech insertion and
+/// physical-key replays. Word replacement uses one AXSelectedText write; it
+/// never deletes text incrementally or rewrites the entire field value.
+/// CGEvents remain necessary for speech and physical separators/keys, carry the
+/// synthetic marker, and always finish an already-posted down/up pair.
 public final class Typist {
 
     /// Готовая пара keyDown/keyUp, созданная заранее и ждущая своей очереди.
@@ -37,8 +16,6 @@ public final class Typist {
         fileprivate let up: CGEvent
     }
 
-    /// Виртуальный код клавиши Backspace (kVK_Delete).
-    private static let backspaceKeyCode: CGKeyCode = 51
     /// Виртуальные коды разделителей (kVK_Return / kVK_Tab / kVK_Space) —
     /// для досылки перехваченного разделителя по символу.
     public static let returnKeyCode: CGKeyCode = 36
@@ -52,6 +29,7 @@ public final class Typist {
     /// Число поставленных, но ещё не выполненных заданий. Пока > 0, синтетика
     /// ещё летит в приложение, и пользовательский ввод должен ложиться ПОСЛЕ
     /// неё (Engine его переигрывает через `send`), а не посреди.
+    var onIdle: (() -> Void)?
     private var pending = 0
     private let pendingLock = NSLock()
 
@@ -64,25 +42,45 @@ public final class Typist {
         return pending > 0
     }
 
-    /// Стирает `len` символов Backspace'ами и печатает `text` юникодом.
-    /// Асинхронно (на своей очереди); все события маркированы.
-    public func replaceLastWord(len: Int, with text: String) {
+    /// A single targeted AX write avoids partially deleted words if focus moves.
+    func replaceLastWord(expected: String, with text: String,
+                         ticket: InputFocusGuard.Ticket, separator: KeyPress?,
+                         separatorCharacter: Character?, navigates: Bool,
+                         completion: @escaping (Bool) -> Void) {
         enqueue {
-            Self.sendBackspaces(len)
-            Self.typeUnicode(text)
+            let inlineSpace = separatorCharacter == " "
+            let completed: Bool
+            if ticket.allowsReplacement, let range = ticket.target.sourceRange(expected) {
+                completed = ticket.target.replace(range: range, expected: expected,
+                    with: text + (inlineSpace ? " " : ""),
+                    originalSelection: CFRange(location: range.location + range.length, length: 0), allowed: { ticket.allowsReplacement })
+            } else { completed = false }
+            if !completed { ticket.replacementPermit.cancel() }
+            // A failed correction still delivers its physical separator in the
+            // original target. Successful spaces were part of the atomic write.
+            if (!completed || !inlineSpace), let separator,
+               ticket.replayRoute.canReplay(permit: ticket.permit) {
+                Self.postPair(separator)
+                if navigates { ticket.replayRoute.didNavigate() }
+            }
+            DispatchQueue.main.async { completion(completed) }
         }
     }
 
-    /// Отправляет заранее созданное нажатие в той же очереди — строго после
-    /// всего, что поставлено раньше. Так перехваченный активным tap'ом
-    /// Enter/пробел/Tab (и переигранные нажатия пользователя) уходят в
-    /// приложение только когда слово уже перепечатано. События маркированы:
-    /// tap пропустит их без обработки.
-    public func send(_ press: KeyPress) {
+    /// Replay only real physical input. Planned Tab/Enter transitions may update
+    /// its destination; correction text is never allowed to follow that route.
+    func send(_ press: KeyPress, ticket: InputFocusGuard.Ticket? = nil, navigates: Bool = false) {
         enqueue {
-            Self.post(press.down)
-            Self.post(press.up)
+            if let ticket, !ticket.replayRoute.canReplay(permit: ticket.permit) { return }
+            Self.postPair(press)
+            if navigates { ticket?.replayRoute.didNavigate() }
         }
+    }
+
+    private static func postPair(_ press: KeyPress) {
+        post(press.down)
+        // Always release a posted key, including when cancellation raced down.
+        post(press.up)
     }
 
     /// Inserts speech on the same queue as replacements and physical-key
@@ -155,7 +153,7 @@ public final class Typist {
     /// Ставит задание в очередь, ведя счётчик занятости: +1 синхронно при
     /// постановке (чтобы `isBusy` стал `true` ещё до возврата в колбэк tap'а),
     /// −1 по завершении задания на очереди.
-    private func enqueue(_ job: @escaping () -> Void) {
+    func enqueue(_ job: @escaping () -> Void) {
         pendingLock.lock()
         pending += 1
         pendingLock.unlock()
@@ -163,35 +161,9 @@ public final class Typist {
             job()
             pendingLock.lock()
             pending -= 1
+            let idle = pending == 0
             pendingLock.unlock()
-        }
-    }
-
-    /// len × (keyDown + keyUp) Backspace. Флаги очищаются: удерживаемый
-    /// пользователем Option превратил бы Backspace в «удалить слово».
-    private static func sendBackspaces(_ count: Int) {
-        guard count > 0 else { return }
-        let source = CGEventSource(stateID: .privateState)
-        for _ in 0..<count {
-            guard let down = CGEvent(keyboardEventSource: source, virtualKey: backspaceKeyCode, keyDown: true),
-                  let up = CGEvent(keyboardEventSource: source, virtualKey: backspaceKeyCode, keyDown: false)
-            else { continue }
-            down.flags = []
-            up.flags = []
-            post(down)
-            post(up)
-        }
-    }
-
-    /// Посимвольная печать юникодом. `keyboardSetUnicodeString` вкладывает
-    /// текст в само событие (virtualKey 0 — заглушка), поэтому активная
-    /// раскладка на результат не влияет.
-    private static func typeUnicode(_ text: String) {
-        guard !text.isEmpty else { return }
-        for character in text {
-            guard let press = makeUnicodePress(character) else { continue }
-            post(press.down)
-            post(press.up)
+            if idle { DispatchQueue.main.async { [weak self] in self?.onIdle?() } }
         }
     }
 

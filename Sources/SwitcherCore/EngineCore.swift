@@ -48,6 +48,8 @@ public enum EngineCommand: Equatable {
 public struct EngineOutcome: Equatable {
     /// Что должен сделать исполнитель.
     public let command: EngineCommand
+    /// Exact existing text an executor must validate before deleting anything.
+    public let expectedText: String?
     /// Непусто, когда ядро добавило слово в исключения `Detector` (откат
     /// авто-исправления по Option достиг порога): `Engine` обязан сохранить
     /// exclusions.json.
@@ -65,11 +67,13 @@ public struct EngineOutcome: Equatable {
 
     public init(
         command: EngineCommand,
+        expectedText: String? = nil,
         excludedWordToPersist: String? = nil,
         undoCountUpdate: (word: String, count: Int)? = nil,
         reinjectSeparator: Character? = nil
     ) {
         self.command = command
+        self.expectedText = expectedText
         self.excludedWordToPersist = excludedWordToPersist
         self.undoCountUpdate = undoCountUpdate
         self.reinjectSeparator = reinjectSeparator
@@ -81,6 +85,7 @@ public struct EngineOutcome: Equatable {
     /// Ручной `==`: кортеж `undoCountUpdate` блокирует синтез Equatable.
     public static func == (lhs: EngineOutcome, rhs: EngineOutcome) -> Bool {
         guard lhs.command == rhs.command,
+              lhs.expectedText == rhs.expectedText,
               lhs.excludedWordToPersist == rhs.excludedWordToPersist,
               lhs.reinjectSeparator == rhs.reinjectSeparator else { return false }
         switch (lhs.undoCountUpdate, rhs.undoCountUpdate) {
@@ -131,6 +136,7 @@ public final class EngineCore {
             buffer.reset()
             lastRegion = nil
             lastAuto = nil
+            detector.resetContext()
         }
     }
 
@@ -188,6 +194,13 @@ public final class EngineCore {
             return .none
         }
 
+        if event == .reset {
+            buffer.reset()
+            lastAuto = nil
+            lastRegion = nil
+            detector.resetContext()
+            return .none
+        }
         if isPaused { return .none }
 
         switch event {
@@ -200,17 +213,19 @@ public final class EngineCore {
             return .none
 
         case .backspace:
+            if buffer.word.isEmpty { return handle(.reset) }
+            lastRegion = nil
             buffer.backspace()
             lastAuto = nil
             return .none
 
         case .reset:
-            buffer.reset()
-            lastAuto = nil
-            lastRegion = nil
-            return .none
+            return .none // Handled above, including while paused.
 
         case .boundary(let sep):
+            // Return may submit; Tab may move focus. Neither leaves an undo
+            // candidate or language context for the next input location.
+            defer { if sep != " " { _ = handle(.reset) } }
             return handleBoundary(sep)
 
         case .hotkey(.convert):
@@ -220,6 +235,16 @@ public final class EngineCore {
             // Обработано выше, до guard isPaused; сюда не доходит.
             return .none
         }
+    }
+
+    /// Executors call this when a proposed replacement was not completed.
+    /// Undo teaching is provisional until the corresponding text really moved.
+    public func discardReplacement(_ outcome: EngineOutcome, resetContext: Bool = true) {
+        if let word = outcome.excludedWordToPersist { detector.removeExclusion(word) }
+        if let update = outcome.undoCountUpdate {
+            undoCounts[update.word.lowercased()] = update.count == 0 ? undoThreshold - 1 : max(0, update.count - 1)
+        }
+        if resetContext { _ = handle(.reset) }
     }
 
     // MARK: - Граница слова
@@ -239,7 +264,7 @@ public final class EngineCore {
         //    к этому слову не применяется.
         if let expansion = snippets.expansion(for: word) {
             lastRegion = Region(word: expansion, separator: sepStr)
-            return boundaryReplace(len: word.count, with: expansion, sep: sep, switchTo: nil)
+            return boundaryReplace(original: word, with: expansion, sep: sep, switchTo: nil)
         }
 
         // 2) Автоисправление по детектору (если глобально включено).
@@ -266,7 +291,7 @@ public final class EngineCore {
         lastAuto = AutoCorrection(
             original: word, corrected: converted, separator: sep,
             originalLang: originalLang, time: now())
-        return boundaryReplace(len: word.count, with: converted, sep: Character(sep), switchTo: lang)
+        return boundaryReplace(original: word, with: converted, sep: Character(sep), switchTo: lang)
     }
 
     /// Команда замены слова на границе с учётом режима разделителя.
@@ -275,13 +300,15 @@ public final class EngineCore {
     /// разделитель уже напечатан — стираем и перепечатываем его вместе со
     /// словом (ADR 0004).
     private func boundaryReplace(
-        len: Int, with text: String, sep: Character, switchTo: Lang?) -> EngineOutcome {
+        original: String, with text: String, sep: Character, switchTo: Lang?) -> EngineOutcome {
         if separatorAlreadyTyped {
             return EngineOutcome(command: .replaceLast(
-                len: len + 1, with: text + String(sep), switchTo: switchTo))
+                len: original.count + 1, with: text + String(sep), switchTo: switchTo),
+                                 expectedText: original + String(sep))
         }
         return EngineOutcome(
-            command: .replaceLast(len: len, with: text, switchTo: switchTo),
+            command: .replaceLast(len: original.count, with: text, switchTo: switchTo),
+            expectedText: original,
             reinjectSeparator: sep)
     }
 
@@ -306,6 +333,7 @@ public final class EngineCore {
                 undoCounts[key] = 0
                 return EngineOutcome(
                     command: command,
+                    expectedText: auto.corrected + auto.separator,
                     excludedWordToPersist: auto.original,
                     undoCountUpdate: (word: auto.original, count: 0))
             } else {
@@ -313,6 +341,7 @@ public final class EngineCore {
                 undoCounts[key] = bumped
                 return EngineOutcome(
                     command: command,
+                    expectedText: auto.corrected + auto.separator,
                     undoCountUpdate: (word: auto.original, count: bumped))
             }
         }
@@ -325,7 +354,7 @@ public final class EngineCore {
             setBuffer(to: converted)
             lastRegion = nil
             return EngineOutcome(command: .replaceLast(
-                len: word.count, with: converted, switchTo: target))
+                len: word.count, with: converted, switchTo: target), expectedText: word)
         }
 
         // Иначе — последнее завершённое слово вместе с его разделителем.
@@ -336,7 +365,7 @@ public final class EngineCore {
             return EngineOutcome(command: .replaceLast(
                 len: region.word.count + region.separator.count,
                 with: converted + region.separator,
-                switchTo: target))
+                switchTo: target), expectedText: region.word + region.separator)
         }
 
         return .none
