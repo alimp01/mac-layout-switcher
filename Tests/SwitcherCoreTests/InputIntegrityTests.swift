@@ -2,7 +2,7 @@ import XCTest
 import SwitcherCore
 
 final class InputIntegrityTests: XCTestCase {
-    func testFreshContextCorrectsOnlyRequestedSingleLettersAtBoundary() {
+    func testFreshContextCorrectsOriginalSingleLetterRegressionAtBoundary() {
         for (typed, expected) in [("b", "и"), ("B", "И"), ("z", "я"), ("Z", "Я")] {
             let core = EngineCore(detector: Detector(), snippets: SnippetStore())
             typed.forEach { core.handle(.char($0)) }
@@ -45,7 +45,7 @@ final class InputIntegrityTests: XCTestCase {
         XCTAssertEqual(core.handle(.hotkey(.convert)).command, .none)
     }
     func testOzonAndCorrectSingleLettersAreNeverChanged() {
-        for word in ["ozon", "Ozon", "OZON", "и", "И", "я", "Я", "I", "a", "d", "q"] {
+        for word in ["ozon", "Ozon", "OZON", "и", "И", "я", "Я", "I", "a", "q"] {
             let core = EngineCore(detector: Detector(), snippets: SnippetStore())
             word.forEach { core.handle(.char($0)) }
             XCTAssertEqual(core.handle(.boundary(" ")).command, .none, word)

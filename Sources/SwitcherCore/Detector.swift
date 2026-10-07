@@ -195,8 +195,11 @@ public final class Detector {
     /// Порядок: исключения → алфавит → словари коротких слов (G13) →
     /// порог длины → невозможные сочетания + биграммы.
     public func verdict(for word: String) -> Verdict {
-        let alphabet = Self.alphabet(of: word)
-        let result = decide(word: word, alphabet: alphabet)
+        // Only !? suffixes and enclosing parentheses are removable wrappers.
+        // The executor still receives and converts the entire original token.
+        let core = Self.lexicalCore(of: word)
+        let alphabet = Self.alphabet(of: core)
+        let result = isExcluded(word) ? .unsure : decide(word: core, alphabet: alphabet)
         switch (result, alphabet) {
         case (.ru, _): lastContextLang = .ru
         case (.en, _): lastContextLang = .en
@@ -205,6 +208,19 @@ public final class Detector {
         case (.unsure, .mixed): break
         }
         return result
+    }
+
+    private static func lexicalCore(of word: String) -> String {
+        var core = word[...]
+        while let last = core.last, last == "!" || last == "?" { core.removeLast() }
+        while core.first == "(", core.last == ")" {
+            core.removeFirst()
+            core.removeLast()
+        }
+        // Interior/unbalanced parentheses and leading/interior !? are not
+        // lexical wrappers. Keep them mixed, including empty punctuation.
+        guard !core.isEmpty, !core.contains(where: { "()!?".contains($0) }) else { return word }
+        return String(core)
     }
 
     private func decide(word: String, alphabet: Alphabet) -> Verdict {
@@ -217,26 +233,38 @@ public final class Detector {
         return bigramVerdict(lowered: lowered, alphabet: alphabet)
     }
 
-    /// Правило коротких частотных слов. `nil` — словари не решают, дальше
-    /// прежний путь. Слово длиной ≤4, чья конверсия — частотное слово другого
+    /// Bounded G18 additions longer than ShortWords' 1–4-character contract.
+    /// Hand-audited everyday words; no threshold change or external corpus.
+    private static let everydayRussian: Set<String> = [
+        "когда", "тогда", "иногда", "пусть", "перед", "среди", "лучше", "меньше",
+        "супер", "круто", "вечер", "файлы", "могут", "будут", "люблю"
+    ]
+
+    private static func isKnownWord(_ word: String, lang: Lang) -> Bool {
+        ShortWords.contains(word, lang: lang) || (lang == .ru && everydayRussian.contains(word))
+    }
+
+    /// Правило коротких слов плюс ограниченный список повседневных слов G18.
+    /// `nil` — словари не решают, дальше прежний путь. Если конверсия — слово другого
     /// языка, а само оно — не частотное слово своего, исправляется; если
     /// частотны обе стороны (коллизия), решает контекст, без контекста —
     /// `.unsure`. Слово из своего словаря — валидное, не трогаем.
-    /// b/z → и/я также исправляются без контекста. Остальные однобуквенные
-    /// слова требуют подтверждающего контекста: «plan b» в английском тексте не должен стать
+    /// Все восемь однобуквенных RU-слов исправляются из латинской буквы
+    /// без контекста, но подтверждённый EN-контекст сохраняет обозначения: «plan b» не должен стать
     /// «plan и», а в «Rfr ns b z» контекст после «Rfr»→«Как» уже RU.
     private func shortWordVerdict(lowered: String, alphabet: Alphabet) -> Verdict? {
         let ownLang: Lang = (alphabet == .latin) ? .en : .ru
         let otherLang: Lang = (alphabet == .latin) ? .ru : .en
         let converted = KeyMap.convert(lowered, to: otherLang).lowercased()
-        let inOwn = ShortWords.contains(lowered, lang: ownLang)
-        let inOther = ShortWords.contains(converted, lang: otherLang)
+        let inOwn = Self.isKnownWord(lowered, lang: ownLang)
+        let inOther = Self.isKnownWord(converted, lang: otherLang)
         let fix: Verdict = (otherLang == .ru) ? .ru : .en
 
         switch (inOwn, inOther) {
         case (false, true):
             guard lowered.count > 1 else {
-                if alphabet == .latin, ["b", "z"].contains(lowered), lastContextLang == nil { return .ru }
+                if alphabet == .latin, lowered.allSatisfy({ Self.latinLetters.contains($0) }),
+                   lastContextLang == nil { return .ru }
                 return lastContextLang == otherLang ? fix : .unsure
             }
             return fix

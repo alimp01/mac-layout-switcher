@@ -43,7 +43,7 @@ final class ShortWordsTests: XCTestCase {
             let en = KeyMap.convert(ru, to: .en)
             if ShortWords.en.contains(en) { collisions.insert("\(en)↔\(ru)") }
         }
-        XCTAssertEqual(collisions, ["of↔ща", "vs↔мы", "her↔рук", "here↔руку", "dj↔во", "ofc↔щас"])
+        XCTAssertEqual(collisions, ["of↔ща", "vs↔мы", "her↔рук", "here↔руку", "dj↔во", "ofc↔щас", "ns↔ты", "jq↔ой", "herb↔руки", "tv↔ем", "ev↔ум", "ble↔иду"])
     }
 
     func testContainsIsCaseInsensitive() {

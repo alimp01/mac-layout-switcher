@@ -129,17 +129,17 @@ final class DetectorTests: XCTestCase {
     // MARK: - Короткие частотные слова (G13)
 
     func testShortRussianWordsTypedInEnAreDetected() {
-        // «Rfr» = «Как», ns = ты, yt = не, jy = он. Каждое слово из 2+ букв —
+        // «Rfr» = «Как», yt = не, jy = он. ns↔ты now needs context. Каждое слово из 2+ букв —
         // на свежем детекторе: без контекста, чисто по словарям.
-        for word in ["Rfr", "ns", "yt", "jy", "xnj", "'nj", "tckb"] {
+        for word in ["Rfr", "yt", "jy", "xnj", "'nj", "tckb"] {
             XCTAssertEqual(Detector().verdict(for: word), .ru, "«\(word)» — русское в EN-наборе")
         }
     }
 
-    func testOtherSingleLetterWordsNeedConfirmingContext() {
-        // Only b/z gain fresh-context correction; other one-letter labels
-        // still need context, and an explicit English context preserves b.
-        for word in ["d", "c", "ы", "в"] {
+    func testSingleLetterWordsRespectConfirmingContext() {
+        // All eight Russian function words share the fresh-context rule;
+        // an explicit English context still preserves letter labels.
+        for word in ["ы", "в"] {
             XCTAssertEqual(Detector().verdict(for: word), .unsure, "«\(word)» без контекста")
         }
 
