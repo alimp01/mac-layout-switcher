@@ -11,8 +11,8 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-09-16T03:13:27.206206+00:00",
-  "finishedAt": "2026-09-16T03:13:27.206206+00:00",
+  "updatedAt": "2026-10-07",
+  "finishedAt": null,
   "stages": [
     {
       "id": "preflight",
@@ -548,6 +548,38 @@ window.STATE =
       "repairFindings": [
         "P2: потерянный keyUp после паузы/записи хоткея мог съесть первый Space; полный reset жеста и подавленных клавиш, 2 регрессионных теста"
       ]
+    },
+    {
+      "id": "18",
+      "title": "Целостность ввода и одиночные и/я",
+      "requirements": [
+        "G15"
+      ],
+      "blockedBy": [],
+      "status": "ready",
+      "wave": 15
+    },
+    {
+      "id": "19",
+      "title": "Автоматическая подготовка модели",
+      "requirements": [
+        "G16"
+      ],
+      "blockedBy": [],
+      "status": "ready",
+      "wave": 15
+    },
+    {
+      "id": "20",
+      "title": "Конвертация выделенного текста",
+      "requirements": [
+        "G17"
+      ],
+      "blockedBy": [
+        "18"
+      ],
+      "status": "ready",
+      "wave": 16
     }
   ],
   "singlePass": null,
@@ -569,6 +601,30 @@ window.STATE =
       "tickets": [
         "16",
         "17"
+      ]
+    },
+    {
+      "id": "G15",
+      "title": "Целостность ввода и одиночные и/я",
+      "status": "in_progress",
+      "tickets": [
+        "18"
+      ]
+    },
+    {
+      "id": "G16",
+      "title": "Автоматическая подготовка модели",
+      "status": "in_progress",
+      "tickets": [
+        "19"
+      ]
+    },
+    {
+      "id": "G17",
+      "title": "Конвертация выделенного текста",
+      "status": "in_progress",
+      "tickets": [
+        "20"
       ]
     }
   ],
