@@ -11,8 +11,8 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-08T04:39:46.121007+00:00",
-  "finishedAt": null,
+  "updatedAt": "2026-10-08T05:54:58.892222+00:00",
+  "finishedAt": "2026-10-08T05:54:58.892222+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -43,31 +43,34 @@ window.STATE =
       "status": "done",
       "startedAt": "2026-08-29T03:44:20+00:00",
       "finishedAt": "2026-08-29T03:52:30+00:00",
-      "note": "22 тикета; дополнение G19 2026-10-08"
+      "note": "23 тикета; дополнение G20 2026-10-08"
     },
     {
       "id": "build",
-      "status": "in-progress",
+      "status": "done",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G20/T23 keyboard runtime repair"
+      "note": "G20/T23 code d7b003d, VERSION1.4.3",
+      "finishedAt": "2026-10-08T05:54:58.892222+00:00"
     },
     {
       "id": "review",
-      "status": "pending",
-      "startedAt": "2026-08-29T04:05:30+00:00",
-      "note": "G20/T23 keyboard runtime repair"
+      "status": "done",
+      "startedAt": "2026-10-08T04:45:11.080956+00:00",
+      "note": "Spec + Standards APPROVED; all findings fixed and rechecked",
+      "finishedAt": "2026-10-08T05:54:58.892222+00:00"
     },
     {
       "id": "final",
-      "status": "pending",
+      "status": "done",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "G20/T23 keyboard runtime repair"
+      "note": "95Linux, production keyboard/Typist/recovery panel + G19, fullspeech release/verifiedDMG PASS. LiveOption/Codex pending.",
+      "finishedAt": "2026-10-08T05:54:58.892222+00:00"
     }
   ],
   "requirements": {
     "total": 27,
-    "done": 25,
-    "inTicket": 1,
+    "done": 26,
+    "inTicket": 0,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -630,7 +633,7 @@ window.STATE =
       "requirements": [
         "G20"
       ],
-      "status": "in-progress",
+      "status": "done",
       "blockedBy": [],
       "wave": 19,
       "zone": [
@@ -640,7 +643,18 @@ window.STATE =
       ],
       "retries": 0,
       "repairs": 0,
-      "handoffs": 0
+      "handoffs": 0,
+      "startedAt": "2026-10-08T04:39:46.121007+00:00",
+      "finishedAt": "2026-10-08T05:54:58.892222+00:00",
+      "commit": "d7b003d",
+      "tests": {
+        "passed": 95,
+        "failed": 0
+      },
+      "review": {
+        "spec": "approved",
+        "standards": "approved"
+      }
     }
   ],
   "singlePass": null,
@@ -763,13 +777,13 @@ window.STATE =
     }
   },
   "blind": {
-    "run": "Linux95; native panel/adapter/debug/release; mountedDMG signature/version/helper PASS",
-    "verdict": "G19 implemented/reviewed VERSION1.4.2",
-    "note": "Installed1.4.1 unchanged; liveCodex AX/CG + microphone acceptance pending, no privateuserfield testing.",
+    "run": "95Linux; keyboard/Typist/recovery panel; G19 adapter/panel; fullspeech release; mounted DMG PASS",
+    "verdict": "G20 implemented/reviewed VERSION1.4.3",
+    "note": "Installed1.4.1 unchanged; Mac locked during final checks; liveOption/Codex pending; no private-field or mic testing",
     "drift": []
   },
   "manualAcceptance": {
-    "version": "1.4.2",
+    "version": "1.4.3",
     "status": "pending",
     "checks": [
       "ozon после смены поля; b/B/z/Z и plan b",
@@ -779,15 +793,18 @@ window.STATE =
       "f/d/r/j/c/e одиночные + Englishlabels; ни/буду/могу/люблю; rfr?/ghbdtn!/(yt)",
       "Диктовка в Codex: удержание/отпускание вставляет один раз без Enter",
       "Во время распознавания сменить поле/ввести символ: видимый результат, причина отказа, явное копирование",
-      "Длинная фраза и выделение, поздние уведомления; непроверенная доставка сохраняет весь результат с предупреждением"
+      "Длинная фраза и выделение, поздние уведомления; непроверенная доставка сохраняет весь результат с предупреждением",
+      "Option: выделение/слово после reset/пустое поле → RU/EN",
+      "ghbdtn+Space/Enter, Shift+Enter, быстрый ввод в native и Codex",
+      "При неподтверждённой записи Enter остановлен, удержанный ввод сохраняется до явного Close"
     ]
   },
   "release": {
-    "version": "1.4.2",
-    "codeCommit": "e857996",
-    "artifact": "MacLayoutSwitcher-1.4.2.dmg",
-    "sha256": "b99675e8ae289b2b53bd3e118ce0184b3ab9ded94b186077f6e72e9e8f5cff49",
-    "bytes": 10934036
+    "version": "1.4.3",
+    "codeCommit": "d7b003d",
+    "artifact": "MacLayoutSwitcher-1.4.3.dmg",
+    "sha256": "cf6944a789d707bfb4328dcf3b35793cce5eed18f48581546be447c99c8aca6a",
+    "bytes": 10955271
   },
   "wordCoverageAudit": {
     "independentRU": 459,
@@ -805,5 +822,13 @@ window.STATE =
     "nativeAdapter": "productioncapture/insert with injectedAX/nativeNSTextView; actualCodex frameworkrouting metadata PASS",
     "liveCodex": "not exercised; diagnostic process AXIsProcessTrusted=false",
     "privacy": "No microphone, privateeditor typing, TCC forcing or automaticclipboard mutation duringdiagnostics"
+  },
+  "keyboardRuntimeAudit": {
+    "codeCommit": "d7b003d",
+    "review": "Spec+Standards approved",
+    "native": "Production Target/Typist + mock AX/CG and owned NSTextView; recovery NSPanel headless",
+    "scope": "Lazy capture, same-snapshot source, readback, selection RPC uncertainty, fastinput retention, Option fallback",
+    "live": "pending; locked session, CUA cannot press modifier-only Option",
+    "coldLimit": "First separator before any AX capture passes without late correction; explicit Option may recover word"
   }
 }
