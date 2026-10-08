@@ -30,6 +30,12 @@ final class DictationPanel: NSObject {
         resultView.isEditable = false
         resultView.isSelectable = true
         resultView.font = .systemFont(ofSize: 14)
+        resultView.isHorizontallyResizable = false
+        resultView.isVerticallyResizable = true
+        resultView.autoresizingMask = [.width]
+        resultView.maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
+        resultView.textContainer?.widthTracksTextView = true
+        resultView.textContainer?.heightTracksTextView = false
         scroll.documentView = resultView
         scroll.hasVerticalScroller = true
         scroll.borderType = .bezelBorder
@@ -75,6 +81,15 @@ final class DictationPanel: NSObject {
         self.cancelAction = cancelAction
         scroll.isHidden = text == nil
         resultView.string = text ?? ""
+        // NSTextView starts at zero width. NSScrollView does not give its
+        // document an initial size; size it after the stack's constraints run.
+        panel.contentView?.layoutSubtreeIfNeeded()
+        let size = scroll.contentSize
+        resultView.minSize = NSSize(width: 0, height: size.height)
+        resultView.setFrameSize(size)
+        resultView.textContainer?.containerSize = NSSize(width: size.width, height: .greatestFiniteMagnitude)
+        resultView.sizeToFit()
+        resultView.scrollToBeginningOfDocument(nil)
         panel.orderFrontRegardless()
     }
     func hide() { panel.orderOut(nil); resultView.string = "" }

@@ -114,7 +114,7 @@ public final class Engine {
         }
         dictation.shortcutName = { [weak config] in config?.config.dictationHotkey.displayName ?? "" }
         dictation.onInsert = { [weak self] text, target, permit, completion in
-            guard let self else { completion(text); return }
+            guard let self else { completion(.fallback(.changed)); return }
             self.inputFocus.invalidate()
             self.typist.insertDictation(text, target: target, permit: permit) { [weak self] remaining in
                 _ = self?.core.handle(.reset)
@@ -185,12 +185,16 @@ public final class Engine {
     public func handle(keyEvent stroke: KeyStroke) -> TapDecision {
         // Consumed shortcuts own their repeats as well as their key-up, even
         // if the user releases a modifier before releasing the ordinary key.
-        if stroke.kind == .keyDown, shortcutKeysDown.contains(stroke.keyCode) { return .suppress }
+        if stroke.kind == .keyDown, shortcutKeysDown.contains(stroke.keyCode) {
+            dictation.invalidateInsertion()
+            return .suppress
+        }
         if stroke.kind == .keyDown, selectionConverter.cancel() {
             // Provisional manual undo/word state must not contaminate new input.
             _ = core.handle(.reset)
         }
         if stroke.kind == .contextChanged {
+            dictation.invalidateInsertion()
             inputFocus.invalidate()
             modifierGestureDirty = true
             return .pass
@@ -217,6 +221,7 @@ public final class Engine {
         }
         if stroke.kind == .keyDown, stroke.keyCode == 53, dictationRequested || dictation.isActive {
             dictationRequested = false
+            dictation.invalidateInsertion()
             dictationGesture.cancelHold()
             suppressedKeyUps.insert(stroke.keyCode)
             DispatchQueue.main.async { [weak self] in self?.dictation.cancel() }
@@ -240,6 +245,7 @@ public final class Engine {
             modifierGesturePeak.formUnion(modifiers)
             modifierGestureDirty = true
             dictationRequested = true
+            dictation.armInsertion()
             _ = core.handle(.reset)
             DispatchQueue.main.async { [weak self] in self?.dictation.hold() }
             return stroke.kind == .keyDown ? .suppress : .pass
@@ -254,6 +260,11 @@ public final class Engine {
         case .consume: return .suppress
         case .pass: break
         }
+        // Hotkey repeats/releases were consumed above. Any other key-down is
+        // intervention even while ASR is running; returning to the same field
+        // never revives this session's permission.
+        if stroke.kind == .keyDown { dictation.invalidateInsertion() }
+        if secure { dictation.invalidateInsertion() }
         if secure, dictation.isActive {
             DispatchQueue.main.async { [weak self] in self?.dictation.cancel() }
         }

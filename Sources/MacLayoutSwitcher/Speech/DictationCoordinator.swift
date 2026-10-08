@@ -18,14 +18,21 @@ final class DictationCoordinator {
     private var timer: Timer?
     private var recordingSince: Date?
     private var resultText: String?
+    private var resultFailure = DictationInsertionFailure.unavailableField
+    private var targetFailure = DictationInsertionFailure.unavailableField
+    private var focusTimer: DispatchSourceTimer?
+    private var workspaceObserver: NSObjectProtocol?
     var shortcutName: () -> String = { Hotkey.defaultDictation.displayName }
     var onStatus: ((String) -> Void)?
-    var onInsert: ((String, DictationTarget, DictationInsertionPermit, @escaping (String) -> Void) -> Void)?
+    var onInsert: ((String, DictationTarget, DictationInsertionPermit, @escaping (DictationInsertionResult) -> Void) -> Void)?
     var isActive: Bool { session.phase != .idle }
     var isInserting: Bool { session.phase == .inserting }
     var paused = false
 
     init() {
+        workspaceObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main
+        ) { [weak self] _ in self?.invalidateInsertion() }
         recorder.onUnexpectedStop = { [weak self] token, success in
             guard let self, token == self.session.id, self.session.phase == .recording else { return }
             if success { self.release() }
@@ -33,9 +40,23 @@ final class DictationCoordinator {
         }
     }
 
+    deinit {
+        if let workspaceObserver { NSWorkspace.shared.notificationCenter.removeObserver(workspaceObserver) }
+        focusTimer?.cancel()
+    }
+
+    /// Constant-time main-thread operation, also safe in the event callback.
+    /// Arm before asynchronously starting so intervening input cannot be missed.
+    func armInsertion() {
+        guard !isActive else { return }
+        insertionPermit?.cancel()
+        insertionPermit = DictationInsertionPermit()
+    }
+    func invalidateInsertion() { insertionPermit?.cancel() }
+
     func showSetup() {
         if isActive { return } // Existing progress HUD is already visible.
-        if let resultText { showResult(resultText); return }
+        if let resultText { showResult(resultText, reason: resultFailure); return }
         guard !paused else { panel.show("Снимите паузу переключателя, чтобы использовать диктовку."); return }
         guard let token = session.begin(ready: false) else { return }
         prepare(token)
@@ -46,21 +67,29 @@ final class DictationCoordinator {
         guard let token = session.begin(ready: ready && AVCaptureDevice.authorizationStatus(for: .audio) == .authorized) else { return }
         resultText = nil
         if session.phase == .preparing { prepare(token); return }
+        let permit = insertionPermit ?? DictationInsertionPermit()
+        insertionPermit = permit
+        targetFailure = .unavailableField
         let expectedPID = NSWorkspace.shared.frontmostApplication?.processIdentifier ?? 0
         onStatus?("🎙 …")
         panel.show("Включаем микрофон… Отпустите сочетание для завершения, Esc — отмена.",
                    cancelTitle: "Отмена", cancelAction: { [weak self] in self?.cancel() })
         focusQueue.async { [weak self] in
-            let target = DictationTarget.capture(expectedPID: expectedPID)
+            let target = DictationTarget.capture(expectedPID: expectedPID, permit: permit)
             DispatchQueue.main.async {
                 guard let self, self.session.id == token, self.session.phase == .starting else { return }
                 guard !SecureInput.isActive else { self.cancel(); return }
                 switch target {
-                case .target(let destination): self.target = destination
-                case .unavailable: self.target = nil
-                case .protectedField:
-                    self.fail(token, "Диктовка недоступна в защищённом поле.")
-                    return
+                case .target(let destination):
+                    self.target = destination
+                    self.monitor(destination, permit: permit)
+                case .unavailable(let reason):
+                    self.target = nil
+                    self.targetFailure = reason
+                    if reason == .protectedField {
+                        self.fail(token, "Диктовка недоступна в защищённом поле.")
+                        return
+                    }
                 }
                 self.recorder.start(token: token) { [weak self] result in
                     guard let self, self.session.id == token, self.session.phase == .starting else { return }
@@ -82,7 +111,7 @@ final class DictationCoordinator {
     func release() {
         let wasStarting = session.phase == .starting
         guard let token = session.release() else {
-            if wasStarting { recorder.cancel(); target = nil; onStatus?(""); panel.hide() }
+            if wasStarting { cancel() }
             return
         }
         timer?.invalidate(); timer = nil
@@ -111,6 +140,7 @@ final class DictationCoordinator {
 
     func cancel() {
         session.cancel()
+        stopMonitoring()
         insertionPermit?.cancel(); insertionPermit = nil
         store.cancel(); recognizer.cancel(); recorder.cancel()
         timer?.invalidate(); timer = nil
@@ -220,26 +250,49 @@ final class DictationCoordinator {
         // Whitespace becomes ordinary spaces before the shared Unicode path.
         let text = DictationText.insertionText(raw)
         guard session.recognized(token, hasText: !text.isEmpty) else {
+            stopMonitoring(); target = nil; insertionPermit = nil
             onStatus?(""); panel.show("Речь не обнаружена. Удерживайте сочетание и попробуйте снова."); return
         }
-        guard let target, let onInsert, !SecureInput.isActive else {
-            session.cancel(); self.target = nil; showResult(text); return
+        guard let target, let onInsert, let permit = insertionPermit,
+              permit.isAllowed, !SecureInput.isActive else {
+            let reason: DictationInsertionFailure = SecureInput.isActive ? .protectedField :
+                (insertionPermit?.isAllowed == false ? .changed : targetFailure)
+            stopMonitoring()
+            session.cancel(); self.target = nil; insertionPermit = nil
+            showResult(text, reason: reason); return
         }
-        let permit = DictationInsertionPermit()
-        insertionPermit = permit
-        onInsert(text, target, permit) { [weak self] remaining in
+        stopMonitoring()
+        onInsert(text, target, permit) { [weak self] result in
             guard let self, self.session.id == token, self.session.phase == .inserting else { return }
+            self.stopMonitoring()
             self.session.cancel(); self.target = nil; self.insertionPermit = nil
             self.onStatus?("")
-            if remaining.isEmpty { self.panel.hide() }
-            else { self.showResult(remaining) }
+            switch result {
+            case .inserted: self.panel.hide()
+            case .fallback(let reason): self.showResult(text, reason: reason)
+            }
         }
     }
 
-    private func showResult(_ text: String) {
+    private func monitor(_ destination: DictationTarget, permit: DictationInsertionPermit) {
+        stopMonitoring()
+        // The AX observer catches away-and-back changes between samples; this
+        // serial worker timer also detects silent updates and Secure Input.
+        let timer = DispatchSource.makeTimerSource(queue: focusQueue)
+        timer.schedule(deadline: .now() + .milliseconds(150), repeating: .milliseconds(150))
+        timer.setEventHandler {
+            if permit.isAllowed { permit.validateSnapshot(destination.isCurrent()) }
+        }
+        focusTimer = timer
+        timer.resume()
+    }
+    private func stopMonitoring() { focusTimer?.cancel(); focusTimer = nil }
+
+    private func showResult(_ text: String, reason: DictationInsertionFailure) {
         resultText = text
+        resultFailure = reason
         onStatus?("▤")
-        panel.show("Автовставка недоступна или поле изменилось. Ниже текст, который не был вставлен. Скопируйте его вручную.",
+        panel.show(reason.message + (reason == .unconfirmed ? "" : " Скопируйте результат вручную."),
                    primaryTitle: "Копировать", primaryAction: {
             NSPasteboard.general.clearContents()
             NSPasteboard.general.setString(text, forType: .string)
@@ -251,6 +304,7 @@ final class DictationCoordinator {
     private func fail(_ token: UInt64, _ message: String) {
         guard session.failed(token) else { return }
         recorder.cancel(); recognizer.cancel()
+        stopMonitoring()
         insertionPermit?.cancel(); insertionPermit = nil
         timer?.invalidate(); timer = nil; target = nil
         onStatus?("")

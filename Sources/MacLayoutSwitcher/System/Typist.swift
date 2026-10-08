@@ -6,7 +6,7 @@ import CoreGraphics
 /// Serial execution of targeted text replacements, speech insertion and
 /// physical-key replays. Word replacement uses one AXSelectedText write; it
 /// never deletes text incrementally or rewrites the entire field value.
-/// CGEvents remain necessary for speech and physical separators/keys, carry the
+/// CGEvents remain necessary for physical separators/keys, carry the
 /// synthetic marker, and always finish an already-posted down/up pair.
 public final class Typist {
 
@@ -88,26 +88,14 @@ public final class Typist {
         post(press.up)
     }
 
-    /// Inserts speech on the same queue as replacements and physical-key
-    /// replays. Recheck focus/security before every character, and report any
-    /// uninserted suffix rather than silently losing or copying it.
+    /// One targeted AX mutation with read-back verification; no synthetic
+    /// character count is ever interpreted as proof of delivery.
     func insertDictation(_ text: String, target: DictationTarget,
                          permit: DictationInsertionPermit,
-                         completion: @escaping (String) -> Void) {
+                         completion: @escaping (DictationInsertionResult) -> Void) {
         enqueue {
-            let characters = Array(text)
-            var inserted = 0
-            if permit.isAllowed && target.isCurrent(checkSelection: true) {
-                for character in characters {
-                    guard permit.isAllowed, target.isCurrent(checkSelection: false),
-                          let press = Self.makeUnicodePress(character) else { break }
-                    Self.post(press.down)
-                    Self.post(press.up)
-                    inserted += 1
-                }
-            }
-            let remaining = String(characters.dropFirst(inserted))
-            DispatchQueue.main.async { completion(remaining) }
+            let result = target.insert(text, permit: permit)
+            DispatchQueue.main.async { completion(result) }
         }
     }
 
