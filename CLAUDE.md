@@ -6,17 +6,22 @@
 исправление, автозапуск, индикатор RU/EN и утка, самообновление, локальная
 диктовка GigaAM v3. Дневника набора нет.
 
-## Текущее состояние — 2026-10-07
+## Текущее состояние — 2026-10-08
 
-Версия v1.4.1, G18: системное покрытие восьми однобуквенных RU слов,
+Версия v1.4.2, G19: видимый fallback диктовки, подготовка AX дерева,
+проверяемая вставка и постоянная отмена права вставки при вмешательстве.
+Предыдущая1.4.1, G18: системное покрытие восьми однобуквенных RU слов,
 41 словарное дополнение, безопасные !?()/исключения, контекстные коллизии.
 Предыдущие G15–G17: защита от чужого префикса перед ozon, одиночные
 b/B/z/Z → и/И/я/Я, повторное использование модели с runtime cache,
 автоматическая подготовка модели, конвертация выделения существующим хоткеем.
 Актуальные статусы/доказательства — .autopilot/state.js, manifest.md,
-word-coverage-spec.md /word-coverage-qa.md и input-repair-qa.md в каталоге прогона.
-На Mac пользователя пока установлена1.3.0; новая1.4.1 поставляется обновлением/DMG.
-Полный Linux XCTest95/95; Mac release и mounted DMG1.4.1 codesign/version/helper прошли;
+dictation-insertion-spec.md /dictation-insertion-qa.md, word-coverage-qa.md
+и input-repair-qa.md в каталоге прогона.
+На Mac пользователя установлена1.4.1 (Info.plist проверен08.10); новая1.4.2
+поставляется обновлением/DMG, установленное приложение автоматически не заменяем.
+Полный Linux XCTest95/95; native panel/adapter/debug/release passed;
+mounted DMG1.4.2 version/codesign/helper проверены;
 пользователь сообщил ошибки скриншотами, а не подтвердил полную приёмку.
 
 ## Среда и команды
@@ -163,9 +168,43 @@ SpeechRecognitionProcess запускает Process в приватном CWD с
 WAV, без сетевого fallback. Записи временные, удаляются; текст/аудио не логируют.
 DictationSession/DictationGesture в core: session identity, отмена, hotkey
 keyUp/autorepeat. reset жестов при остановке tap/рекордере хоткея обязательный.
-DictationTarget проверяет защищённое поле/фокус/выделение; Typist вставляет
-Unicode на общей очереди. Если поле поменялось или AX недоступен, результат
-в панели с явным «Копировать»; автоматическая вставка clipboard не трогает.
+DictationTarget проверяет защищённое поле/фокус/выделение; Typist выполняет
+проверяемую вставку через AX/Unicode на общей очереди. Если поле поменялось или AX
+недоступен, результат в панели с явным «Копировать»; автоматическая вставка
+clipboard не трогает.
+
+G19: прежний NSTextView имел нулевую ширину и скрывал непустой результат.
+Теперь document width/container tracking задаются после layout, длинный текст
+выделяется/прокручивается. tools/test-dictation-panel.sh воспроизводит productionUI.
+
+DictationTarget сохраняет точный AXelement/PID/selection/value, отслеживает
+изменения с hold (Engine.armInsertion) через permit, AXObserver и workspace/
+physical events. Не принимать один PID, не выдумывать range(0,0), не писать
+весь AXValue. Missing selection/value/capability/observation даёт причину fallback.
+AXManualAccessibility включается bounded/off-main с повторным захватом.
+
+Нативный AXSelectedText путь проверяет итоговый value. Распознанные
+Chromium/Electron пакеты предпочитают Unicode: <=16UTF16/chunk, postToPid,
+проверка точного нового value и caret перед следующей порцией. Реальный Codex
+лежит /Applications/ChatGPT.app, bundleIDcom.openai.codex и переименованный
+Codex Framework.framework — учтён. Не полагаться только на setter capability:
+наследуемый selector не гарантирует реализацию действия web node.
+
+Никаких повторов после попытки записи с неизвестным исходом. При частичной/
+неподтверждённой доставке сохраняется ВЕСЬ результат с предупреждением проверить
+поле перед копированием. Callback теперь DictationInsertionResult, не String suffix.
+Readback подтверждает текст, CGEvent.post сам по себе — нет. Права отмены sticky,
+монитор исходного snapshot остановить перед вставкой, поздние samples не должны
+отменять собственные chunks. Ожидаемые value/selection notifications ограничены
+по одному на write/150мс, focus/physical events всегда отменяют. Остаётся AX/CG
+race и неоднозначность уведомлений собственного/внешнего изменения; не объявлять
+атомарность. AX refcon живёт до удаления observer source на main run loop.
+
+tools/test-dictation-adapter.sh компилирует production target с подставленным
+AX boundary + собственным NSTextView: exact capture/mutation, permissions,
+capabilities, delayed notifications, no-op/partial delivery, no retry, clipboard.
+Это не живая AX+CG доставка в пользовательский Codex. Диагностический процесс
+не имеет AX trust; не принуждать TCC и не печатать в пользовательских полях.
 
 ## Релиз — обязательно
 

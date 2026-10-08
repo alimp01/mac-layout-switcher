@@ -11,8 +11,8 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-08",
-  "finishedAt": null,
+  "updatedAt": "2026-10-08T04:32:25.996828+00:00",
+  "finishedAt": "2026-10-08T04:32:25.996828+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -43,31 +43,34 @@ window.STATE =
       "status": "done",
       "startedAt": "2026-08-29T03:44:20+00:00",
       "finishedAt": "2026-08-29T03:52:30+00:00",
-      "note": "21 тикет; G18 системная полнота исправлений"
+      "note": "22 тикета; дополнение G19 2026-10-08"
     },
     {
       "id": "build",
-      "status": "in_progress",
+      "status": "done",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "21 тикет готов; G18 systemic word coverage, VERSION1.4.1"
+      "note": "22 тикета готовы; G19 verified dictation insertion and visible fallback, VERSION1.4.2",
+      "finishedAt": "2026-10-08T04:32:25.996828+00:00"
     },
     {
       "id": "review",
-      "status": "pending",
+      "status": "done",
       "startedAt": "2026-08-29T04:05:30+00:00",
-      "note": "G18 Spec+Standards approved, zero actionable findings; frozen audit confirms only declared collision changes"
+      "note": "G19 Spec+Standards final approved, no blocking findings; race/callback/capability repairs rechecked",
+      "finishedAt": "2026-10-08T04:32:25.996828+00:00"
     },
     {
       "id": "final",
-      "status": "pending",
+      "status": "done",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "95/95 Linux tests; Mac release, mounted DMG codesign/version/helper passed; live UI acceptance pending"
+      "note": "95/95 Linux; native panel/adapter/debug/release; mounted DMG codesign/version/helper verified. LiveCodex insertion pending.",
+      "finishedAt": "2026-10-08T04:32:25.996828+00:00"
     }
   ],
   "requirements": {
     "total": 26,
-    "done": 24,
-    "inTicket": 1,
+    "done": 25,
+    "inTicket": 0,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -614,14 +617,22 @@ window.STATE =
       ],
       "blockedBy": [],
       "wave": 18,
-      "status": "ready"
+      "status": "done",
+      "commit": "e857996",
+      "finishedAt": "2026-10-08T04:32:25.996828+00:00",
+      "tests": {
+        "passed": 95,
+        "failed": 0
+      },
+      "validation": "Native panel red/green and adapter pass independently; actual Codex routing metadata; fullLinux95; both reviews approved; release/DMG verified",
+      "repairs": 1
     }
   ],
   "singlePass": null,
   "tests": {
     "passed": 95,
     "failed": 0,
-    "note": "Full actual Sources/Tests Linux snapshot53files byte-identical; Mac release and mounted signed DMG1.4.1 passed. Live UI acceptance not claimed."
+    "note": "Linux actual53file snapshot identical; native panel/adapter + debug/release/DMG passed. No live usereditor/microphone testing."
   },
   "debt": {
     "placeholders": [],
@@ -673,7 +684,7 @@ window.STATE =
     {
       "id": "G19",
       "title": "Исправить вставку диктовки",
-      "status": "in_progress",
+      "status": "done",
       "tickets": [
         "22"
       ]
@@ -729,31 +740,39 @@ window.STATE =
       "spec": "review_word_spec",
       "standards": "review_word_standards",
       "result": "Both approved finaldiff with zero actionable findings"
+    },
+    "G19": {
+      "spec": "review_dictation_spec",
+      "standards": "review_dictation_standards",
+      "result": "Both final approved, no blocking findings; liveAX/CG and notification-window limitations documented"
     }
   },
   "blind": {
-    "run": "Linux95tests, native release, mountedDMG codesign/version/helper passed",
-    "verdict": "G18 implemented/reviewed VERSION1.4.1",
-    "note": "User installedapp unchanged; live AX/microphone acceptance pending. No macOS layer changes this ticket.",
+    "run": "Linux95; native panel/adapter/debug/release; mountedDMG signature/version/helper PASS",
+    "verdict": "G19 implemented/reviewed VERSION1.4.2",
+    "note": "Installed1.4.1 unchanged; liveCodex AX/CG + microphone acceptance pending, no privateuserfield testing.",
     "drift": []
   },
   "manualAcceptance": {
-    "version": "1.4.1",
+    "version": "1.4.2",
     "status": "pending",
     "checks": [
       "ozon после смены поля; b/B/z/Z и plan b",
       "Option по выделению с переносами и без выделения",
       "Enter/Shift+Enter и быстрый ghbdtn+Tab+abc",
       "диктовка после перезапуска без скачивания; новый hold после подготовки",
-      "f/d/r/j/c/e одиночные + Englishlabels; ни/буду/могу/люблю; rfr?/ghbdtn!/(yt)"
+      "f/d/r/j/c/e одиночные + Englishlabels; ни/буду/могу/люблю; rfr?/ghbdtn!/(yt)",
+      "Диктовка в Codex: удержание/отпускание вставляет один раз без Enter",
+      "Во время распознавания сменить поле/ввести символ: видимый результат, причина отказа, явное копирование",
+      "Длинная фраза и выделение, поздние уведомления; непроверенная доставка сохраняет весь результат с предупреждением"
     ]
   },
   "release": {
-    "version": "1.4.1",
-    "codeCommit": "fec1515",
-    "artifact": "MacLayoutSwitcher-1.4.1.dmg",
-    "sha256": "776f2d28c2e5fabd6f2633c76d08bfac4e534365ae9400be54719b9ed0f6d574",
-    "bytes": 10912361
+    "version": "1.4.2",
+    "codeCommit": "e857996",
+    "artifact": "MacLayoutSwitcher-1.4.2.dmg",
+    "sha256": "b99675e8ae289b2b53bd3e118ce0184b3ab9ded94b186077f6e72e9e8f5cff49",
+    "bytes": 10934036
   },
   "wordCoverageAudit": {
     "independentRU": 459,
@@ -764,5 +783,12 @@ window.STATE =
     "newWrongDirections": 0,
     "intentionalNewContextualCollisionRows": 9,
     "note": "Curated diagnostics, not statistical accuracy; see word-coverage-qa.md"
+  },
+  "dictationInsertionAudit": {
+    "panelCause": "ProductionNSTextView/textContainer width0, nonempty recognizedtext clipped",
+    "nativePanel": "red→green + root/2reviewers reruns",
+    "nativeAdapter": "productioncapture/insert with injectedAX/nativeNSTextView; actualCodex frameworkrouting metadata PASS",
+    "liveCodex": "not exercised; diagnostic process AXIsProcessTrusted=false",
+    "privacy": "No microphone, privateeditor typing, TCC forcing or automaticclipboard mutation duringdiagnostics"
   }
 }
