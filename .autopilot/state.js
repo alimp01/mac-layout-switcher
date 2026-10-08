@@ -11,8 +11,8 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-08T04:32:25.996828+00:00",
-  "finishedAt": "2026-10-08T04:32:25.996828+00:00",
+  "updatedAt": "2026-10-08T04:39:46.121007+00:00",
+  "finishedAt": null,
   "stages": [
     {
       "id": "preflight",
@@ -47,30 +47,27 @@ window.STATE =
     },
     {
       "id": "build",
-      "status": "done",
+      "status": "in-progress",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "22 тикета готовы; G19 verified dictation insertion and visible fallback, VERSION1.4.2",
-      "finishedAt": "2026-10-08T04:32:25.996828+00:00"
+      "note": "G20/T23 keyboard runtime repair"
     },
     {
       "id": "review",
-      "status": "done",
+      "status": "pending",
       "startedAt": "2026-08-29T04:05:30+00:00",
-      "note": "G19 Spec+Standards final approved, no blocking findings; race/callback/capability repairs rechecked",
-      "finishedAt": "2026-10-08T04:32:25.996828+00:00"
+      "note": "G20/T23 keyboard runtime repair"
     },
     {
       "id": "final",
-      "status": "done",
+      "status": "pending",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "95/95 Linux; native panel/adapter/debug/release; mounted DMG codesign/version/helper verified. LiveCodex insertion pending.",
-      "finishedAt": "2026-10-08T04:32:25.996828+00:00"
+      "note": "G20/T23 keyboard runtime repair"
     }
   ],
   "requirements": {
-    "total": 26,
+    "total": 27,
     "done": 25,
-    "inTicket": 0,
+    "inTicket": 1,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -626,6 +623,24 @@ window.STATE =
       },
       "validation": "Native panel red/green and adapter pass independently; actual Codex routing metadata; fullLinux95; both reviews approved; release/DMG verified",
       "repairs": 1
+    },
+    {
+      "id": "23",
+      "title": "Восстановить Option и автоматическую замену",
+      "requirements": [
+        "G20"
+      ],
+      "status": "in-progress",
+      "blockedBy": [],
+      "wave": 19,
+      "zone": [
+        "Sources/MacLayoutSwitcher",
+        "Tests",
+        "tools"
+      ],
+      "retries": 0,
+      "repairs": 0,
+      "handoffs": 0
     }
   ],
   "singlePass": null,
