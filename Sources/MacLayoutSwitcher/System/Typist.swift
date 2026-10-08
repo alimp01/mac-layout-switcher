@@ -14,6 +14,7 @@ public final class Typist {
     public struct KeyPress {
         fileprivate let down: CGEvent
         fileprivate let up: CGEvent
+        fileprivate let recoveryText: String
     }
 
     /// Виртуальные коды разделителей (kVK_Return / kVK_Tab / kVK_Space) —
@@ -30,10 +31,14 @@ public final class Typist {
     /// ещё летит в приложение, и пользовательский ввод должен ложиться ПОСЛЕ
     /// неё (Engine его переигрывает через `send`), а не посреди.
     var onIdle: (() -> Void)?
+    var onWithheldInput: ((String) -> Void)?
     private var pending = 0
     private let pendingLock = NSLock()
 
-    public init() {}
+    private let postEvent: (CGEvent) -> Void
+    public init() { postEvent = Self.post }
+    /// System event boundary for the native queue harness; production posts CGEvents.
+    init(postEvent: @escaping (CGEvent) -> Void) { self.postEvent = postEvent }
 
     /// `true`, пока очередь не опустела (перепечатка/досылка ещё идёт).
     public var isBusy: Bool {
@@ -47,28 +52,36 @@ public final class Typist {
                          ticket: InputFocusGuard.Ticket, separator: KeyPress?,
                          separatorCharacter: Character?, navigates: Bool,
                          conversionPermit: InputFocusGuard.Permit? = nil, conversionSelection: CFRange? = nil,
-                         completion: @escaping (Bool) -> Void) {
+                         completion: @escaping (InputFocusGuard.ReplacementResult) -> Void) {
         enqueue {
             let inlineSpace = separatorCharacter == " "
-            let completed: Bool
+            let result: InputFocusGuard.ReplacementResult
             let allowed = { ticket.allowsReplacement && (conversionPermit?.isAllowed ?? true) }
             let selectionMatches = conversionSelection.map { original in
                 ticket.target.selection().map { $0.location == original.location && $0.length == original.length } == true
             } ?? true
             if allowed(), selectionMatches, let range = ticket.target.sourceRange(expected) {
-                completed = ticket.target.replace(range: range, expected: expected,
+                result = ticket.target.replace(range: range, expected: expected,
                     with: text + (inlineSpace ? " " : ""),
-                    originalSelection: CFRange(location: range.location + range.length, length: 0), allowed: allowed)
-            } else { completed = false }
-            if !completed { ticket.replacementPermit.cancel() }
+                    originalSelection: CFRange(location: range.location + range.length, length: 0), requiresWordBoundary: true, allowed: allowed)
+            } else { result = .untouched }
+            if result != .confirmed { ticket.replacementPermit.cancel() }
+            if result == .uncertain { ticket.replayRoute.didBecomeUncertain() }
             // A failed correction still delivers its physical separator in the
             // original target. Successful spaces were part of the atomic write.
-            if (!completed || !inlineSpace), let separator,
-               ticket.replayRoute.canReplay(permit: ticket.permit) {
-                Self.postPair(separator)
+            var withheld: String?
+            if result != .uncertain, (result != .confirmed || !inlineSpace), let separator,
+               ticket.replayRoute.canReplay(permit: ticket.permit, navigates: navigates) {
+                self.postPair(separator)
                 if navigates { ticket.replayRoute.didNavigate() }
+            } else if let separator, result != .confirmed || !inlineSpace,
+                      ticket.replayRoute.requiresRecovery {
+                withheld = separator.recoveryText
             }
-            DispatchQueue.main.async { completion(completed) }
+            DispatchQueue.main.async { [weak self] in
+                completion(result)
+                if let withheld { self?.onWithheldInput?(withheld) }
+            }
         }
     }
 
@@ -76,16 +89,21 @@ public final class Typist {
     /// its destination; correction text is never allowed to follow that route.
     func send(_ press: KeyPress, ticket: InputFocusGuard.Ticket? = nil, navigates: Bool = false) {
         enqueue {
-            if let ticket, !ticket.replayRoute.canReplay(permit: ticket.permit) { return }
-            Self.postPair(press)
+            if let ticket, !ticket.replayRoute.canReplay(permit: ticket.permit, navigates: navigates) {
+                if ticket.replayRoute.requiresRecovery {
+                    DispatchQueue.main.async { [weak self] in self?.onWithheldInput?(press.recoveryText) }
+                }
+                return
+            }
+            self.postPair(press)
             if navigates { ticket?.replayRoute.didNavigate() }
         }
     }
 
-    private static func postPair(_ press: KeyPress) {
-        post(press.down)
+    private func postPair(_ press: KeyPress) {
+        postEvent(press.down)
         // Always release a posted key, including when cancellation raced down.
-        post(press.up)
+        postEvent(press.up)
     }
 
     /// One targeted AX mutation with read-back verification; no synthetic
@@ -110,7 +128,15 @@ public final class Typist {
         else { return nil }
         down.flags = flags
         up.flags = flags
-        return KeyPress(down: down, up: up)
+        let recovery: String
+        switch keyCode {
+        case returnKeyCode: recovery = "⏎"
+        case tabKeyCode: recovery = "⇥"
+        case spaceKeyCode: recovery = " "
+        case 51: recovery = "⌫"
+        default: recovery = "[клавиша \(keyCode)]"
+        }
+        return KeyPress(down: down, up: up, recoveryText: recovery)
     }
 
     /// Создаёт (синхронно) нажатие, печатающее ровно `character` юникодом —
@@ -129,7 +155,7 @@ public final class Typist {
         }
         down.flags = []
         up.flags = []
-        return KeyPress(down: down, up: up)
+        return KeyPress(down: down, up: up, recoveryText: String(character))
     }
 
     /// Виртуальный код для символа-разделителя: `\n`/`\r` → Return, `\t` → Tab,

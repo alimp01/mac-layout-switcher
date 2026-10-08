@@ -1,5 +1,6 @@
 #if os(macOS)
 import ApplicationServices
+import AppKit
 import Foundation
 import SwitcherCore
 
@@ -14,54 +15,52 @@ final class InputFocusGuard {
         var isAllowed: Bool { lock.lock(); defer { lock.unlock() }; return allowed }
     }
 
+    enum ReplacementResult: Equatable { case confirmed, untouched, uncertain }
+
     struct Target {
         let element: AXUIElement
         let pid: pid_t
+        var accessibility: any DictationAccessibility = SystemDictationAccessibility()
 
-        static func capture() -> Target? {
-            guard !SecureInput.isActive else { return nil }
-            let system = AXUIElementCreateSystemWide()
-            AXUIElementSetMessagingTimeout(system, 0.1)
-            var value: CFTypeRef?
-            guard AXUIElementCopyAttributeValue(system, kAXFocusedUIElementAttribute as CFString, &value) == .success,
-                  let value, CFGetTypeID(value) == AXUIElementGetTypeID() else { return nil }
-            let element = unsafeBitCast(value, to: AXUIElement.self)
-            AXUIElementSetMessagingTimeout(element, 0.1)
-            var pid: pid_t = 0
-            guard AXUIElementGetPid(element, &pid) == .success else { return nil }
-            var subrole: CFTypeRef?
-            _ = AXUIElementCopyAttributeValue(element, kAXSubroleAttribute as CFString, &subrole)
-            guard subrole as? String != kAXSecureTextFieldSubrole as String else { return nil }
-            return Target(element: element, pid: pid)
+        /// Runs on a worker. Reuse the speech adapter's bounded AX bootstrap and
+        /// process routing; querying the current element itself never bootstraps.
+        static func capture(expectedPID: pid_t? = NSWorkspace.shared.frontmostApplication?.processIdentifier,
+                            accessibility: any DictationAccessibility = SystemDictationAccessibility()) -> Target? {
+            guard let pid = expectedPID, accessibility.isTrusted, !accessibility.isSecure else { return nil }
+            for attempt in 0..<3 {
+                if attempt > 0 {
+                    if attempt == 1 { accessibility.enableAccessibility(pid: pid) }
+                    Thread.sleep(forTimeInterval: 0.08)
+                }
+                guard !accessibility.isSecure else { return nil }
+                guard let element = accessibility.focusedElement(pid: pid),
+                      accessibility.attribute(kAXSubroleAttribute, of: element) as? String != kAXSecureTextFieldSubrole else { continue }
+                let target = Target(element: element, pid: pid, accessibility: accessibility)
+                if target.selection() != nil { return target }
+            }
+            return nil
         }
 
         func matches(_ other: Target) -> Bool { pid == other.pid && CFEqual(element, other.element) }
-        func isCurrent() -> Bool { Self.capture().map(matches) ?? false }
-
+        func isCurrent() -> Bool {
+            guard !accessibility.isSecure, let current = accessibility.focusedElement(pid: pid) else { return false }
+            return CFEqual(element, current)
+                && accessibility.attribute(kAXSubroleAttribute, of: element) as? String != kAXSecureTextFieldSubrole
+        }
         func selection() -> CFRange? {
-            var value: CFTypeRef?
-            guard AXUIElementCopyAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, &value) == .success,
-                  let value, CFGetTypeID(value) == AXValueGetTypeID() else { return nil }
+            guard let value = accessibility.attribute(kAXSelectedTextRangeAttribute, of: element),
+                  CFGetTypeID(value) == AXValueGetTypeID() else { return nil }
             var range = CFRange()
             guard AXValueGetValue(unsafeBitCast(value, to: AXValue.self), .cfRange, &range),
                   range.location >= 0, range.length >= 0 else { return nil }
             return range
         }
-
+        private func value() -> String? { accessibility.attribute(kAXValueAttribute, of: element) as? String }
         func text(in range: CFRange) -> String? {
-            var range = range
-            guard let parameter = AXValueCreate(.cfRange, &range) else { return nil }
-            var value: CFTypeRef?
-            if AXUIElementCopyParameterizedAttributeValue(element, kAXStringForRangeParameterizedAttribute as CFString,
-                                                         parameter, &value) == .success,
-               let text = value as? String { return text }
-            // Plain NSTextFields commonly expose AXValue instead of AXStringForRange.
-            guard AXUIElementCopyAttributeValue(element, kAXValueAttribute as CFString, &value) == .success,
-                  let text = value as? String, range.location <= text.utf16.count,
-                  range.length <= text.utf16.count - range.location else { return nil }
+            guard range.location >= 0, range.length >= 0, let text = value(),
+                  range.location <= text.utf16.count, range.length <= text.utf16.count - range.location else { return nil }
             return (text as NSString).substring(with: NSRange(location: range.location, length: range.length))
         }
-
         func sourceRange(_ expected: String) -> CFRange? {
             let source = ReplacementSource(expected: expected)
             guard isCurrent(), let selection = selection(),
@@ -74,49 +73,103 @@ final class InputFocusGuard {
             return CFRange(location: range.lowerBound, length: range.count)
         }
 
-        /// One targeted text mutation; never rewrite AXValue for the whole field.
-        /// Selecting the source is non-destructive and undone if the write fails.
-        /// The same primitive supports a pre-existing selection (manual convert).
+        /// Explicit Option can recover a word which predates event-tap binding.
+        /// Capture this on the selection worker, never by reading AX in the tap.
+        func wordBeforeCaret(_ caret: CFRange) -> (range: CFRange, text: String)? {
+            guard caret.length == 0, isCurrent(), let original = value(), caret.location <= original.utf16.count,
+                  selection().map({ $0.location == caret.location && $0.length == 0 }) == true else { return nil }
+            let prefix = (original as NSString).substring(to: caret.location)
+            var tail = ""
+            var foundWord = false
+            for character in prefix.reversed() {
+                if !foundWord, character == " " {
+                    tail.insert(character, at: tail.startIndex)
+                    if tail.utf16.count > 4096 { return nil }
+                    continue
+                }
+                if character.isWhitespace { break }
+                foundWord = true
+                tail.insert(character, at: tail.startIndex)
+                if tail.utf16.count > 4096 { return nil }
+            }
+            guard foundWord else { return nil }
+            return (CFRange(location: caret.location - tail.utf16.count, length: tail.utf16.count), tail)
+        }
+
+        /// An attempted text write is never retried, even if AX reports failure.
+        /// Only exact readback plus a collapsed caret can confirm it. Select the
+        /// Unicode route BEFORE mutation for bridges with missing/no-op setters.
         func replace(range: CFRange, expected: String, with replacement: String,
-                     originalSelection: CFRange, allowed: () -> Bool) -> Bool {
-            guard allowed(), isCurrent(), let original = selection(),
-                  original.location == originalSelection.location, original.length == originalSelection.length,
-                  text(in: range) == expected else { return false }
-            var rangeSettable = DarwinBoolean(false)
-            var textSettable = DarwinBoolean(false)
-            guard AXUIElementIsAttributeSettable(element, kAXSelectedTextRangeAttribute as CFString, &rangeSettable) == .success,
-                  rangeSettable.boolValue,
-                  AXUIElementIsAttributeSettable(element, kAXSelectedTextAttribute as CFString, &textSettable) == .success,
-                  textSettable.boolValue else { return false }
-            var selected = range
-            guard let selectedValue = AXValueCreate(.cfRange, &selected), allowed(), isCurrent(),
-                  selection().map({ $0.location == original.location && $0.length == original.length }) == true,
-                  AXUIElementSetAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, selectedValue) == .success else { return false }
-            var completed = false
-            defer {
-                // Restore only our own temporary selection, never newer user state.
-                if !completed, isCurrent(),
-                   selection().map({ $0.location == range.location && $0.length == range.length }) == true {
-                    var restored = original
-                    if let value = AXValueCreate(.cfRange, &restored) {
-                        _ = AXUIElementSetAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, value)
-                    }
-                }
+                     originalSelection: CFRange, requiresWordBoundary: Bool = false, allowed: () -> Bool) -> ReplacementResult {
+            func selected(_ expected: CFRange) -> Bool {
+                selection().map { $0.location == expected.location && $0.length == expected.length } == true
             }
-            guard allowed(), isCurrent(),
-                  selection().map({ $0.location == range.location && $0.length == range.length }) == true,
-                  text(in: range) == expected, allowed() else { return false }
-            completed = AXUIElementSetAttributeValue(element, kAXSelectedTextAttribute as CFString,
-                                                     replacement as CFString) == .success
-            if completed, allowed(), isCurrent() {
-                // AXSelectedText setters differ in whether replacement stays
-                // selected. Put the caret after our committed text explicitly.
-                var caret = CFRange(location: range.location + replacement.utf16.count, length: 0)
-                if let value = AXValueCreate(.cfRange, &caret) {
-                    _ = AXUIElementSetAttributeValue(element, kAXSelectedTextRangeAttribute as CFString, value)
-                }
+            guard allowed(), isCurrent(), selected(originalSelection), let original = value(),
+                  range.location >= 0, range.length >= 0, range.location <= original.utf16.count,
+                  range.length <= original.utf16.count - range.location,
+                  (original as NSString).substring(with: NSRange(location: range.location, length: range.length)) == expected else { return .untouched }
+            if requiresWordBoundary {
+                let start = max(0, range.location - 1)
+                let validation = (original as NSString).substring(with: NSRange(location: start, length: range.location + range.length - start))
+                guard ReplacementSource(expected: expected).matches(validation, atDocumentStart: range.location == 0) else { return .untouched }
             }
-            return completed
+            let direct = accessibility.selectedTextIsSettable(element) && !accessibility.prefersUnicodeInsertion(pid: pid)
+            guard direct || accessibility.supportsUnicodeInsertion(element) else { return .untouched }
+            guard allowed(), isCurrent(), selected(originalSelection), value() == original else { return .untouched }
+            var attempted = false
+            func finish(_ result: ReplacementResult) -> ReplacementResult {
+                // A selection RPC can apply and still report failure. Restore
+                // only our exact selection over unchanged content, and READ BACK
+                // restoration before permitting a physical separator to replay.
+                if isCurrent(), selected(range), value() == original {
+                    _ = accessibility.setSelection(originalSelection, in: element)
+                    if !selected(originalSelection) { return .uncertain }
+                } else if result == .untouched, !selected(originalSelection) {
+                    return .uncertain
+                }
+                return result
+            }
+            _ = accessibility.setSelection(range, in: element)
+            guard allowed(), isCurrent(), selected(range), value() == original, allowed() else { return finish(.untouched) }
+            func replacing(_ value: String, _ selected: CFRange, _ text: String) -> String {
+                (value as NSString).replacingCharacters(in: NSRange(location: selected.location, length: selected.length), with: text)
+            }
+            func confirm(_ expected: String, caret: Int) -> Bool {
+                for attempt in 0..<6 {
+                    if attempt > 0 { Thread.sleep(forTimeInterval: 0.025) }
+                    guard allowed(), isCurrent() else { return false }
+                    if value() == expected, selected(CFRange(location: caret, length: 0)) { return true }
+                }
+                return false
+            }
+            if direct {
+                attempted = true
+                _ = accessibility.setSelectedText(replacement, in: element)
+                let expectedValue = replacing(original, range, replacement)
+                let end = range.location + replacement.utf16.count
+                // Native setters can retain selection. Collapse only our own
+                // exact replacement after verifying the full resulting value.
+                if allowed(), isCurrent(), value() == expectedValue,
+                   selected(CFRange(location: range.location, length: replacement.utf16.count)) {
+                    _ = accessibility.setSelection(CFRange(location: end, length: 0), in: element)
+                }
+                return finish(confirm(expectedValue, caret: end) ? .confirmed : .uncertain)
+            }
+            var currentValue = original
+            var currentRange = range
+            for chunk in DictationTarget.unicodeChunks(replacement) {
+                guard allowed(), isCurrent(), value() == currentValue, selected(currentRange), allowed() else {
+                    return finish(attempted ? .uncertain : .untouched)
+                }
+                let expectedValue = replacing(currentValue, currentRange, chunk)
+                attempted = true
+                guard accessibility.postUnicode(chunk, pid: pid) else { return finish(.uncertain) }
+                let end = currentRange.location + chunk.utf16.count
+                guard confirm(expectedValue, caret: end) else { return finish(.uncertain) }
+                currentValue = expectedValue
+                currentRange = CFRange(location: end, length: 0)
+            }
+            return finish(attempted ? .confirmed : .untouched)
         }
     }
 
@@ -126,12 +179,16 @@ final class InputFocusGuard {
     final class ReplayRoute {
         private let target: Target
         private var policy = InputReplayPolicy()
+        private var uncertain = false
         init(target: Target) { self.target = target }
         func didNavigate() { policy.didDeliverNavigation() }
-        func canReplay(permit: Permit) -> Bool {
+        func didBecomeUncertain() { uncertain = true }
+        var requiresRecovery: Bool { uncertain }
+        func canReplay(permit: Permit, navigates: Bool = false) -> Bool {
+            if uncertain && (navigates || target.selection()?.length != 0) { return false }
             let current = policy.followsNavigation || target.isCurrent()
             return policy.allowsReplay(cancelled: !permit.isAllowed,
-                                       secure: SecureInput.isActive, originalTargetCurrent: current)
+                                       secure: target.accessibility.isSecure, originalTargetCurrent: current)
         }
     }
 
@@ -195,18 +252,38 @@ final class InputFocusGuard {
         return true
     }
 
+    /// Main-thread handoff from an explicit off-tap capture. A cancelled focus
+    /// generation is never revived by a late result.
+    var generation: Permit { permit }
+    func bind(_ captured: Target, generation: Permit) -> Ticket? {
+        guard permit === generation, generation.isAllowed else { return nil }
+        if let target, !target.matches(captured) { invalidate(); return nil }
+        target = captured
+        if replayRoute == nil { replayRoute = ReplayRoute(target: captured) }
+        return ticket
+    }
+
+    /// Called on main only after Typist is idle. Uncertainty belongs to one
+    /// queued batch, not every future Enter in this editor.
+    func finishBatch() {
+        if replayRoute?.requiresRecovery == true { invalidate() }
+    }
+
     private func refresh() {
         guard !sampling, shouldSample?() != false else { return }
         sampling = true
         let requestedPermit = permit
+        let expectedPID = NSWorkspace.shared.frontmostApplication?.processIdentifier
         queue.async { [weak self] in
-            let captured = Target.capture()
+            let captured = Target.capture(expectedPID: expectedPID)
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
                 self.sampling = false
                 guard self.timer != nil, self.permit === requestedPermit, self.shouldSample?() != false else { return }
                 let unchanged = self.target.flatMap { old in captured.map { old.matches($0) } } ?? (captured == nil && self.target == nil)
-                if !unchanged {
+                if self.target == nil, let captured {
+                    _ = self.bind(captured, generation: requestedPermit)
+                } else if !unchanged {
                     self.invalidate()
                     self.target = captured
                     self.replayRoute = captured.map(ReplayRoute.init)

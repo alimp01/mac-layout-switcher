@@ -5,6 +5,14 @@ GitHub: https://github.com/alimp01/mac-layout-switcher
 
 Сначала прочитай `CLAUDE.md`, `.autopilot/state.js`, затем manifest и актуальные тикеты в `.autopilot/2026-08-29-mac-layout-switcher/`. Они определяют состояние ревью и релиза; VERSION сам по себе не доказывает публикацию.
 
+## Изменения для 1.4.3 (G20, 08.10.2026)
+
+- Keyboard Target переиспользует DictationAccessibility: bounded lazy AX bootstrap, проверяемый direct/Unicode путь, точное исходное значение/граница слова и каретка. Результат confirmed/untouched/uncertain; попытка записи не повторяется. Setter success и CGEvent.post не являются подтверждением.
+- Option захватывает поле заново вне tap; выделение, затем буфер/undo, затем слово перед курсором из свежего AX snapshot. Если слова нет — RU/EN. Deferred Option отменяется при вмешательстве до начала capture. Первый bind не сбрасывает буфер; смена поля/поколения сбрасывает.
+- Uncertain блокирует Enter/Tab только текущей очереди. Обычные символы после восстановленной каретки продолжаются; если осталось неизвестное выделение, ввод сохраняется в selectable/scrollable панели. RPC выбора диапазона и восстановления проверяются readback, в том числе timeout-after-apply. Исходник и граница валидируются из того же snapshot, который используется для записи.
+- Cold first separator до готовности AX проходит исходным, чтобы не исправлять текст после отправки; следующий Option может восстановить слово из поля. Нет обещания атомарности AX/CG или принятой UI-доставки в Codex.
+- Новый tools/test-keyboard-adapter.sh запускает реальный Target/Typist с подставленной AX/CG границей и собственным NSTextView; native build и G19 harnesses проверяются отдельно. Итоговые Linux/release/review доказательства ведёт root.
+
 ## Изменения для 1.4.2 (G19, 08.10.2026)
 
 - Воспроизведена причина пустой панели: NSTextView/document container имели нулевую ширину. Исправлено явное sizing после Auto Layout; длинный результат выделяется и прокручивается. Production AppKit harness дал red на 1.4.1 и green после изменения.

@@ -4,20 +4,43 @@ import AppKit
 /// An explicit failed conversion is explained without taking editor focus.
 final class ConversionNotice: NSObject {
     private let panel: NSPanel
+    private let presentsWindow: Bool
     private let label = NSTextField(wrappingLabelWithString: "")
+    private var withheldInput = ""
+    private let recoveryScroll = NSScrollView()
+    private let recoveryText = NSTextView()
 
-    override init() {
-        panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 390, height: 130),
-                        styleMask: [.titled, .nonactivatingPanel], backing: .buffered, defer: false)
+    init(panel: NSPanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 390, height: 130),
+                                 styleMask: [.titled, .nonactivatingPanel], backing: .buffered, defer: false),
+         presentsWindow: Bool = true) {
+        self.panel = panel
+        self.presentsWindow = presentsWindow
         super.init()
+        label.isSelectable = true
         panel.title = "Конвертация раскладки"
         panel.isFloatingPanel = true
         panel.hidesOnDeactivate = false
         panel.level = .floating
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         panel.isReleasedWhenClosed = false
-        let close = NSButton(title: "Закрыть", target: self, action: #selector(hide))
-        let stack = NSStackView(views: [label, close])
+        let close = NSButton(title: "Закрыть", target: self, action: #selector(dismiss))
+        recoveryScroll.hasVerticalScroller = true
+        recoveryScroll.borderType = .bezelBorder
+        recoveryScroll.documentView = recoveryText
+        recoveryScroll.isHidden = true
+        recoveryText.isEditable = false
+        recoveryText.isSelectable = true
+        recoveryText.isVerticallyResizable = true
+        recoveryText.isHorizontallyResizable = false
+        recoveryText.autoresizingMask = [.width]
+        recoveryText.textContainer?.widthTracksTextView = true
+        recoveryText.textContainer?.containerSize = NSSize(width: 358, height: CGFloat.greatestFiniteMagnitude)
+        recoveryText.frame = NSRect(x: 0, y: 0, width: 358, height: 160)
+        recoveryText.font = .systemFont(ofSize: 14)
+        let stack = NSStackView(views: [label, recoveryScroll, close])
+        stack.detachesHiddenViews = true
+        recoveryScroll.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true
+        recoveryScroll.heightAnchor.constraint(equalToConstant: 160).isActive = true
         stack.orientation = .vertical
         stack.alignment = .leading
         stack.spacing = 12
@@ -37,10 +60,35 @@ final class ConversionNotice: NSObject {
                                                y: screen.visibleFrame.maxY - 30))
         }
     }
-    func show() {
-        label.stringValue = "Не удалось безопасно изменить текст. Поле защищено, не предоставляет доступ к выделению или выделение изменилось. Выделите текст в поддерживаемом редакторе и повторите."
-        panel.orderFrontRegardless()
+    func appendWithheldInput(_ text: String) {
+        withheldInput += text
+        recoveryText.string = withheldInput
+        recoveryScroll.isHidden = false
+        show(message: "Не удалось подтвердить замену. Проверьте слово. Удержанный ввод ниже можно выделить и скопировать. ⏎ — Enter, ⇥ — Tab, ⌫ — Backspace; эти клавиши не отправлены.")
     }
-    @objc func hide() { panel.orderOut(nil) }
+    func showUncertain() {
+        if !withheldInput.isEmpty {
+            appendWithheldInput("\n")
+        } else {
+            recoveryScroll.isHidden = true
+            show(message: "Не удалось подтвердить замену. Текст мог измениться частично. Отправка Enter/Tab остановлена. Проверьте слово перед продолжением; повторной замены не было.")
+        }
+    }
+    func show(message: String = "Текст не изменён: поле, курсор или выделение изменились либо редактор не поддерживает проверяемую замену. Повторите Option в нужном поле.") {
+        label.stringValue = message
+        let height = max(130, min(500, label.cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: 358, height: 10_000)).height ?? 100) + 75)
+        panel.setContentSize(NSSize(width: 390, height: height + (recoveryScroll.isHidden ? 0 : 172)))
+        panel.contentView?.layoutSubtreeIfNeeded()
+        recoveryText.setFrameSize(NSSize(width: recoveryScroll.contentSize.width, height: max(160, recoveryText.frame.height)))
+        if presentsWindow { panel.orderFrontRegardless() }
+    }
+    /// A later successful conversion must not erase unrecovered physical input.
+    func hide() { if withheldInput.isEmpty { panel.orderOut(nil) } }
+    @objc func dismiss() {
+        panel.orderOut(nil)
+        recoveryScroll.isHidden = true
+        withheldInput = ""
+        recoveryText.string = ""
+    }
 }
 #endif

@@ -3,6 +3,7 @@
 #if os(macOS)
 import Foundation
 import CoreGraphics
+import AppKit
 import SwitcherCore
 
 /// Translates the event tap into core decisions. Replacement requests carry an
@@ -24,6 +25,8 @@ public final class Engine {
     private let selectionConverter = SelectionConverter()
     private lazy var conversionNotice = ConversionNotice()
     private var queuedNavigation = false
+    private var inputApplicationPID: pid_t?
+    private var inputSequence: UInt64 = 0
     let dictation = DictationCoordinator()
     private var dictationGesture = DictationGesture()
     private var dictationRequested = false
@@ -107,10 +110,12 @@ public final class Engine {
             _ = self?.core.handle(.reset)
             self?.queuedNavigation = false
         }
+        typist.onWithheldInput = { [weak self] text in self?.conversionNotice.appendWithheldInput(text) }
         inputFocus.shouldSample = { [weak self] in self?.typist.isBusy == false }
         typist.onIdle = { [weak self] in
-            guard let self, !self.typist.isBusy, self.queuedNavigation else { return }
-            self.inputFocus.invalidate()
+            guard let self, !self.typist.isBusy else { return }
+            if self.queuedNavigation { self.inputFocus.invalidate() }
+            else { self.inputFocus.finishBatch() }
         }
         dictation.shortcutName = { [weak config] in config?.config.dictationHotkey.displayName ?? "" }
         dictation.onInsert = { [weak self] text, target, permit, completion in
@@ -183,6 +188,7 @@ public final class Engine {
     /// на одном слове, тяжёлая работа уходит на очередь `Typist`.
     @discardableResult
     public func handle(keyEvent stroke: KeyStroke) -> TapDecision {
+        if stroke.kind == .keyDown || stroke.kind == .contextChanged { inputSequence &+= 1 }
         // Consumed shortcuts own their repeats as well as their key-up, even
         // if the user releases a modifier before releasing the ordinary key.
         if stroke.kind == .keyDown, shortcutKeysDown.contains(stroke.keyCode) {
@@ -202,6 +208,11 @@ public final class Engine {
         // Dictation is explicitly requested even in auto-excluded editors.
         // The event callback only tracks keys and schedules work on main.
         let secure = SecureInput.isActive
+        let currentPID = NSWorkspace.shared.frontmostApplication?.processIdentifier
+        if currentPID != inputApplicationPID {
+            inputApplicationPID = currentPID
+            inputFocus.invalidate()
+        }
         core.isPaused = secure || isExcludedApp()
         if core.isPaused { inputFocus.invalidate() }
         if stroke.kind == .keyUp {
@@ -378,7 +389,12 @@ public final class Engine {
         _ event: InputEvent, stroke: KeyStroke? = nil, prepared: Typist.KeyPress? = nil
     ) -> TapDecision {
         if event == .hotkey(.convert) {
-            requestConversion()
+            let generation = inputFocus.generation
+            let sequence = inputSequence
+            DispatchQueue.main.async { [weak self] in
+                guard let self, generation.isAllowed, self.inputSequence == sequence else { return }
+                self.requestConversion()
+            }
             return .pass
         }
         let outcome = core.handle(event)
@@ -392,44 +408,71 @@ public final class Engine {
 
     /// Selection takes priority before the core can choose stale undo/last-word
     /// state. An inaccessible selection never falls through to word conversion.
-    private func requestConversion() {
-        guard !typist.isBusy, !dictation.isActive, !dictationRequested else { return }
-        guard !core.isPaused, let capturedTicket = inputFocus.ticket else {
-            _ = core.handle(.reset)
-            DispatchQueue.main.async { [weak self] in self?.conversionNotice.show() }
+    private func toggleLayout() {
+        guard let current = LayoutSwitcher.current() else {
+            conversionNotice.show(message: "Не удалось определить раскладку. Включите русскую и английскую раскладки в настройках macOS.")
             return
         }
-        selectionConverter.capture(expected: capturedTicket.target) { [weak self] captured, permit in
-            guard let self, permit.isAllowed else { return }
+        let next: Lang = current == .ru ? .en : .ru
+        if LayoutSwitcher.select(next) { onLayoutSwitched?(next) }
+        else { conversionNotice.show(message: "Не удалось переключить раскладку. Включите русскую и английскую раскладки в настройках macOS.") }
+    }
+
+    private func requestConversion() {
+        guard !typist.isBusy, !dictation.isActive, !dictationRequested else { return }
+        // Explicit source switching does not need access to editor contents.
+        if core.isPaused { toggleLayout(); return }
+        let generation = inputFocus.generation
+        let expected = inputFocus.ticket?.target
+        let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier
+        selectionConverter.capture(expected: expected, expectedPID: pid) { [weak self] captured, permit in
+            guard let self, permit.isAllowed, generation.isAllowed else { return }
             self.conversionNotice.hide()
             switch captured {
             case .unavailable:
                 self.selectionConverter.finish(permit)
                 _ = self.core.handle(.reset)
-                self.conversionNotice.show()
-            case .empty(let target, let range):
-                guard let ticket = self.inputFocus.ticket, ticket.target.matches(target),
-                      !self.typist.isBusy else {
+                self.toggleLayout()
+                self.conversionNotice.show(message: "Текст не изменён: редактор не предоставил доступ к полю или выделению. Проверьте разрешение «Универсальный доступ» для Mac Layout Switcher.")
+            case .empty(let target, let range, let word):
+                guard let ticket = self.inputFocus.bind(target, generation: generation), !self.typist.isBusy else {
                     self.selectionConverter.finish(permit)
                     _ = self.core.handle(.reset)
                     return
                 }
                 let outcome = self.core.handle(.hotkey(.convert))
-                self.execute(outcome, conversionPermit: permit, conversionSelection: range)
+                if outcome.command == .none {
+                    if let word, KeyMap.selectionConversion(word.text).text != word.text {
+                        self.replaceSelection(word, permit: permit, ticket: ticket)
+                    } else {
+                        self.selectionConverter.finish(permit)
+                        self.toggleLayout()
+                    }
+                } else { self.execute(outcome, conversionPermit: permit, conversionSelection: range) }
             case .selected(let selection):
-                _ = self.core.handle(.reset)
-                self.selectionConverter.replace(selection, permit: permit, typist: self.typist) { [weak self] completed, language in
-                    guard let self else { return }
+                guard let ticket = self.inputFocus.bind(selection.target, generation: generation) else {
                     self.selectionConverter.finish(permit)
-                    guard permit.isAllowed else { return }
-                    _ = self.core.handle(.reset)
-                    if completed {
-                        LayoutSwitcher.select(language)
-                        self.onLayoutSwitched?(language)
-                        self.sounds?.playCorrection()
-                    } else { self.conversionNotice.show() }
+                    return
                 }
+                self.replaceSelection(selection, permit: permit, ticket: ticket)
             }
+        }
+    }
+
+    private func replaceSelection(_ selection: SelectionConverter.Selection, permit: InputFocusGuard.Permit,
+                                  ticket: InputFocusGuard.Ticket) {
+        _ = core.handle(.reset)
+        selectionConverter.replace(selection, permit: permit, typist: typist, replayRoute: ticket.replayRoute) { [weak self] result, language in
+            guard let self else { return }
+            self.selectionConverter.finish(permit)
+            if result == .uncertain { self.conversionNotice.showUncertain(); return }
+            guard permit.isAllowed else { return }
+            _ = self.core.handle(.reset)
+            if result == .confirmed {
+                LayoutSwitcher.select(language)
+                self.onLayoutSwitched?(language)
+                self.sounds?.playCorrection()
+            } else { self.conversionNotice.show() }
         }
     }
 
@@ -564,13 +607,14 @@ public final class Engine {
         typist.replaceLastWord(expected: expected, with: text, ticket: ticket, separator: separator,
                                separatorCharacter: outcome.reinjectSeparator,
                                navigates: outcome.reinjectSeparator.map { $0 != " " } ?? false,
-                               conversionPermit: conversionPermit, conversionSelection: conversionSelection) { [weak self] completed in
+                               conversionPermit: conversionPermit, conversionSelection: conversionSelection) { [weak self] result in
             guard let self else { return }
             if let conversionPermit { self.selectionConverter.finish(conversionPermit) }
-            guard completed else {
+            guard result == .confirmed else {
                 let rejected = self.inputFocus.reject(ticket)
                 self.core.discardReplacement(outcome, resetContext: conversionPermit?.isAllowed != false && rejected)
-                if conversionPermit?.isAllowed == true { self.conversionNotice.show() }
+                if result == .uncertain { self.conversionNotice.showUncertain() }
+                else if conversionPermit?.isAllowed == true { self.conversionNotice.show() }
                 return
             }
             if ticket.permit.isAllowed, conversionPermit?.isAllowed != false, let lang = switchTo {

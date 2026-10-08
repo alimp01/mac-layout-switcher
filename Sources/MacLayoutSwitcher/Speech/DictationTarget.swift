@@ -297,7 +297,7 @@ struct DictationTarget {
     private func replacing(_ value: String, range: CFRange, with text: String) -> String {
         (value as NSString).replacingCharacters(in: NSRange(location: range.location, length: range.length), with: text)
     }
-    private static func unicodeChunks(_ text: String) -> [String] {
+    static func unicodeChunks(_ text: String) -> [String] {
         // At most 16 UTF-16 units, without splitting surrogate pairs. A long
         // grapheme is safe to deliver scalar-by-scalar across separate events.
         var chunks: [String] = [], chunk = ""
