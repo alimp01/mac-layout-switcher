@@ -11,8 +11,8 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-07T07:44:01.810778+00:00",
-  "finishedAt": "2026-10-07T07:44:01.810778+00:00",
+  "updatedAt": "2026-10-08",
+  "finishedAt": null,
   "stages": [
     {
       "id": "preflight",
@@ -47,30 +47,27 @@ window.STATE =
     },
     {
       "id": "build",
-      "status": "done",
+      "status": "in_progress",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "21 тикет готов; G18 systemic word coverage, VERSION1.4.1",
-      "finishedAt": "2026-10-07T07:44:01.810778+00:00"
+      "note": "21 тикет готов; G18 systemic word coverage, VERSION1.4.1"
     },
     {
       "id": "review",
-      "status": "done",
+      "status": "pending",
       "startedAt": "2026-08-29T04:05:30+00:00",
-      "note": "G18 Spec+Standards approved, zero actionable findings; frozen audit confirms only declared collision changes",
-      "finishedAt": "2026-10-07T07:44:01.810778+00:00"
+      "note": "G18 Spec+Standards approved, zero actionable findings; frozen audit confirms only declared collision changes"
     },
     {
       "id": "final",
-      "status": "done",
+      "status": "pending",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "95/95 Linux tests; Mac release, mounted DMG codesign/version/helper passed; live UI acceptance pending",
-      "finishedAt": "2026-10-07T07:44:01.810778+00:00"
+      "note": "95/95 Linux tests; Mac release, mounted DMG codesign/version/helper passed; live UI acceptance pending"
     }
   ],
   "requirements": {
-    "total": 25,
+    "total": 26,
     "done": 24,
-    "inTicket": 0,
+    "inTicket": 1,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -608,6 +605,16 @@ window.STATE =
         "failed": 0
       },
       "validation": "49 targeted tests;95 fullLinux; two independent approvals; frozen audit; native release/DMG verification"
+    },
+    {
+      "id": "22",
+      "title": "Вставка диктовки и видимый результат",
+      "requirements": [
+        "G19"
+      ],
+      "blockedBy": [],
+      "wave": 18,
+      "status": "ready"
     }
   ],
   "singlePass": null,
@@ -661,6 +668,14 @@ window.STATE =
       "status": "done",
       "tickets": [
         "21"
+      ]
+    },
+    {
+      "id": "G19",
+      "title": "Исправить вставку диктовки",
+      "status": "in_progress",
+      "tickets": [
+        "22"
       ]
     }
   ],
