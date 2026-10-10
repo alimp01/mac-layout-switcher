@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-10T14:07:43.538842+00:00",
+  "updatedAt": "2026-10-10T14:37:25.105000+00:00",
   "finishedAt": null,
   "stages": [
     {
@@ -47,27 +47,29 @@ window.STATE =
     },
     {
       "id": "build",
-      "status": "active",
+      "status": "done",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G21 защитный поднабор c57e700 проверен; причина/доставка pending user repro"
+      "note": "G21 autorepeat fix native/core95/realEngine and both independent finalreviews PASS",
+      "finishedAt": "2026-10-10T14:37:25.105000+00:00"
     },
     {
       "id": "review",
-      "status": "pending",
+      "status": "done",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "Spec+Standards approved защитный поднабор; fullG21 spec incomplete"
+      "note": "G21 autorepeat fix native/core95/realEngine and both independent finalreviews PASS",
+      "finishedAt": "2026-10-10T14:37:25.105000+00:00"
     },
     {
       "id": "final",
-      "status": "pending",
+      "status": "active",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "НетVERSION bump/publish: deletion-only cause/delivery not demonstrated"
+      "note": "Release1.4.4 approved; VERSION/codecommit/DMG/publication underway"
     }
   ],
   "requirements": {
     "total": 28,
-    "done": 26,
-    "inTicket": 1,
+    "done": 27,
+    "inTicket": 0,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -659,7 +661,7 @@ window.STATE =
       "requirements": [
         "G21"
       ],
-      "status": "in-progress",
+      "status": "done",
       "startedAt": "2026-10-10T09:26:43.132471+00:00",
       "blockedBy": [],
       "wave": 20,
@@ -671,24 +673,25 @@ window.STATE =
       "repairs": 0,
       "handoffs": 1,
       "partialCommit": "c57e700f9f44f62dd79d2576e88300d994932ccb",
-      "validation": "Frozen66files exact; native fullspeech/CG/keyboard/notice/G19 PASS; rootLinux95 PASS; actual installed1.4.3 TextEdit and warmChrome delivery PASS, userdeletion not reproduced; fresh scratch productionEngine.handle Option/selection/undo/cancellation bothroutesPASS withoutcheckoutchanges",
+      "validation": "Frozen160 checksum exact; same finalrunner baselineRED finalGREEN; root+2independentreviewers engine/native/G19PASS; rootfullspeech+Linux95PASS",
       "tests": {
         "passed": 95,
         "failed": 0
       },
       "review": {
-        "spec": "partial",
+        "spec": "approved",
         "standards": "approved",
-        "scope": "Defensive recovery approved on both axes; fullG21 delivery pending"
+        "scope": "Concrete autorepeat race; physicaluser/crossprocess delivery unverified"
       },
-      "note": "User clarified all apps; fresh executor audits physicalOption/selection/undo Engine integration; separate trigger and ownedTextEdit physicalOption test pending"
+      "note": "Allapps autoSpace/Enter trigger known; scoped fix approved; manual acceptance pending",
+      "finishedAt": "2026-10-10T14:37:25.105000+00:00"
     }
   ],
   "singlePass": null,
   "tests": {
     "passed": 95,
     "failed": 0,
-    "note": "G21 frozen66file payload rootLinux95PASS; native fullspeech+CG/keyboard/notice/G19 PASS. OwnedTextEdit/warmChrome actual installed1.4.3 PASS; no microphone/privateeditor/TCC forcing."
+    "note": "G21 frozen Engine+keyboard/CG/notice/G19/nativefullspeech PASS; Linux95PASS; prior livePASS withdrawn; no mic/privatefields/TCC"
   },
   "debt": {
     "placeholders": [],
@@ -778,7 +781,7 @@ window.STATE =
     "T08 HotkeyRecorderWindow — рекордер записывает голый печатный keyDown (напр. «K»), который под .listenOnly и сработает, и напечатается; условие: отклонять/предупреждать голый печатный keyCode",
     "T08 HotkeyTests/HotkeyEngineTests — @testable import избыточен; условие: обычный import",
     "2026-09-16: baseline swift build успешен на macOS15.6.1 arm64; swift test на Mac blocked: CLT без XCTest. Тесты выполнять на доступном claudebot-server (Swift6.0.3). v1.2.0 ручная приёмка ещё не выполнена.",
-    "G21 2026-10-10: userclarified allapps. ActualSpace testsTextEdit/warmChromePASS; physicalOption/selection/undo notliveverified. CurrentfreshExecutor audit fullEngine integration; rootownedTextEdit physicalOptionfixtureprepared. Cause/routefix notproved, protectivec57e700 notreleased."
+    "G21: concreteautorepeat race fixed/approved; user allapps ordinarySpace/Enter and WindowServer physicaldelivery pending. Earlier livePASS withdrawn; Mac locked. Own /tmp/MLS-Option-Test.rtf remainsopen, no Optiontest needed."
   ],
   "reviewers": {
     "manifestSpec": "a3373fd28e916b546",
@@ -804,19 +807,19 @@ window.STATE =
       "result": "Both final approved, no blocking findings; liveAX/CG and notification-window limitations documented"
     },
     "G21": {
-      "spec": "review_deletion_spec",
-      "standards": "review_deletion_standards",
-      "result": "Defensive subset safe tocommit, no blockers; fullG21 reproduction/delivery incomplete"
+      "spec": "review_autorepeat_spec",
+      "standards": "review_autorepeat_standards",
+      "result": "Both finalapproved;0blockers; frozen baselineRED/finalGREEN; hardware/userexactcause boundary documented"
     }
   },
   "blind": {
     "run": "95Linux; keyboard/Typist/recovery panel; G19 adapter/panel; fullspeech release; mounted DMG PASS",
-    "verdict": "G20 implemented/reviewed VERSION1.4.3",
-    "note": "HistoricalG20 locked-session limitation; now installed1.4.3 confirmed10.10, ownedTextEdit/warmChrome automaticPASS; modifier-onlyOption/Codex actualdelivery stillpending",
+    "verdict": "G21 concreteautorepeat fix implemented/reviewed; release1.4.4 underway",
+    "note": "Installed1.4.3 confirmed10.10; prior live automaticPASS withdrawn due missing pre-separator source; Mac currently locked.",
     "drift": []
   },
   "manualAcceptance": {
-    "version": "1.4.3",
+    "version": "1.4.4",
     "status": "pending",
     "checks": [
       "ozon после смены поля; b/B/z/Z и plan b",
@@ -833,11 +836,12 @@ window.STATE =
     ]
   },
   "release": {
-    "version": "1.4.3",
-    "codeCommit": "d7b003d",
-    "artifact": "MacLayoutSwitcher-1.4.3.dmg",
-    "sha256": "cf6944a789d707bfb4328dcf3b35793cce5eed18f48581546be447c99c8aca6a",
-    "bytes": 10955271
+    "version": "1.4.4",
+    "codeCommit": "d14e8027c36dc015ba7e6cc46fba4849599e00a2",
+    "artifact": "MacLayoutSwitcher-1.4.4.dmg",
+    "sha256": "30ff210e387dd92da7a1293c278a3af67cdc75871582c0a0b4b3112ce94ba140",
+    "bytes": 10960311,
+    "publication": "pending"
   },
   "wordCoverageAudit": {
     "independentRU": 459,
@@ -861,26 +865,34 @@ window.STATE =
     "review": "Spec+Standards approved",
     "native": "Production Target/Typist + mock AX/CG and owned NSTextView; recovery NSPanel headless",
     "scope": "Lazy capture, same-snapshot source, readback, selection RPC uncertainty, fastinput retention, Option fallback",
-    "live": "Installed1.4.3 actualCUA TextEdit+warmChrome autoPASS10.10; user-specific deletion and modifier-onlyOption pending",
+    "live": "Prior TextEdit/Chrome PASS withdrawn: no pre-separator source snapshot, RussianWin already active; live automatic replacement unproved",
     "coldLimit": "First separator before any AX capture passes without late correction; explicit Option may recover word"
   },
   "deletionRepairAudit": {
     "partialCommit": "c57e700f9f44f62dd79d2576e88300d994932ccb",
-    "snapshot": "/tmp/mls-g21-native.3fapzn4w",
-    "files": 66,
+    "snapshot": "/tmp/mls-g21-autorepeat-final.v8tpedvg",
+    "files": 160,
     "linux": "/tmp/mls-g21-tests.fKQES6",
-    "cause": "Unproved; user reports allapps, Option/automatic trigger still pending",
+    "cause": "RED: busy separator autorepeat reaches early reset before replay, invalidates permit and native key replaces temporary source selection",
     "transport": "Unchanged productionpostToPid; realCG/NSEvent harness injects finalpost, notWindowServerproof",
     "recovery": "Original+completeplannedreplacement+heldinput preserveduntilClose",
-    "review": "Both approve defensive subset only",
-    "release": "None; VERSION1.4.3 unchanged",
+    "review": "Both fresh reviewers final approved, no blockers",
+    "release": "1.4.4 DMG verified version/codesign/helper/Applications; publication pending",
     "currentExecutor": "implement_deletion_system",
-    "manualFixture": "/tmp/MLS-Option-Test.rtf, selectedghbdtn, awaitingrealOption",
+    "manualFixture": "Option test canceled by automatic Space/Enter clarification; owned /tmp/MLS-Option-Test.rtf open, Mac locked",
     "engineIntegration": {
       "snapshot": "/tmp/mls-g21-engine.wvh4ck3e",
       "result": "Executor+root independentPASS directAX+productionCGlocalUnicode Enginehandle/selection/undo/cancellation",
       "boundary": "Finalpost/frontPID/AX injected; EventTapregistration andTISstub, no physicalWindowServer proof",
       "provenance": "29sources identicalbase57f54d3; README/source-provenance/seams.patch/SHA256SUMS/run.log/root-run.log"
-    }
+    },
+    "autorepeatRed": {
+      "snapshot": "/tmp/mls-g21-repeat.3xn__0zm",
+      "result": "4/4 RED Space+Enter directAX/productionCGlocalNSEvent; source руддщ before separator",
+      "boundary": "Real production EventTap.process/KeyTranslator/Engine; own NSTextView, not physical WindowServer proof"
+    },
+    "engineSHA256": "5a91543b9a2a92dfc0e473d6949792890b92170944a8362926cc6cd461b8c7b3",
+    "productionChecks": "/tmp/mls-g21-final.8ijwtyc9",
+    "finalRunner": "baselineRED/finalGREEN same savedrunner; root+2reviewers independentlyPASS"
   }
 }

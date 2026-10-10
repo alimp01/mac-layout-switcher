@@ -2,24 +2,17 @@
 
 Дата: 2026-10-10. Baseline release: 1.4.3 / 963b387. Planning: 61c7e16.
 
-## Что доказано живой проверкой
+## Граница живой проверки — исправленная запись
 
-- На Mac установлена 1.4.3. Тесты ниже выполнялись через CUA, без изменения установленного приложения, новых разрешений и пользовательских полей.
-- Собственный новый документ TextEdit: отдельные клавиши `g h b d t n Space` дали `Привет `. Это подтверждает реальный перехват и замену в нативном редакторе. Документ сохранён в `/tmp/mls-g21-input.rtf` и закрыт; существующий документ не изменялся.
-- Собственное поле официального MDN textarea в Chrome: первый ввод после смены фокуса оставил `ghbdtn `; повторный ввод без Cmd+A дал `ghbdtn привет `. Сразу после ввода AX показывал промежуточное `ghbdtn при`, после завершения — весь текст. Это подтверждает успешную реальную доставку в Chrome после прогрева; промежуточный снимок не является итоговым результатом.
-- Ввод через browser-extension API оставлял `ghbdtn ` и не доказывает работу Mac EventTap. Для успешного Chrome теста использован native app `pressKey`.
-- Только официальный HTTPS пример MDN; custom data URL запрещён политикой браузера и не использовался. Тестовая вкладка закрыта.
+- На Mac установлена 1.4.3; собственные TextEdit/MDN поля проверялись через CUA, без изменения установленного приложения, новых разрешений и пользовательских полей.
+- Ранее записанные `ghbdtn+Space → Привет/привет` НЕ доказывают замену: исходник до разделителя не снимался. Контрольный набор без разделителя уже дал `привет`; read-only TIS показал RussianWin. Прежние утверждения о доказанной доставке в TextEdit/Chrome отозваны.
+- Browser-extension ввод также не доказывает Mac EventTap. MDN тестовая вкладка закрыта; собственный `/tmp/mls-g21-input.rtf` сохранён и закрыт.
+- Пользователь уточнил оба условия: «да во всех» приложениях и «при автоматическом исправлении после пробела/Enter». Тест физического Option отменён, повторный вопрос о триггере не нужен. Собственный `/tmp/MLS-Option-Test.rtf` использован для контроля раскладки; ещё открыт. CUA остановилась из-за заблокированного Mac, документ не закрыт.
+- Локальная CGEvent → serialization → NSEvent → NSTextView проверка не подтверждает межпроцессную WindowServer доставку. Новые TCC разрешения/микрофон/пользовательские редакторы не используются.
 
-## Что пока НЕ доказано
+## Воспроизведённая причина — автоматический autorepeat
 
-- Пользователь сообщает deletion-only, но в этих двух scratch редакторах оно не воспроизвелось. Точное приложение/поле и триггер (автоматика либо Option) запрошены, ответа пока нет.
-- Уточнение10.10: пользователь ответил «да во всех» о приложениях; вопрос о
-  триггере задан отдельно. Новый собственный TextEdit документ сохранён в
-  `/tmp/MLS-Option-Test.rtf`, значение `ghbdtn`, оно выделено; пользователь
-  приглашён нажать физический Option. Документ оставлен открытым для проверки,
-  текущие пользовательские документы не изменялись.
-- Локальный CGEvent → serialization → NSEvent → NSTextView тест не подтверждает межпроцессную WindowServer доставку. Собственный postToPid probe не имеет AX trust и не получил событий; принудительное TCC не применяется.
-- Нет оснований приписывать дефект модели, правам, обязательной несовместимости Chromium с Unicode или размеру порции. Не заменять транспорт догадкой.
+Исполнитель получил RED в `/tmp/mls-g21-repeat.3xn__0zm/red.log`: настоящий `EventTap.process → KeyTranslator → Engine` и собственный NSTextView, исходник `руддщ` снят до разделителя. Повтор Space/Enter точно во время временного выделения проходит раннюю ветку `.reset`, инвалидирует право замены и нативно заменяет исходник разделителем. Итог `" "` вместо `"hello  "` либо `"\n"` вместо `"hello\n\n"`; обе AX/production Unicode ветки — 4/4 RED. Это воспроизводимая гонка production state machine; физическое совпадение с каждым случаем пользователя пока не доказано.
 
 ## Граница текущей доработки
 
@@ -65,10 +58,9 @@ Root metadata: один MLS PID33371, запуск10.10 после mtime бин�
 Caramba, Whisper, Karabiner, BetterTouch или TextExpander. Это исключает только
 очевидный старый процесс/второй известный корректор, не доказывает причину.
 
-Собственный документ `MLS-Option-Test.rtf` остаётся открытым с выделенным ghbdtn;
-последний CUA readback: слово и выделение неизменны. Ответ физического Option
-пользователя и уточнение триггера ожидаются. VERSION/установленная.app/публичный
-архив не изменены, новые core/build прогоны не требуются без изменения кода.
+Позднее пользователь уточнил автоматический Space/Enter; Option fixture отменён.
+Первоначальный аудит не включал separator autorepeat во время temporary selection.
+Новая проверка выше воспроизвела именно этот пропущенный путь.
 
 ### Результаты прошлого аудитора
 
@@ -78,4 +70,45 @@ Apple допускает, что принимающий framework игнорир
 
 Chromium сознательно направляет multi-unit Unicode через ImeCommitText, single BMP — через Char; поэтому сравнение этих путей в проблемном редакторе может быть полезно, но порции сами по себе не доказаны сломанными: [Cocoa event handling, строки 1652–1691](https://chromium.googlesource.com/chromium/src/+/b208f5ab862e42b3ea75c2f4b1724178c2fa6c5b/content/app_shim_remote_cocoa/render_widget_host_view_cocoa.mm#1652). Обычный Blink commit отправляет beforeinput до замены; его отмена сама по себе должна оставлять источник: [InputMethodController](https://chromium.googlesource.com/chromium/src/+/b208f5ab862e42b3ea75c2f4b1724178c2fa6c5b/third_party/blink/renderer/core/editing/ime/input_method_controller.cc#624).
 
-Остаются гипотезы конкретного редактора/IME или AXSelectedText. Для следующего шага нужны точное приложение/поле и триггер пользовательского deletion-only. Нет основания менять postToPid/vk0/chunking или внедрять clipboard по догадке.
+Остаются гипотезы конкретного редактора/IME или AXSelectedText. Триггер теперь известен: автоматический Space/Enter; новая regression выявила гонку autorepeat. Нет основания менять postToPid/vk0/chunking или внедрять clipboard по догадке.
+
+## Root финальные production проверки нового Engine
+
+Frozen production `/tmp/mls-g21-final.8ijwtyc9`, Engine SHA256
+`5a91543b9a2a92dfc0e473d6949792890b92170944a8362926cc6cd461b8c7b3`.
+Полная native speech release сборка PASS; keyboard/notice/real Unicode transport
+PASS; G19 dictation adapter и panel PASS. Linux XCTest95/95, 0ошибок из отдельного
+серверного /tmp snapshot, checkout сервера не изменялся. Логи build.log,
+keyboard.log, dictation-adapter.log, dictation-panel.log, linux-test.log.
+Проверка production SHA перед финальным ревью: ни одного изменения исходников
+относительно протестированного snapshot. Новый runner и reviews ещё pending;
+VERSION1.4.3 до approval. Новая запись не утверждает живую приёмку пользователя.
+
+## Финальные независимые ревью — APPROVED
+
+`review_autorepeat_spec` и `review_autorepeat_standards`: 0 блокирующих замечаний.
+Frozen `/tmp/mls-g21-autorepeat-final.v8tpedvg`: 160checksums PASS, manifest
+`a257b5c2a653c281c755a2969eb0c27f870dda674ef8dbca95a9e83f5f0111ce`.
+Baseline eb11af4 и final одним сохранённым runner: baseline actual=" " RED,
+final GREEN. Отдельные локальные предыдущие RED покрыли Space/Enter обе routes.
+Root самостоятельно скомпилировал frozen runner и получил GREEN;
+лог `/tmp/mls-g21-final.8ijwtyc9/engine-root.log`. Оба reviewers независимо
+повторили Engine, keyboard/notice/CG и G19 adapter/panel — PASS.
+Сценарии: Space/Enter/ShiftEnter/Tab, серии повторов exactonce, printable/
+Backspace, down/up/flags/marker, fastnextword/letter, outsidebusyreset,
+Cmd/Ctrl/navigation/click cancellation, per-case uncertain recovery и удержанный
+Enter. Замечание Spec про смешивание recoverypanels в fixture исправлено до freeze.
+
+Разрешён scoped release1.4.4: исправлена доказанная productionautorepeat race,
+transport не заменён. Hardware/WindowServer и совпадение причины со всеми
+случаями пользователя не доказаны; обновление и физическая приёмка впереди.
+
+## DMG1.4.4
+
+Codecommit `d14e8027c36dc015ba7e6cc46fba4849599e00a2`; полный speech build
+из gitarchive этого коммита. Образ readonly смонтирован: VERSION1.4.4,
+codesign deep/strict PASS, Helpers/SpeechRecognizer присутствует,
+Applications → /Applications. SHA256 `30ff210e387dd92da7a1293c278a3af67cdc75871582c0a0b4b3112ce94ba140`.
+Artifact `outputs/MacLayoutSwitcher-1.4.4.dmg`; сборочный provenance/logs
+в /tmp/mls-g21-final.8ijwtyc9. Установленная.app не заменена. Push и публичный
+архив проверяются отдельно после этого metadata commit.

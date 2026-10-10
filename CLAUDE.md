@@ -8,7 +8,9 @@
 
 ## Текущее состояние — 2026-10-10
 
-Версия v1.4.3, G20: Option и автозамена используют проверяемый keyboard runtime,
+Версия v1.4.4, G21: устранена доказанная гонка autorepeat при автоисправлении,
+сохранение исходника/замены при отказе и ownership keyUp разделителя.
+Предыдущая v1.4.3, G20: Option и автозамена используют проверяемый keyboard runtime,
 сохранение первого слова/удержанного ввода, переключение пустого поля.
 Предыдущая1.4.2, G19: видимый fallback диктовки, подготовка AX дерева,
 проверяемая вставка и постоянная отмена права вставки при вмешательстве.
@@ -27,20 +29,22 @@ mounted DMG1.4.3 version/codesign/helper проверены;
 G20 keyboard/Typist/recovery panel и оба независимых ревью PASS;
 пользователь сообщил ошибки скриншотами, а не подтвердил полную приёмку.
 
-G21/T24 открыт: пользователь сообщает удаление слова без замены. Причина ещё
-не доказана. Защитный поднабор сохраняет исходник, полную замену и held input
-до явного Close; VERSION остаётся1.4.3, не публиковать как исправление доставки.
-Frozen66file snapshot, native fullspeech, keyboard/CG/notice/G19 harnesses,
-Linux95 и два независимых ревью поднабора PASS. См. deletion-repair-qa.md.
-Живой CUA тест установленной1.4.3: собственный TextEdit ghbdtn+Space→Привет,
-тёплый ChromeMDN textarea ghbdtn+Space→привет. Первый холодный ввод Chrome
-не исправился. В этих полях deletion-only не воспроизведён. Приложение/поле
-пользователя уточнено10.10: «да во всех». Триггер Option либо автоматика
-запрошен отдельно, ответа пока нет. Продолжается аудит полного Engine пути;
-root подготовил /tmp/MLS-Option-Test.rtf с выделенным ghbdtn для физического
-Option пользователя (CUA не умеет modifier-only). Этот документ пока открыт.
-CG→NSEvent→NSTextView harness не доказывает WindowServer delivery. Не менять
-транспорт/clipboard по недоказанной гипотезе и не закрывать G21 по recovery-only.
+G21/T24 завершён для1.4.4: code d14e802; пользователь уточнил «да во всех»
+приложениях при autoSpace/Enter. Доказана локальная production EventTap/Translator/
+Engine гонка autorepeat: early.reset отменял permit, repeat стирал temporary
+selection. Новый code serializes text-edit repeats, сохраняет replacementpermit;
+Cmd/Ctrl/navigation/click отменяют цель; подавленный separatordown ownskeyup.
+Transport/clipboard не менялись. Recovery хранит original+planned+heldinput.
+Frozen /tmp/mls-g21-autorepeat-final.v8tpedvg 160checksums exact; один runner
+baselineRED actual=" " / finalGREEN. Root+2freshreviewers independently Engine,
+keyboard/CG/notice/G19 PASS; rootLinux95/fullspeechPASS. Reviews обаapproved.
+См. deletion-repair-qa.md. DMG/publication1.4.4 выполняются по ритуалу ниже.
+Установленная.app всё ещё1.4.3; автоматической замены посреди ввода не было.
+Все физические случаи пользователя/WindowServer e2e не приняты. Прежние
+TextEdit/Chrome livePASS отозваны: не было preseparator source, RUужеактивна.
+Optionfixture отменён, повторно спрашивать триггер не нужно. Собственный
+/tmp/MLS-Option-Test.rtf ещё открыт; Maclocked, CUA не может закрыть его.
+После обновления проверить обычный Space/Enter/ShiftEnter и быстрый набор.
 
 G20/T23 завершён для1.4.3, код d7b003d. Keyboard Target использует
 общую AX границу G19: bounded bootstrap, direct/Unicode routing, единый
