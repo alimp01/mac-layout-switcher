@@ -22,8 +22,12 @@ b/B/z/Z → и/И/я/Я, повторное использование моде�
 Актуальные статусы/доказательства — .autopilot/state.js, manifest.md,
 dictation-insertion-spec.md /dictation-insertion-qa.md, word-coverage-qa.md
 и input-repair-qa.md в каталоге прогона.
-На Mac пользователя установлена1.4.3 (Info.plist проверен10.10); новая версия
-не выпускалась, установленное приложение автоматически не заменяем.
+На Mac пользователя теперь1.4.4 (Info.plist проверен10.10); PID45401 старт17:57:06
+после mtimebinary17:56:29, передvideo17:57:37. ActualuserFAILED: срфе исчезает
+без chat дважды. G22/T25 active; freshexecutor +2reviews, root onlydocs/CUA.
+См. live-insertion-spec.md / live-insertion-qa.md. RepeatfixG21 не закрыл реальную
+жалобу. Нельзя заявлять actualWindowServerPASS по локальному finalpostfixture.
+
 Полный Linux XCTest95/95; native panel/adapter/debug/release passed;
 mounted DMG1.4.3 version/codesign/helper проверены;
 G20 keyboard/Typist/recovery panel и оба независимых ревью PASS;
@@ -40,8 +44,8 @@ baselineRED actual=" " / finalGREEN. Root+2freshreviewers independently Engine,
 keyboard/CG/notice/G19 PASS; rootLinux95/fullspeechPASS. Reviews обаapproved.
 См. deletion-repair-qa.md. DMG1.4.4 mounted version/codesign/helper/symlinkPASS; push и publicarchive
 проверены: rawVERSION1.4.4, downloadSHA и embeddedcommit совпали.
-Установленная.app всё ещё1.4.3; автоматической замены посреди ввода не было.
-Все физические случаи пользователя/WindowServer e2e не приняты. Прежние
+Пользователь обновил.app1.4.4; actualuserFAILED и продолжениеG22/T25 открыто.
+На записи реальная замена1.4.4 FAILED, аппаратная причина ещё не установлена. Прежние
 TextEdit/Chrome livePASS отозваны: не было preseparator source, RUужеактивна.
 Optionfixture отменён, повторно спрашивать триггер не нужно. Собственный
 /tmp/MLS-Option-Test.rtf ещё открыт; Maclocked, CUA не может закрыть его.

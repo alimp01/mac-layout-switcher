@@ -11,8 +11,8 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-10T14:41:06.781200+00:00",
-  "finishedAt": "2026-10-10T14:41:06.781200+00:00",
+  "updatedAt": "2026-10-10T15:15:18.569320+00:00",
+  "finishedAt": null,
   "stages": [
     {
       "id": "preflight",
@@ -47,30 +47,30 @@ window.STATE =
     },
     {
       "id": "build",
-      "status": "done",
+      "status": "active",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G21 autorepeat fix native/core95/realEngine and both independent finalreviews PASS",
+      "note": "G22 actual1.4.4 userrecording failure; newT25 diagnosis/repair",
       "finishedAt": "2026-10-10T14:37:25.105000+00:00"
     },
     {
       "id": "review",
-      "status": "done",
+      "status": "pending",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "G21 autorepeat fix native/core95/realEngine and both independent finalreviews PASS",
+      "note": "G22 needs2freshreviews after realcausefix",
       "finishedAt": "2026-10-10T14:37:25.105000+00:00"
     },
     {
       "id": "final",
-      "status": "done",
+      "status": "pending",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "v1.4.4 DMG mounted/verified; GitHub rawVERSION and public archive verified after push",
+      "note": "1.4.4 released but actualuserFAILED; do notclaim remainingpathfixed",
       "finishedAt": "2026-10-10T14:41:06.781200+00:00"
     }
   ],
   "requirements": {
-    "total": 28,
+    "total": 29,
     "done": 27,
-    "inTicket": 0,
+    "inTicket": 1,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -686,6 +686,22 @@ window.STATE =
       },
       "note": "Allapps autoSpace/Enter trigger known; scoped fix approved; manual acceptance pending",
       "finishedAt": "2026-10-10T14:37:25.105000+00:00"
+    },
+    {
+      "id": "25",
+      "title": "Исправить реальное удаление после1.4.4",
+      "requirements": [
+        "G22"
+      ],
+      "status": "in-progress",
+      "startedAt": "2026-10-10T15:15:18.569320+00:00",
+      "blockedBy": [],
+      "zone": [
+        "Sources/MacLayoutSwitcher",
+        "tools"
+      ],
+      "wave": 21,
+      "validation": "Actualuserrecording failure, causepending"
     }
   ],
   "singlePass": null,
@@ -782,7 +798,8 @@ window.STATE =
     "T08 HotkeyRecorderWindow — рекордер записывает голый печатный keyDown (напр. «K»), который под .listenOnly и сработает, и напечатается; условие: отклонять/предупреждать голый печатный keyCode",
     "T08 HotkeyTests/HotkeyEngineTests — @testable import избыточен; условие: обычный import",
     "2026-09-16: baseline swift build успешен на macOS15.6.1 arm64; swift test на Mac blocked: CLT без XCTest. Тесты выполнять на доступном claudebot-server (Swift6.0.3). v1.2.0 ручная приёмка ещё не выполнена.",
-    "G21: concreteautorepeat race fixed/approved; user allapps ordinarySpace/Enter and WindowServer physicaldelivery pending. Earlier livePASS withdrawn; Mac locked. Own /tmp/MLS-Option-Test.rtf remainsopen, no Optiontest needed."
+    "G21: concreteautorepeat race fixed/approved; user allapps ordinarySpace/Enter and WindowServer physicaldelivery pending. Earlier livePASS withdrawn; Mac locked. Own /tmp/MLS-Option-Test.rtf remainsopen, no Optiontest needed.",
+    "G22: actual1.4.4 userFAILED; localCG/NSEvent fakefinalpost proof insufficient for live delivery. Root own-CUA beforesep source required, no privatefields/TCC forcing."
   ],
   "reviewers": {
     "manifestSpec": "a3373fd28e916b546",
@@ -821,7 +838,7 @@ window.STATE =
   },
   "manualAcceptance": {
     "version": "1.4.4",
-    "status": "pending",
+    "status": "failed",
     "checks": [
       "ozon после смены поля; b/B/z/Z и plan b",
       "Option по выделению с переносами и без выделения",
@@ -834,7 +851,8 @@ window.STATE =
       "Option: выделение/слово после reset/пустое поле → RU/EN",
       "ghbdtn+Space/Enter, Shift+Enter, быстрый ввод в native и Codex",
       "При неподтверждённой записи Enter остановлен, удержанный ввод сохраняется до явного Close"
-    ]
+    ],
+    "note": "Video10.10 srfe/chat deletes twice on fresh1.4.4 process; G22/T25 open"
   },
   "release": {
     "version": "1.4.4",
@@ -897,5 +915,11 @@ window.STATE =
     "engineSHA256": "5a91543b9a2a92dfc0e473d6949792890b92170944a8362926cc6cd461b8c7b3",
     "productionChecks": "/tmp/mls-g21-final.8ijwtyc9",
     "finalRunner": "baselineRED/finalGREEN same savedrunner; root+2reviewers independentlyPASS"
+  },
+  "liveInsertionAudit": {
+    "recording": "/Users/ilyaalimpiev/Desktop/Запись экрана 2026-10-10 в 17.57.37.mov",
+    "evidence": "srfe→empty twice at4.6/9.6secs, nochat; installed1.4.4 freshsingleprocess",
+    "cause": "unproved; autorepeat notobservable onvideo",
+    "ticket": "25"
   }
 }
