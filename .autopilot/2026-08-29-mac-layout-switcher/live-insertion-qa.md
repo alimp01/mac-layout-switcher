@@ -176,3 +176,34 @@ no shellUI launch/permissionsforce. Useraskedrestore twoapppermissions and
 menu«Я выдал разрешения». No mic/clipboard/privatefield use.
 OwnedIABtab2 cleanreload, bothfields/log empty, markedhandoff for nextphysical
 candidatecheck. Public1.4.4 unchanged; candidate1.4.5 not yet hardwareGREEN.
+
+## 1.4.5 actual physical Space GREEN
+
+User«готово» after permissionpanels/restart. Read-only onePID49664 and
+installedexactcandidateSHA c0d8f234…/Info.plist1.4.5 confirmed. NativeCUA
+getApp stilltimeout, ownedDOM available; no speculativepermissiontoggling.
+User typed physicalC/H/A/T in RU+Space; explicitly replied«Получилосьchat».
+Owncontenteditable log: n20 sourceсрфе/caret4 at16:14:51.328Z, n23 selected0/4,
+n25 beforeinputdatachatspace, n26 finalchatspace/caret5 at16:14:51.516Z.
+Owntextarea subsequentRU attempt n146 sourceсрфе/caret4, n149 selected0/4,
+n151 beforeinputdatachatspace, n152 finalchatspace/caret5 at16:15:08.068Z.
+Englishchat attempts in between are not correctionproof. Both actualnative
+replacement events preserved in audit/owned-codex-145-*-space-green.json;
+contenteditableexcerptSHA96a3719257c5c58d566a9c3556554169badf9e1725cb088b56239f7a22f2be5a.
+This is real WindowServer delivery in ownedIAB; mainprivatecomposer/allapps
+not declaredpassed. Root sent finalphysicalEnter/ShiftEnterquestion. Tab2
+becameabsent; restoredexactlocalhostfreshownedtab3, focusedemptytextarea,
+handoff. No further roottyping/fill/clipboard in physicaltest window.
+Releasepending finalmanualkeyboardquestion; public1.4.4 unchanged.
+
+## Release decision 1.4.5
+
+Hardware gate satisfied by two actualownedCodexSpace replacements with
+before-source snapshots and installedreviewedbinary, explicituserchat reply.
+Root proceedsrelease after meaningfulbaselineRED/finalGREEN, twofinalreviews,
+95Linux/nativeEngine/delay/G19/fullspeech/deepstrict/mountedDMG PASS.
+ManualEnter/ShiftEnter supplementaryquestion notanswered; notcountedPASS.
+Those paths passed deterministicnativeEngine+delay tests; mainprivatecomposer
+and allapps untested. No universalsafety/atomicdelivery claim.
+Finalartifact outputs/MacLayoutSwitcher-1.4.5.dmg copies verifiedcandidateDMG
+exactly, SHA58e067a3… bytes10958211. Publicationritual inprogress.

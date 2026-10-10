@@ -1,0 +1,189 @@
+{
+  "provenance": "Exact excerpt of root CUA owned-field DOM event log; preserved original n/time; user physical keyboard and explicit reply chat; installed reviewedbinarySHA c0d8f234…; main privatecomposer not inspected",
+  "events": [
+    {
+      "n": 3,
+      "time": "2026-10-10T16:14:50.162Z",
+      "ms": 316459.7,
+      "field": "editable",
+      "event": "keydown",
+      "trusted": true,
+      "text": "",
+      "selection": [
+        0,
+        0
+      ],
+      "key": "с",
+      "code": "KeyC",
+      "repeat": false,
+      "modifiers": {
+        "shift": false,
+        "ctrl": false,
+        "alt": false,
+        "meta": false
+      }
+    },
+    {
+      "n": 8,
+      "time": "2026-10-10T16:14:50.326Z",
+      "ms": 316623,
+      "field": "editable",
+      "event": "keydown",
+      "trusted": true,
+      "text": "с",
+      "selection": [
+        1,
+        1
+      ],
+      "key": "р",
+      "code": "KeyH",
+      "repeat": false,
+      "modifiers": {
+        "shift": false,
+        "ctrl": false,
+        "alt": false,
+        "meta": false
+      }
+    },
+    {
+      "n": 12,
+      "time": "2026-10-10T16:14:50.439Z",
+      "ms": 316736,
+      "field": "editable",
+      "event": "keydown",
+      "trusted": true,
+      "text": "ср",
+      "selection": [
+        2,
+        2
+      ],
+      "key": "ф",
+      "code": "KeyA",
+      "repeat": false,
+      "modifiers": {
+        "shift": false,
+        "ctrl": false,
+        "alt": false,
+        "meta": false
+      }
+    },
+    {
+      "n": 18,
+      "time": "2026-10-10T16:14:51.326Z",
+      "ms": 317623.3,
+      "field": "editable",
+      "event": "keydown",
+      "trusted": true,
+      "text": "срф",
+      "selection": [
+        3,
+        3
+      ],
+      "key": "е",
+      "code": "KeyT",
+      "repeat": false,
+      "modifiers": {
+        "shift": false,
+        "ctrl": false,
+        "alt": false,
+        "meta": false
+      }
+    },
+    {
+      "n": 20,
+      "time": "2026-10-10T16:14:51.328Z",
+      "ms": 317625,
+      "field": "editable",
+      "event": "input",
+      "trusted": true,
+      "text": "срфе",
+      "selection": [
+        4,
+        4
+      ],
+      "inputType": "insertText",
+      "data": "е",
+      "composing": false
+    },
+    {
+      "n": 23,
+      "time": "2026-10-10T16:14:51.480Z",
+      "ms": 317777.4,
+      "field": "editable",
+      "event": "selectionchange",
+      "trusted": true,
+      "text": "срфе",
+      "selection": [
+        0,
+        4
+      ]
+    },
+    {
+      "n": 24,
+      "time": "2026-10-10T16:14:51.511Z",
+      "ms": 317808.4,
+      "field": "editable",
+      "event": "keydown",
+      "trusted": true,
+      "text": "срфе",
+      "selection": [
+        0,
+        4
+      ],
+      "key": " ",
+      "code": "KeyA",
+      "repeat": false,
+      "modifiers": {
+        "shift": false,
+        "ctrl": false,
+        "alt": false,
+        "meta": false
+      }
+    },
+    {
+      "n": 25,
+      "time": "2026-10-10T16:14:51.513Z",
+      "ms": 317810,
+      "field": "editable",
+      "event": "beforeinput",
+      "trusted": true,
+      "text": "срфе",
+      "selection": [
+        0,
+        4
+      ],
+      "inputType": "insertText",
+      "data": "chat ",
+      "composing": false
+    },
+    {
+      "n": 26,
+      "time": "2026-10-10T16:14:51.516Z",
+      "ms": 317813.1,
+      "field": "editable",
+      "event": "input",
+      "trusted": true,
+      "text": "chat ",
+      "selection": [
+        5,
+        5
+      ],
+      "inputType": "insertText",
+      "data": "chat ",
+      "composing": false
+    },
+    {
+      "n": 28,
+      "time": "2026-10-10T16:14:51.527Z",
+      "ms": 317823.8,
+      "field": "editable",
+      "event": "selectionchange",
+      "trusted": true,
+      "text": "chat ",
+      "selection": [
+        5,
+        5
+      ]
+    }
+  ]
+}

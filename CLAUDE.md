@@ -8,7 +8,14 @@
 
 ## Текущее состояние — 2026-10-10
 
-Версия v1.4.4, G21: устранена доказанная гонка autorepeat при автоисправлении,
+Версия v1.4.5, G22: исправлена задержка применения AXselection после ACK;
+новый boundedreadback/unconfirmedSelection удерживает очередь и recovery.
+На Mac установлен exactreviewedbinary; физический срфе+Space→chatspace
+подтверждён в двух ownCodexIAB полях и пользователем. RootLinux95/native
+Engine/delay/G19/fullspeech/deepstrict/mountedDMG и оба finalревью PASS.
+Публикация1.4.5 выполняется; privatecomposer/allapps/manualEnterShift
+не объявленыPASS. См. live-insertion-qa.md и audit/live-insertion.
+Предыдущая v1.4.4, G21: устранена доказанная гонка autorepeat при автоисправлении,
 сохранение исходника/замены при отказе и ownership keyUp разделителя.
 Предыдущая v1.4.3, G20: Option и автозамена используют проверяемый keyboard runtime,
 сохранение первого слова/удержанного ввода, переключение пустого поля.
@@ -22,24 +29,19 @@ b/B/z/Z → и/И/я/Я, повторное использование моде�
 Актуальные статусы/доказательства — .autopilot/state.js, manifest.md,
 dictation-insertion-spec.md /dictation-insertion-qa.md, word-coverage-qa.md
 и input-repair-qa.md в каталоге прогона.
-На Mac пользователя теперь1.4.4 (Info.plist проверен10.10); PID45401 старт17:57:06
+На Mac при исходной диагностике была1.4.4 (Info.plist проверен10.10); PID45401 старт17:57:06
 после mtimebinary17:56:29, передvideo17:57:37. ActualuserFAILED: срфе исчезает
-без chat дважды. G22/T25 active; freshexecutor +2reviews, root onlydocs/CUA.
+без chat дважды. G22/T25 теперь scopedcomplete; freshexecutor +2reviews, root onlydocs/CUA.
 См. live-insertion-spec.md / live-insertion-qa.md. RepeatfixG21 не закрыл реальную
 жалобу. Нельзя заявлять actualWindowServerPASS по локальному finalpostfixture.
-G22/T25 кандидат1.4.5: concrete ACK-before-apply selection RED найден и исправлен.
-В own Codex IAB физический срфе→пробел RED совпадает с этим сценарием;
-native own AppKit physical chat PASS. Bounded selection confirmation и
-unconfirmedSelection удерживают всю текущую очередь, original/planned/held
-сохранены. Sources frozen, Spec+Standards approve0blockers; finaltoolsSpec
-also approved. RootLinux95/fullspeech/codesign, Engine и delayedfixturePASS.
-CandidateDMG mountedversion/deepstrict/helper/symlinkPASS; durableaudit live-insertion.
-Публичная1.4.4; кандидат1.4.5 установлен после user«закрыл»; PID49664,
-exactbuiltbinary/deepstrictPASS. ActualmacOSalert снова требует Accessibility+
-InputMonitoring; userhandedoff panels/restart. OwnIABtab2 очищен/handoff.
-До physicalcandidateGREEN нетpush/archive/release. Backup1.4.4 сохранён;
-не обходитьUI/TCC черезshell.
-Scratch /tmp path через qa/state (TMPDIRvarfolders).
+G22/T25 completecode2163e0a: concrete ACK-before-apply selection RED найден
+и исправлен. OwnCodexIAB hardware baselineсрфе→пробел RED; installed1.4.5
+physicalSpaceGREEN contenteditable+textarea с source/caretдоразделителя.
+Original/planned/held сохранены при отказе; transport/clipboard неизменны.
+Sourcesfrozen, обаfinalreviewapprove0blockers; rootchecksPASS. Backup1.4.4
+сохранён; user восстановил разрешения, новыйcandidate реально исправляет.
+Publicrelease1.4.5 pendingverification; manualEnter/Shift question pending,
+mainprivatecomposer/allapps не тестированы. Не объявлять atomic/universalPASS.
 
 Полный Linux XCTest95/95; native panel/adapter/debug/release passed;
 mounted DMG1.4.3 version/codesign/helper проверены;

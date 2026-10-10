@@ -1,6 +1,6 @@
 # T25 — исправить оставшееся реальное удаление
 **Requirement:** G22
-**Status:** in-progress
+**Status:** done
 **Blocked by:** None
 
 Прочитать ../live-insertion-spec.md, CLAUDE, state, manifest, NEXT и /implement+/tdd.
@@ -17,3 +17,10 @@ Minimumfixcandidate1.4.5, frozenSources, two reviews approve. RootLinux95,
 fullspeech/codesign and delayedfixturePASS. No codecommit/publication yet.
 Remaining: candidatehardwareGREEN after manualunlock; finalDMG verification
 and required release ritual. See ../live-insertion-qa.md.
+
+## Final scoped completion
+Code2163e0a, twofinalreviews0blockers, root95Linux/fullspeech/Engine/delay/
+mountedDMG PASS. Installedexactcandidate1.4.5: userphysicalRUсрфе+Space→
+chatspace in bothownedCodexcontenteditable/textarea, savedbefore-source/logs.
+Hardwaredelivery gateachieved; rootpublicationritual inprogress. ManualEnter/
+ShiftEnter, mainprivatecomposer and allapps not declaredpassed.

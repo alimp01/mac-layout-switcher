@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-10T16:10:33.343941+00:00",
+  "updatedAt": "2026-10-10T16:23:10.954219+00:00",
   "finishedAt": null,
   "stages": [
     {
@@ -47,30 +47,30 @@ window.STATE =
     },
     {
       "id": "build",
-      "status": "active",
+      "status": "done",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G22 delayed AXselection ACK concreteRED fixed; candidate1.4.5 built; hardware gate pending",
-      "finishedAt": "2026-10-10T14:37:25.105000+00:00"
+      "note": "G22 concrete delayedselectionACK minimumfix + hardwareSpaceGREEN bothownCodexfields + native/Linux95 checks",
+      "finishedAt": "2026-10-10T16:23:10.954219+00:00"
     },
     {
       "id": "review",
       "status": "done",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "G22 Spec+Standards approve unchanged frozen Sources; supplemental tool recheck",
-      "finishedAt": "2026-10-10T14:37:25.105000+00:00"
+      "note": "G22 both finalSpec+Standards approve0blockers; frozenSources and finaltools",
+      "finishedAt": "2026-10-10T16:23:10.954219+00:00"
     },
     {
       "id": "final",
-      "status": "pending",
+      "status": "active",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "1.4.4 released but actualuserFAILED; do notclaim remainingpathfixed",
+      "note": "1.4.5 publicationritual now; physicalSpace gateachieved, supplementalmanualEnter/Shift/allapp pending",
       "finishedAt": "2026-10-10T14:41:06.781200+00:00"
     }
   ],
   "requirements": {
     "total": 29,
-    "done": 27,
-    "inTicket": 1,
+    "done": 28,
+    "inTicket": 0,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -693,7 +693,7 @@ window.STATE =
       "requirements": [
         "G22"
       ],
-      "status": "in-progress",
+      "status": "done",
       "startedAt": "2026-10-10T15:15:18.569320+00:00",
       "blockedBy": [],
       "zone": [
@@ -701,16 +701,18 @@ window.STATE =
         "tools"
       ],
       "wave": 21,
-      "validation": "Actualuserrecording failure, causepending",
+      "validation": "Concrete delayedACK baselineRED/finalGREEN; root nativeEngine+delay/G19/fullspeech/Linux95; Spec+Standards finalapproved; installedphysicalSpace GREEN bothownedCodexfields",
       "candidateCodeCommit": "2163e0a3e7fa7f388ba551ef97b69d9a6f0a3126",
-      "reviews": "Both finalapproved0blockers"
+      "reviews": "Both finalapproved0blockers",
+      "finishedAt": "2026-10-10T16:23:10.954219+00:00",
+      "commit": "2163e0a3e7fa7f388ba551ef97b69d9a6f0a3126"
     }
   ],
   "singlePass": null,
   "tests": {
     "passed": 95,
     "failed": 0,
-    "note": "G21 frozen Engine+keyboard/CG/notice/G19/nativefullspeech PASS; Linux95PASS; prior livePASS withdrawn; no mic/privatefields/TCC"
+    "note": "G22 rootLinux95/95; frozen finalEngine/delayedselection/fullspeech/deepstrict/mountedDMG; reviewerskeyboard/notice/G19 PASS. PhysicalSpace GREEN bothownedCodexIAB fields; privatecomposer/allapps/manualEnterShift pending."
   },
   "debt": {
     "placeholders": [],
@@ -800,8 +802,8 @@ window.STATE =
     "T08 HotkeyRecorderWindow — рекордер записывает голый печатный keyDown (напр. «K»), который под .listenOnly и сработает, и напечатается; условие: отклонять/предупреждать голый печатный keyCode",
     "T08 HotkeyTests/HotkeyEngineTests — @testable import избыточен; условие: обычный import",
     "2026-09-16: baseline swift build успешен на macOS15.6.1 arm64; swift test на Mac blocked: CLT без XCTest. Тесты выполнять на доступном claudebot-server (Swift6.0.3). v1.2.0 ручная приёмка ещё не выполнена.",
-    "G21: concreteautorepeat race fixed/approved; user allapps ordinarySpace/Enter and WindowServer physicaldelivery pending. Earlier livePASS withdrawn; Mac locked. Own /tmp/MLS-Option-Test.rtf remainsopen, no Optiontest needed.",
-    "G22: actual1.4.4 userFAILED; localCG/NSEvent fakefinalpost proof insufficient for live delivery. Root own-CUA beforesep source required, no privatefields/TCC forcing."
+    "G21 historical:1.4.4 actualuserdeletion FAILED; ownTextEdit fixture closed; continuedG22.",
+    "G22:1.4.5 actualownedCodexSpaceGREEN bothfields, matching concrete delayedACK fix; privatecomposer/allapps/manualEnterShift untested, not universal compatibilityclaim."
   ],
   "reviewers": {
     "manifestSpec": "a3373fd28e916b546",
@@ -838,14 +840,14 @@ window.STATE =
     }
   },
   "blind": {
-    "run": "95Linux; keyboard/Typist/recovery panel; G19 adapter/panel; fullspeech release; mounted DMG PASS",
-    "verdict": "G21 concreteautorepeat fix complete/reviewed; v1.4.4 released",
-    "note": "Installed1.4.4 deletion reproduced by user recording; native/mock passes do not establish live delivery. Mac currently locked.",
+    "run": "G22Linux95; frozenEngine/delayedselection/keyboard/notice/G19/fullspeech/mountedDMG PASS",
+    "verdict": "G22 concreteACK-before-apply selection fix reviewed and installed; actualownedCodex physicalSpaceGREEN",
+    "note": "Candidatehardware gateachieved by two ownedCodexfields. Mainprivatecomposer/allapps/manualEnterShift nottested. 1.4.5 publicationpending.",
     "drift": []
   },
   "manualAcceptance": {
-    "version": "1.4.4",
-    "status": "failed",
+    "version": "1.4.5",
+    "status": "partial",
     "checks": [
       "ozon после смены поля; b/B/z/Z и plan b",
       "Option по выделению с переносами и без выделения",
@@ -859,17 +861,16 @@ window.STATE =
       "ghbdtn+Space/Enter, Shift+Enter, быстрый ввод в native и Codex",
       "При неподтверждённой записи Enter остановлен, удержанный ввод сохраняется до явного Close"
     ],
-    "note": "Video10.10 srfe/chat deletes twice on fresh1.4.4 process; G22/T25 open"
+    "note": "PhysicalSpace1.4.5 GREEN in ownedCodexcontenteditable+textarea, userconfirmedchat; before-separator RU source/caret logged. Supplemental manualEnter/Shift question pending; mainprivatecomposer/allapps not tested. Previous1.4.4 acceptanceFAILED archivedinG22QA."
   },
   "release": {
-    "version": "1.4.4",
-    "codeCommit": "d14e8027c36dc015ba7e6cc46fba4849599e00a2",
-    "artifact": "MacLayoutSwitcher-1.4.4.dmg",
-    "sha256": "30ff210e387dd92da7a1293c278a3af67cdc75871582c0a0b4b3112ce94ba140",
-    "bytes": 10960311,
-    "publication": "verified",
-    "verifiedAt": "2026-10-10T14:41:06.781200+00:00",
-    "verifiedPublicationHead": "36bd75d85c2fe5202f0a3bb0104fa3c620495070"
+    "version": "1.4.5",
+    "codeCommit": "2163e0a3e7fa7f388ba551ef97b69d9a6f0a3126",
+    "artifact": "MacLayoutSwitcher-1.4.5.dmg",
+    "sha256": "58e067a3d42eed8ba5db44c29202f8becf6d7f249b7fac6cc945f6609c9641b7",
+    "bytes": 10958211,
+    "publication": "pending",
+    "physicalAcceptance": "Space correctin bothownedCodexfields; manualEnter/Shift and allapps not declaredpassed"
   },
   "wordCoverageAudit": {
     "independentRU": 459,
@@ -929,7 +930,7 @@ window.STATE =
     "cause": "ACK-before-apply selection readback returns stale caret; old untouched replays separator against late source selection. Contract baselineRED plus matching actualownedCodexevent trace.",
     "ticket": "25",
     "liveProbe": "Native human srfe→chat PASS; ownedCodexIAB physical srfe→space deletionRED, valid V2log27events",
-    "blocker": "Candidate1.4.5 installed/launched; macOS actualapp alertrequests Accessibility/InputMonitoring again. Userhandedoff panels+restart. OwnIABtab2 cleanreload/handoff; physicalcandidateGREEN pending.",
+    "blocker": "none for release: physicaldeliverySpaceGREEN achieved in bothownedCodexfields. SupplementalmanualEnter/Shift question pending, notcountedPASS.",
     "productChange": "Candidate1.4.5 bounded selectionconfirmation + unconfirmedSelection queue hold/recovery; public remains1.4.4",
     "qa": ".autopilot/2026-08-29-mac-layout-switcher/live-insertion-qa.md",
     "candidateScratch": "/var/folders/s7/blf5jdcs7q7bfjjxbt621w500000gn/T/mls-g22-candidate.zaw8onaw",
@@ -944,10 +945,13 @@ window.STATE =
     },
     "durableAudit": "audit/live-insertion",
     "candidateCodeCommit": "2163e0a3e7fa7f388ba551ef97b69d9a6f0a3126",
-    "publication": "not-pushed; public remains1.4.4 until candidatehardwareGREEN",
+    "publication": "1.4.5 publicationritual inprogress",
     "installedBackup": "/var/folders/s7/blf5jdcs7q7bfjjxbt621w500000gn/T/mls-g22-candidate.zaw8onaw/installed-1.4.4-backup.app",
     "installedVersion": "1.4.5",
     "installedBinarySHA256": "c0d8f234e223623cda80149e3c43eec6a8b520798e09a63c2ffb06633b81dfe9",
-    "installedPID": 49664
+    "installedPID": 49664,
+    "physicalSpace": "Sourceсрфе caret4 → selected0/4 → nativeUnicode datachatspace → finalchatspace caret5 in bothownedCodexfields; user confirmed chat",
+    "permissions": "User repliedready after panels/restart; actual candidate auto insertion works. No root grantTCC.",
+    "physicalScope": "Owned CodexIAB contenteditable+textarea physicalSpaceGREEN; mainprivatecomposer/allapps/manualEnterShift notdeclaredpassed"
   }
 }

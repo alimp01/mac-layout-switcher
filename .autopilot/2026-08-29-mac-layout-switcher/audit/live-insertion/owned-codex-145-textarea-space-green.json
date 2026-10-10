@@ -1,0 +1,130 @@
+{
+  "provenance": "Exact excerpt of root read-only CUA owned DOM log; original n/time preserved; physical RU input after user switched layout from EN. English attempts preceding it are not counted as corrections. Main private composer not inspected.",
+  "events": [
+    {
+      "n": 129,
+      "time": "2026-10-10T16:15:07.331Z",
+      "ms": 333628.5,
+      "field": "textarea",
+      "event": "keydown",
+      "trusted": true,
+      "text": "",
+      "selection": [
+        0,
+        0
+      ],
+      "direction": "none",
+      "key": "с",
+      "code": "KeyC",
+      "repeat": false,
+      "modifiers": {
+        "shift": false,
+        "ctrl": false,
+        "alt": false,
+        "meta": false
+      }
+    },
+    {
+      "n": 146,
+      "time": "2026-10-10T16:15:07.783Z",
+      "ms": 334079.9,
+      "field": "textarea",
+      "event": "input",
+      "trusted": true,
+      "text": "срфе",
+      "selection": [
+        4,
+        4
+      ],
+      "direction": "none",
+      "inputType": "insertText",
+      "data": "е",
+      "composing": false
+    },
+    {
+      "n": 149,
+      "time": "2026-10-10T16:15:08.030Z",
+      "ms": 334327.5,
+      "field": "textarea",
+      "event": "selectionchange",
+      "trusted": true,
+      "text": "срфе",
+      "selection": [
+        0,
+        4
+      ],
+      "direction": "forward"
+    },
+    {
+      "n": 150,
+      "time": "2026-10-10T16:15:08.063Z",
+      "ms": 334360.5,
+      "field": "textarea",
+      "event": "keydown",
+      "trusted": true,
+      "text": "срфе",
+      "selection": [
+        0,
+        4
+      ],
+      "direction": "forward",
+      "key": " ",
+      "code": "KeyA",
+      "repeat": false,
+      "modifiers": {
+        "shift": false,
+        "ctrl": false,
+        "alt": false,
+        "meta": false
+      }
+    },
+    {
+      "n": 151,
+      "time": "2026-10-10T16:15:08.066Z",
+      "ms": 334362.7,
+      "field": "textarea",
+      "event": "beforeinput",
+      "trusted": true,
+      "text": "срфе",
+      "selection": [
+        0,
+        4
+      ],
+      "direction": "forward",
+      "inputType": "insertText",
+      "data": "chat ",
+      "composing": false
+    },
+    {
+      "n": 152,
+      "time": "2026-10-10T16:15:08.068Z",
+      "ms": 334365,
+      "field": "textarea",
+      "event": "input",
+      "trusted": true,
+      "text": "chat ",
+      "selection": [
+        5,
+        5
+      ],
+      "direction": "none",
+      "inputType": "insertText",
+      "data": "chat ",
+      "composing": false
+    },
+    {
+      "n": 154,
+      "time": "2026-10-10T16:15:08.079Z",
+      "ms": 334376.3,
+      "field": "textarea",
+      "event": "selectionchange",
+      "trusted": true,
+      "text": "chat ",
+      "selection": [
+        5,
+        5
+      ],
+      "direction": "none"
+    }
+  ]
+}
