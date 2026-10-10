@@ -207,3 +207,16 @@ Those paths passed deterministicnativeEngine+delay tests; mainprivatecomposer
 and allapps untested. No universalsafety/atomicdelivery claim.
 Finalartifact outputs/MacLayoutSwitcher-1.4.5.dmg copies verifiedcandidateDMG
 exactly, SHA58e067a3… bytes10958211. Publicationritual inprogress.
+
+## Publication verified
+
+Root VERSIONbump→code2163e0a→localcommits→servercleanFF→GitHubpush
+main5f6606fd1972229067d17be8c74e2726b1f97261→atomicpublicgitarchive complete.
+Network readback rawGitHubVERSION1.4.5; publicarchiveSHA256
+cfc49ec37a0b1558a805431cfd9205d44c8c030139b2d493b7419e0b83ae0aa2,
+PAXembeddedcommit5f6606fd and all55frozenSources/tools exact. Receipt saved
+audit/live-insertion/publication-verification.json. DMG1.4.5 mountedchecks
+passed and finalartifactmatches sameverifiedcandidatebytes. Useralreadyhas
+installedexactreviewed1.4.5; no additionalautomaticreplace needed.
+Finalmetadata publicationstatus sync follows, without productchanges.
+SupplementalmanualEnter/Shift question pending; no falseacceptanceclaim.

@@ -13,7 +13,8 @@
 На Mac установлен exactreviewedbinary; физический срфе+Space→chatspace
 подтверждён в двух ownCodexIAB полях и пользователем. RootLinux95/native
 Engine/delay/G19/fullspeech/deepstrict/mountedDMG и оба finalревью PASS.
-Публикация1.4.5 выполняется; privatecomposer/allapps/manualEnterShift
+Публикация1.4.5 проверена: rawVERSION/publicarchiveSHA/embeddedcommit и
+все55frozenSources/tools совпали. privatecomposer/allapps/manualEnterShift
 не объявленыPASS. См. live-insertion-qa.md и audit/live-insertion.
 Предыдущая v1.4.4, G21: устранена доказанная гонка autorepeat при автоисправлении,
 сохранение исходника/замены при отказе и ownership keyUp разделителя.
@@ -40,7 +41,8 @@ physicalSpaceGREEN contenteditable+textarea с source/caretдоразделит�
 Original/planned/held сохранены при отказе; transport/clipboard неизменны.
 Sourcesfrozen, обаfinalreviewapprove0blockers; rootchecksPASS. Backup1.4.4
 сохранён; user восстановил разрешения, новыйcandidate реально исправляет.
-Publicrelease1.4.5 pendingverification; manualEnter/Shift question pending,
+Publicrelease1.4.5 verified; code2163e0a, main5f6606fd (metadata sync follows).
+ManualEnter/Shift question pending,
 mainprivatecomposer/allapps не тестированы. Не объявлять atomic/universalPASS.
 
 Полный Linux XCTest95/95; native panel/adapter/debug/release passed;

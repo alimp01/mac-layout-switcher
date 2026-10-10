@@ -1,0 +1,7 @@
+{
+  "version": "1.4.5",
+  "head": "5f6606fd1972229067d17be8c74e2726b1f97261",
+  "publicArchiveSHA256": "cfc49ec37a0b1558a805431cfd9205d44c8c030139b2d493b7419e0b83ae0aa2",
+  "sourceFilesVerified": 55,
+  "result": "rawGitHubVERSION + publicarchivebytes/SHA/embeddedcommit + allfrozenSources/tools PASS"
+}

@@ -11,8 +11,8 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-10T16:23:10.954219+00:00",
-  "finishedAt": null,
+  "updatedAt": "2026-10-10T16:25:53.568774+00:00",
+  "finishedAt": "2026-10-10T16:25:53.568774+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -61,10 +61,10 @@ window.STATE =
     },
     {
       "id": "final",
-      "status": "active",
+      "status": "done",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "1.4.5 publicationritual now; physicalSpace gateachieved, supplementalmanualEnter/Shift/allapp pending",
-      "finishedAt": "2026-10-10T14:41:06.781200+00:00"
+      "note": "1.4.5 installed/pushed/publicarchiveverified; physicalSpaceGREEN bothownCodexfields; supplementalmanualscope documented",
+      "finishedAt": "2026-10-10T16:25:53.568774+00:00"
     }
   ],
   "requirements": {
@@ -842,7 +842,7 @@ window.STATE =
   "blind": {
     "run": "G22Linux95; frozenEngine/delayedselection/keyboard/notice/G19/fullspeech/mountedDMG PASS",
     "verdict": "G22 concreteACK-before-apply selection fix reviewed and installed; actualownedCodex physicalSpaceGREEN",
-    "note": "Candidatehardware gateachieved by two ownedCodexfields. Mainprivatecomposer/allapps/manualEnterShift nottested. 1.4.5 publicationpending.",
+    "note": "1.4.5 published and verified; physicalSpaceGREEN bothownedCodexfields. Mainprivatecomposer/allapps/manualEnterShift nottested.",
     "drift": []
   },
   "manualAcceptance": {
@@ -869,8 +869,11 @@ window.STATE =
     "artifact": "MacLayoutSwitcher-1.4.5.dmg",
     "sha256": "58e067a3d42eed8ba5db44c29202f8becf6d7f249b7fac6cc945f6609c9641b7",
     "bytes": 10958211,
-    "publication": "pending",
-    "physicalAcceptance": "Space correctin bothownedCodexfields; manualEnter/Shift and allapps not declaredpassed"
+    "publication": "verified",
+    "physicalAcceptance": "Space correctin bothownedCodexfields; manualEnter/Shift and allapps not declaredpassed",
+    "verifiedAt": "2026-10-10T16:25:53.568774+00:00",
+    "verifiedPublicationHead": "5f6606fd1972229067d17be8c74e2726b1f97261",
+    "publicArchiveSHA256": "cfc49ec37a0b1558a805431cfd9205d44c8c030139b2d493b7419e0b83ae0aa2"
   },
   "wordCoverageAudit": {
     "independentRU": 459,
@@ -930,7 +933,7 @@ window.STATE =
     "cause": "ACK-before-apply selection readback returns stale caret; old untouched replays separator against late source selection. Contract baselineRED plus matching actualownedCodexevent trace.",
     "ticket": "25",
     "liveProbe": "Native human srfe→chat PASS; ownedCodexIAB physical srfe→space deletionRED, valid V2log27events",
-    "blocker": "none for release: physicaldeliverySpaceGREEN achieved in bothownedCodexfields. SupplementalmanualEnter/Shift question pending, notcountedPASS.",
+    "blocker": "none for completed scopedG22 release; supplementalmanualEnter/Shift question pending",
     "productChange": "Candidate1.4.5 bounded selectionconfirmation + unconfirmedSelection queue hold/recovery; public remains1.4.4",
     "qa": ".autopilot/2026-08-29-mac-layout-switcher/live-insertion-qa.md",
     "candidateScratch": "/var/folders/s7/blf5jdcs7q7bfjjxbt621w500000gn/T/mls-g22-candidate.zaw8onaw",
@@ -945,7 +948,7 @@ window.STATE =
     },
     "durableAudit": "audit/live-insertion",
     "candidateCodeCommit": "2163e0a3e7fa7f388ba551ef97b69d9a6f0a3126",
-    "publication": "1.4.5 publicationritual inprogress",
+    "publication": "1.4.5 pushed/rawVERSION/publicarchiveSHA/embeddedcommit/all55SourcesTools verified",
     "installedBackup": "/var/folders/s7/blf5jdcs7q7bfjjxbt621w500000gn/T/mls-g22-candidate.zaw8onaw/installed-1.4.4-backup.app",
     "installedVersion": "1.4.5",
     "installedBinarySHA256": "c0d8f234e223623cda80149e3c43eec6a8b520798e09a63c2ffb06633b81dfe9",
