@@ -38,7 +38,8 @@ Transport/clipboard не менялись. Recovery хранит original+planne
 Frozen /tmp/mls-g21-autorepeat-final.v8tpedvg 160checksums exact; один runner
 baselineRED actual=" " / finalGREEN. Root+2freshreviewers independently Engine,
 keyboard/CG/notice/G19 PASS; rootLinux95/fullspeechPASS. Reviews обаapproved.
-См. deletion-repair-qa.md. DMG/publication1.4.4 выполняются по ритуалу ниже.
+См. deletion-repair-qa.md. DMG1.4.4 mounted version/codesign/helper/symlinkPASS; push и publicarchive
+проверены: rawVERSION1.4.4, downloadSHA и embeddedcommit совпали.
 Установленная.app всё ещё1.4.3; автоматической замены посреди ввода не было.
 Все физические случаи пользователя/WindowServer e2e не приняты. Прежние
 TextEdit/Chrome livePASS отозваны: не было preseparator source, RUужеактивна.

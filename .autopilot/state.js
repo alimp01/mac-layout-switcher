@@ -11,8 +11,8 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-10T14:37:25.105000+00:00",
-  "finishedAt": null,
+  "updatedAt": "2026-10-10T14:41:06.781200+00:00",
+  "finishedAt": "2026-10-10T14:41:06.781200+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -61,9 +61,10 @@ window.STATE =
     },
     {
       "id": "final",
-      "status": "active",
+      "status": "done",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "Release1.4.4 approved; VERSION/codecommit/DMG/publication underway"
+      "note": "v1.4.4 DMG mounted/verified; GitHub rawVERSION and public archive verified after push",
+      "finishedAt": "2026-10-10T14:41:06.781200+00:00"
     }
   ],
   "requirements": {
@@ -814,7 +815,7 @@ window.STATE =
   },
   "blind": {
     "run": "95Linux; keyboard/Typist/recovery panel; G19 adapter/panel; fullspeech release; mounted DMG PASS",
-    "verdict": "G21 concreteautorepeat fix implemented/reviewed; release1.4.4 underway",
+    "verdict": "G21 concreteautorepeat fix complete/reviewed; v1.4.4 released",
     "note": "Installed1.4.3 confirmed10.10; prior live automaticPASS withdrawn due missing pre-separator source; Mac currently locked.",
     "drift": []
   },
@@ -841,7 +842,9 @@ window.STATE =
     "artifact": "MacLayoutSwitcher-1.4.4.dmg",
     "sha256": "30ff210e387dd92da7a1293c278a3af67cdc75871582c0a0b4b3112ce94ba140",
     "bytes": 10960311,
-    "publication": "pending"
+    "publication": "verified",
+    "verifiedAt": "2026-10-10T14:41:06.781200+00:00",
+    "verifiedPublicationHead": "36bd75d85c2fe5202f0a3bb0104fa3c620495070"
   },
   "wordCoverageAudit": {
     "independentRU": 459,
@@ -877,7 +880,7 @@ window.STATE =
     "transport": "Unchanged productionpostToPid; realCG/NSEvent harness injects finalpost, notWindowServerproof",
     "recovery": "Original+completeplannedreplacement+heldinput preserveduntilClose",
     "review": "Both fresh reviewers final approved, no blockers",
-    "release": "1.4.4 DMG verified version/codesign/helper/Applications; publication pending",
+    "release": "1.4.4 published; DMG and public rawVERSION/archive verified. Installed1.4.3 unchanged; physicaluser acceptance pending",
     "currentExecutor": "implement_deletion_system",
     "manualFixture": "Option test canceled by automatic Space/Enter clarification; owned /tmp/MLS-Option-Test.rtf open, Mac locked",
     "engineIntegration": {

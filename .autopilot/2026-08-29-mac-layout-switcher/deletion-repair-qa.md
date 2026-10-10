@@ -112,3 +112,13 @@ Applications → /Applications. SHA256 `30ff210e387dd92da7a1293c278a3af67cdc7587
 Artifact `outputs/MacLayoutSwitcher-1.4.4.dmg`; сборочный provenance/logs
 в /tmp/mls-g21-final.8ijwtyc9. Установленная.app не заменена. Push и публичный
 архив проверяются отдельно после этого metadata commit.
+
+## Публикация проверена
+
+Push36bd75d выполнен через чистый servercheckout+bundle; атомарный publicarchive
+опубликован. Скачать archive и rawGitHubVERSION: обеверсии1.4.4, archiveSHA
+91b69edfc2c196f4c2052e16736eed17d8b82e870c34557c85c841efb98fadcd,
+embeddedgitcommit36bd75d85c2fe5202f0a3bb0104fa3c620495070 совпал.
+Localfetch: clean, HEAD/origin0/0. Финальный metadata commit повторно проходит
+push+archive; финальный publication.json сохраняется вне checkout в release scratch.
+Установленная1.4.3 не менялась, физическая приёмка после обновления pending.
