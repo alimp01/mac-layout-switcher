@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-10T09:44:20.027236+00:00",
+  "updatedAt": "2026-10-10T14:07:43.538842+00:00",
   "finishedAt": null,
   "stages": [
     {
@@ -669,9 +669,9 @@ window.STATE =
       ],
       "retries": 0,
       "repairs": 0,
-      "handoffs": 0,
+      "handoffs": 1,
       "partialCommit": "c57e700f9f44f62dd79d2576e88300d994932ccb",
-      "validation": "Frozen66files exact; native fullspeech/CG/keyboard/notice/G19 PASS; rootLinux95 PASS; actual installed1.4.3 TextEdit and warmChrome delivery PASS, userdeletion not reproduced",
+      "validation": "Frozen66files exact; native fullspeech/CG/keyboard/notice/G19 PASS; rootLinux95 PASS; actual installed1.4.3 TextEdit and warmChrome delivery PASS, userdeletion not reproduced; fresh scratch productionEngine.handle Option/selection/undo/cancellation bothroutesPASS withoutcheckoutchanges",
       "tests": {
         "passed": 95,
         "failed": 0
@@ -681,7 +681,7 @@ window.STATE =
         "standards": "approved",
         "scope": "Defensive recovery approved on both axes; fullG21 delivery pending"
       },
-      "note": "Awaiting exact affected app/field and Option versus automatic trigger; no release, VERSION1.4.3"
+      "note": "User clarified all apps; fresh executor audits physicalOption/selection/undo Engine integration; separate trigger and ownedTextEdit physicalOption test pending"
     }
   ],
   "singlePass": null,
@@ -778,7 +778,7 @@ window.STATE =
     "T08 HotkeyRecorderWindow — рекордер записывает голый печатный keyDown (напр. «K»), который под .listenOnly и сработает, и напечатается; условие: отклонять/предупреждать голый печатный keyCode",
     "T08 HotkeyTests/HotkeyEngineTests — @testable import избыточен; условие: обычный import",
     "2026-09-16: baseline swift build успешен на macOS15.6.1 arm64; swift test на Mac blocked: CLT без XCTest. Тесты выполнять на доступном claudebot-server (Swift6.0.3). v1.2.0 ручная приёмка ещё не выполнена.",
-    "G21 2026-10-10: user reports deletion-only in installed1.4.3. Source/replacement recovery committed locally, but cause/delivery notfixed or released. Need exactapp/field and Option/automatic repro; do notclose bymockPASS. Actual ownedTextEdit/warmChrome autoPASS."
+    "G21 2026-10-10: userclarified allapps. ActualSpace testsTextEdit/warmChromePASS; physicalOption/selection/undo notliveverified. CurrentfreshExecutor audit fullEngine integration; rootownedTextEdit physicalOptionfixtureprepared. Cause/routefix notproved, protectivec57e700 notreleased."
   ],
   "reviewers": {
     "manifestSpec": "a3373fd28e916b546",
@@ -869,10 +869,18 @@ window.STATE =
     "snapshot": "/tmp/mls-g21-native.3fapzn4w",
     "files": 66,
     "linux": "/tmp/mls-g21-tests.fKQES6",
-    "cause": "Unproved; exactuserapp/triggerquestionpending",
+    "cause": "Unproved; user reports allapps, Option/automatic trigger still pending",
     "transport": "Unchanged productionpostToPid; realCG/NSEvent harness injects finalpost, notWindowServerproof",
     "recovery": "Original+completeplannedreplacement+heldinput preserveduntilClose",
     "review": "Both approve defensive subset only",
-    "release": "None; VERSION1.4.3 unchanged"
+    "release": "None; VERSION1.4.3 unchanged",
+    "currentExecutor": "implement_deletion_system",
+    "manualFixture": "/tmp/MLS-Option-Test.rtf, selectedghbdtn, awaitingrealOption",
+    "engineIntegration": {
+      "snapshot": "/tmp/mls-g21-engine.wvh4ck3e",
+      "result": "Executor+root independentPASS directAX+productionCGlocalUnicode Enginehandle/selection/undo/cancellation",
+      "boundary": "Finalpost/frontPID/AX injected; EventTapregistration andTISstub, no physicalWindowServer proof",
+      "provenance": "29sources identicalbase57f54d3; README/source-provenance/seams.patch/SHA256SUMS/run.log/root-run.log"
+    }
   }
 }

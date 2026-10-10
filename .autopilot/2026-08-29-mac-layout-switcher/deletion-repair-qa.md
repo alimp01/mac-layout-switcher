@@ -13,6 +13,11 @@
 ## Что пока НЕ доказано
 
 - Пользователь сообщает deletion-only, но в этих двух scratch редакторах оно не воспроизвелось. Точное приложение/поле и триггер (автоматика либо Option) запрошены, ответа пока нет.
+- Уточнение10.10: пользователь ответил «да во всех» о приложениях; вопрос о
+  триггере задан отдельно. Новый собственный TextEdit документ сохранён в
+  `/tmp/MLS-Option-Test.rtf`, значение `ghbdtn`, оно выделено; пользователь
+  приглашён нажать физический Option. Документ оставлен открытым для проверки,
+  текущие пользовательские документы не изменялись.
 - Локальный CGEvent → serialization → NSEvent → NSTextView тест не подтверждает межпроцессную WindowServer доставку. Собственный postToPid probe не имеет AX trust и не получил событий; принудительное TCC не применяется.
 - Нет оснований приписывать дефект модели, правам, обязательной несовместимости Chromium с Unicode или размеру порции. Не заменять транспорт догадкой.
 
@@ -32,6 +37,40 @@
 - Защитный код закоммичен локально исполнителем: `c57e700f9f44f62dd79d2576e88300d994932ccb`. Это сохранение текста после отказа и regression payload, не исправление причины. Push не выполнялся.
 
 ## Независимый аудит транспорта
+
+### Продолжение после «да во всех»
+
+Свежий исполнитель `implement_deletion_system` проверил полный production
+`Engine.handle` и его callbacks в scratch `/tmp/mls-g21-engine.wvh4ck3e`.
+Direct AX fixture и настоящая CGEvent→serialization→NSEvent локальная доставка:
+selected ghbdtn с prefix/tail, right Option после cold bind, повторный Option,
+автоматическая Space, undo и повторная конвертация, удержанный/dirty Option,
+ввод до deferred capture и после temporary selection — PASS. Ввод после выбора
+диапазона безопасно отменил замену, replay сохранил ghbdtnx. Red deletion-only
+не получен, исходники checkout исполнителем не изменены.
+
+Граница scratch: transformed injection seams только для final post/frontPID/AX
+adapter; EventTap registration и TIS — stubs. Engine handler/callback тела
+неизменны, конфигурация временная; реальные global post/AX/физический Option
+не использовались. Это интеграционное покрытие, не живая приёмка пользователя.
+
+Freeze provenance: README.md, source-provenance.json, seams.patch, SHA256SUMS,
+run.log в scratch. Все 29 исходных production/core файлов совпали с baseline
+57f54d3. Root независимо повторил `/tmp/mls-g21-engine.wvh4ck3e/test-engine`
+с логом root-run.log — exit0/PASS. Ни одного изменения проектного кода в этом
+продолжении; Spec/Standards approvals protectivec57e700 сохраняют прежнюю границу.
+
+Root metadata: один MLS PID33371, запуск10.10 после mtime бинарника08.10;
+версия установленной.app1.4.3. Не обнаружены именованные процессы Punto,
+Caramba, Whisper, Karabiner, BetterTouch или TextExpander. Это исключает только
+очевидный старый процесс/второй известный корректор, не доказывает причину.
+
+Собственный документ `MLS-Option-Test.rtf` остаётся открытым с выделенным ghbdtn;
+последний CUA readback: слово и выделение неизменны. Ответ физического Option
+пользователя и уточнение триггера ожидаются. VERSION/установленная.app/публичный
+архив не изменены, новые core/build прогоны не требуются без изменения кода.
+
+### Результаты прошлого аудитора
 
 Аудитор `audit_deletion_transport` не нашёл безусловного удаления в Target: выбор диапазона предшествует одному AXSelectedText write либо Unicode replacement. Не найден доказанный универсальный дефект транспорта.
 
