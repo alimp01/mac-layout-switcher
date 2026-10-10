@@ -32,6 +32,10 @@ repeat counts, original/repeated keyUp ownership, synthetic markers, printable
 and Backspace repeats, fast input after Enter/Space, outside-busy reset,
 unrelated command/navigation/click cancellation, and uncertain Enter recovery.
 Recovery assertions inspect only windows created by the current case.
+Changing or locking the real system input source during a run can invalidate
+the startup RU/EN assumptions. A source-before-separator failure prints the
+startup/current translation, observed per-key characters and actual private
+editor value; such a run does not establish a replacement regression.
 
 To reproduce the pre-fix failure using the same fixture and unchanged checkout:
 
@@ -48,3 +52,14 @@ The runner and fixture always come from this checkout.
 `test-keyboard-adapter.sh` separately checks Target/Typist failure and recovery
 outcomes plus production Unicode payload generation; its local AppKit checks
 also do not establish hardware/WindowServer delivery.
+
+Run `bash tools/test-keyboard-selection-delay.sh` for delayed AX selection and
+restoration ACKs through exact Target/Typist/SelectionConverter source copies.
+The system seam acknowledges a range before applying it to the private
+NSTextView. Physical separators then use native keyDown, so the baseline
+source deletion is an actual edit in that view. Unicode uses production
+CGEvent generation. Local receiving events run on the main thread, as a native
+receiver does; no WindowServer or external posting is involved. Each printed
+scratch directory preserves source copies, `SOURCE-SHA256SUMS` and `run.log`.
+Baseline: `MLS_SELECTION_BASE_REF=c0be78e bash tools/test-keyboard-selection-delay.sh`.
+To isolate preselected conversion, add `MLS_SELECTION_CASE=preselected`.

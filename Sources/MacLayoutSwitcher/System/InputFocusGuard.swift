@@ -15,7 +15,10 @@ final class InputFocusGuard {
         var isAllowed: Bool { lock.lock(); defer { lock.unlock() }; return allowed }
     }
 
-    enum ReplacementResult: Equatable { case confirmed, untouched, uncertain }
+    enum ReplacementResult: Equatable {
+        case confirmed, untouched, uncertain, unconfirmedSelection
+        var isUncertain: Bool { self == .uncertain || self == .unconfirmedSelection }
+    }
 
     struct Target {
         let element: AXUIElement
@@ -117,20 +120,42 @@ final class InputFocusGuard {
             guard direct || accessibility.supportsUnicodeInsertion(element) else { return .untouched }
             guard allowed(), isCurrent(), selected(originalSelection), value() == original else { return .untouched }
             var attempted = false
+            var selectionRequested = false
+            var selectionConfirmed = false
+            func confirmSelection(_ expected: CFRange, requireAllowed: Bool = true) -> Bool {
+                for attempt in 0..<6 {
+                    if attempt > 0 { Thread.sleep(forTimeInterval: 0.025) }
+                    guard (!requireAllowed || allowed()), isCurrent(), value() == original else { return false }
+                    if selected(expected) { return true }
+                }
+                return false
+            }
             func finish(_ result: ReplacementResult) -> ReplacementResult {
                 // A selection RPC can apply and still report failure. Restore
                 // only our exact selection over unchanged content, and READ BACK
                 // restoration before permitting a physical separator to replay.
                 if isCurrent(), selected(range), value() == original {
-                    _ = accessibility.setSelection(originalSelection, in: element)
-                    if !selected(originalSelection) { return .uncertain }
+                    if range.location != originalSelection.location || range.length != originalSelection.length {
+                        _ = accessibility.setSelection(originalSelection, in: element)
+                        if !confirmSelection(originalSelection, requireAllowed: false) { return .unconfirmedSelection }
+                    }
+                    selectionConfirmed = true
                 } else if result == .untouched, !selected(originalSelection) {
-                    return .uncertain
+                    return .unconfirmedSelection
                 }
+                // An acknowledged AX action may still be in the editor's queue.
+                // Seeing the old caret cannot prove that no selection will apply.
+                if selectionRequested && !selectionConfirmed { return .unconfirmedSelection }
                 return result
             }
-            _ = accessibility.setSelection(range, in: element)
-            guard allowed(), isCurrent(), selected(range), value() == original, allowed() else { return finish(.untouched) }
+            // Explicit conversion already owns this verified selection. Sending
+            // it again could reselect old offsets after text/caret changed.
+            if range.location != originalSelection.location || range.length != originalSelection.length {
+                selectionRequested = true
+                _ = accessibility.setSelection(range, in: element)
+            }
+            selectionConfirmed = confirmSelection(range)
+            guard selectionConfirmed, allowed(), isCurrent(), value() == original, allowed() else { return finish(.untouched) }
             func replacing(_ value: String, _ selected: CFRange, _ text: String) -> String {
                 (value as NSString).replacingCharacters(in: NSRange(location: selected.location, length: selected.length), with: text)
             }
@@ -180,11 +205,16 @@ final class InputFocusGuard {
         private let target: Target
         private var policy = InputReplayPolicy()
         private var uncertain = false
+        private var holdingAllInput = false
         init(target: Target) { self.target = target }
         func didNavigate() { policy.didDeliverNavigation() }
-        func didBecomeUncertain() { uncertain = true }
+        func didBecomeUncertain(holdingAllInput: Bool = false) {
+            uncertain = true
+            self.holdingAllInput = self.holdingAllInput || holdingAllInput
+        }
         var requiresRecovery: Bool { uncertain }
         func canReplay(permit: Permit, navigates: Bool = false) -> Bool {
+            if holdingAllInput { return false }
             if uncertain && (navigates || target.selection()?.length != 0) { return false }
             let current = policy.followsNavigation || target.isCurrent()
             return policy.allowsReplay(cancelled: !permit.isAllowed,

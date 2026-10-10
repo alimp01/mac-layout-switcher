@@ -65,9 +65,9 @@ final class SelectionConverter {
             let completed = selection.target.replace(range: selection.range,
                 expected: selection.text, with: converted.text, originalSelection: selection.originalSelection, requiresWordBoundary: selection.isWord,
                 allowed: { permit.isAllowed })
-            if completed == .uncertain { replayRoute.didBecomeUncertain() }
+            if completed.isUncertain { replayRoute.didBecomeUncertain(holdingAllInput: completed == .unconfirmedSelection) }
             DispatchQueue.main.async {
-                if completed == .uncertain { typist.onUnconfirmedReplacement?(selection.text, converted.text) }
+                if completed.isUncertain { typist.onUnconfirmedReplacement?(selection.text, converted.text) }
                 completion(completed, converted.language)
             }
         }

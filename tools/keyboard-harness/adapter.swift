@@ -162,7 +162,7 @@ timeout.selectionReturnsFailure = true
 require(replace(timeoutTarget) == .confirmed, "selection timeout after applying range must be verified, not replay space into selected source")
 let (restoration, restorationTarget) = fixture()
 restoration.ignoreWrite = true; restoration.refuseRestoration = true
-require(replace(restorationTarget) == .uncertain, "failed caret restoration remains uncertain")
+require(replace(restorationTarget) == .unconfirmedSelection, "failed caret restoration keeps selection uncertain")
 let restorationRoute = InputFocusGuard.ReplayRoute(target: restorationTarget)
 restorationRoute.didBecomeUncertain()
 require(!restorationRoute.canReplay(permit: InputFocusGuard.Permit()), "queued typing cannot replace uncertain selection")

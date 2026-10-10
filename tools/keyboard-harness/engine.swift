@@ -119,7 +119,14 @@ let codes:[UInt16]=startsEnglish ? [5,4,11,2,17,45] : [4,14,37,37,31]
 let original=startsEnglish ? "ghbdtn" : "руддщ"
 let converted=startsEnglish ? "привет" : "hello"
 func typeSource(_ engine:Engine) {
- for code in codes { require(physical(engine,code:code) == .pass,"source key passes before correction") }
+ var observed:[String]=[]
+ for code in codes {
+  observed.append(KeyTranslator.characters(keyCode:code,flags:[]))
+  require(physical(engine,code:code) == .pass,"source key passes before correction")
+ }
+ if currentFixture.editor.string != original {
+  fputs("Source diagnostic: startupKey5=\(String(reflecting:g)); expected=\(String(reflecting:original)); observedPerKey=\(observed); actual=\(String(reflecting:currentFixture.editor.string)); currentKey5=\(String(reflecting:KeyTranslator.characters(keyCode:5,flags:[])))\n",stderr)
+ }
  require(currentFixture.editor.string==original,"literal wrong-layout source verified BEFORE separator")
 }
 func postedKeys(_ codes:[UInt16],flags:CGEventFlags=[]) {

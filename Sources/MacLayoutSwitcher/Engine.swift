@@ -495,7 +495,7 @@ public final class Engine {
         selectionConverter.replace(selection, permit: permit, typist: typist, replayRoute: ticket.replayRoute) { [weak self] result, language in
             guard let self else { return }
             self.selectionConverter.finish(permit)
-            if result == .uncertain { return }
+            if result.isUncertain { return }
             guard permit.isAllowed else { return }
             _ = self.core.handle(.reset)
             if result == .confirmed {
@@ -643,7 +643,7 @@ public final class Engine {
             guard result == .confirmed else {
                 let rejected = self.inputFocus.reject(ticket)
                 self.core.discardReplacement(outcome, resetContext: conversionPermit?.isAllowed != false && rejected)
-                if result != .uncertain, conversionPermit?.isAllowed == true { self.conversionNotice.show() }
+                if !result.isUncertain, conversionPermit?.isAllowed == true { self.conversionNotice.show() }
                 return
             }
             if ticket.permit.isAllowed, conversionPermit?.isAllowed != false, let lang = switchTo {

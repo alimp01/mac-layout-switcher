@@ -69,11 +69,11 @@ public final class Typist {
                     originalSelection: CFRange(location: range.location + range.length, length: 0), requiresWordBoundary: true, allowed: allowed)
             } else { result = .untouched }
             if result != .confirmed { ticket.replacementPermit.cancel() }
-            if result == .uncertain { ticket.replayRoute.didBecomeUncertain() }
+            if result.isUncertain { ticket.replayRoute.didBecomeUncertain(holdingAllInput: result == .unconfirmedSelection) }
             // A failed correction still delivers its physical separator in the
             // original target. Successful spaces were part of the atomic write.
             var withheld: String?
-            if result != .uncertain, (result != .confirmed || !inlineSpace), let separator,
+            if !result.isUncertain, (result != .confirmed || !inlineSpace), let separator,
                ticket.replayRoute.canReplay(permit: ticket.permit, navigates: navigates) {
                 self.postPair(separator)
                 if navigates { ticket.replayRoute.didNavigate() }
@@ -82,7 +82,7 @@ public final class Typist {
                 withheld = separator.recoveryText
             }
             DispatchQueue.main.async { [weak self] in
-                if result == .uncertain { self?.onUnconfirmedReplacement?(expected, text + (inlineSpace ? " " : "")) }
+                if result.isUncertain { self?.onUnconfirmedReplacement?(expected, text + (inlineSpace ? " " : "")) }
                 completion(result)
                 if let withheld { self?.onWithheldInput?(withheld) }
             }
