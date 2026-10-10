@@ -5,7 +5,7 @@ GitHub: https://github.com/alimp01/mac-layout-switcher
 
 Сначала прочитай `CLAUDE.md`, `.autopilot/state.js`, затем manifest и актуальные тикеты в `.autopilot/2026-08-29-mac-layout-switcher/`. Они определяют состояние ревью и релиза; VERSION сам по себе не доказывает публикацию.
 
-## G22 / 1.4.5: подготовка выпуска, аппаратный Space подтверждён (10.10.2026)
+## G22 / 1.4.5: опубликована, аппаратный Space подтверждён (10.10.2026)
 
 - После установленной 1.4.4 пользователь подтвердил удаление в Codex.
   Аппаратный ввод в собственном нативном NSTextView исправился `срфе` →
@@ -25,7 +25,7 @@ GitHub: https://github.com/alimp01/mac-layout-switcher
   Target/Typist/SelectionConverter и частный NSTextView с ACK-before-apply на
   AX-границе. Baseline `MLS_SELECTION_BASE_REF=c0be78e bash
   tools/test-keyboard-selection-delay.sh` даёт настоящее удаление исходника
-  пробелом без recovery; кандидат сохраняет источник. Проверяются Space,
+  пробелом без recovery; исправление сохраняет источник. Проверяются Space,
   Enter/Shift+Enter/Tab, быстрый ввод, delayed selection/restoration, отмена
   до и после ACK и preselected Unicode conversion. Опциональный
   `MLS_SELECTION_CASE=preselected` запускает последний случай отдельно.
@@ -34,7 +34,7 @@ GitHub: https://github.com/alimp01/mac-layout-switcher
   native fullspeech release/build, подпись и смонтированный DMG, final Engine,
   selection-delay и прежние keyboard/G19 проверки PASS. Код зафиксирован
   локально в `2163e0a`; Sources после ревью не менялись.
-- Установленный кандидат 1.4.5 с проверенным бинарником прошёл аппаратный
+- Установленная 1.4.5 с проверенным бинарником прошла аппаратный
   Space: пользователь набрал `срфе` в RU, затем пробел, и получил `chat ` в
   обоих собственных полях Codex IAB — contenteditable и textarea. DOM-лог
   каждого поля подтверждает исходник и каретку до разделителя, затем замену;
@@ -42,8 +42,12 @@ GitHub: https://github.com/alimp01/mac-layout-switcher
   и production доставка, отдельная от локальных headless fixtures.
 - Аппаратные Enter/Shift+Enter, основной приватный composer Codex и остальные
   приложения пока не приняты. Детерминированные регрессии Enter/Shift+Enter
-  проходят, но не заменяют эту ручную проверку. Root готовит выпуск 1.4.5;
-  публикацию и дальнейшую приёмку фиксирует в `.autopilot` state/QA.
+  проходят, но не заменяют эту ручную проверку.
+- 1.4.5 опубликована: root проверил main `5f6606fd`, публичный VERSION и
+  архив SHA256 `cfc49ec37a0b1558a805431cfd9205d44c8c030139b2d493b7419e0b83ae0aa2`.
+  Embedded commit и все 55 замороженных Sources/tools совпали с проверенным
+  выпуском. Детальные доказательства и дальнейшая приёмка — в `.autopilot`
+  state/QA.
 
 ## G21 / 1.4.4: исправление одобрено и готово к выпуску (10.10.2026)
 
