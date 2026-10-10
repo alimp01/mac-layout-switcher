@@ -11,8 +11,8 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-08T05:54:58.892222+00:00",
-  "finishedAt": "2026-10-08T05:54:58.892222+00:00",
+  "updatedAt": "2026-10-10T09:26:43.132471+00:00",
+  "finishedAt": null,
   "stages": [
     {
       "id": "preflight",
@@ -47,30 +47,27 @@ window.STATE =
     },
     {
       "id": "build",
-      "status": "done",
+      "status": "active",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G20/T23 code d7b003d, VERSION1.4.3",
-      "finishedAt": "2026-10-08T05:54:58.892222+00:00"
+      "note": "G21 deletion-only repair T24"
     },
     {
       "id": "review",
-      "status": "done",
+      "status": "pending",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "Spec + Standards APPROVED; all findings fixed and rechecked",
-      "finishedAt": "2026-10-08T05:54:58.892222+00:00"
+      "note": "G21 deletion-only repair T24"
     },
     {
       "id": "final",
-      "status": "done",
+      "status": "pending",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "95Linux, production keyboard/Typist/recovery panel + G19, fullspeech release/verifiedDMG PASS. LiveOption/Codex pending.",
-      "finishedAt": "2026-10-08T05:54:58.892222+00:00"
+      "note": "G21 deletion-only repair T24"
     }
   ],
   "requirements": {
-    "total": 27,
+    "total": 28,
     "done": 26,
-    "inTicket": 0,
+    "inTicket": 1,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -655,6 +652,24 @@ window.STATE =
         "spec": "approved",
         "standards": "approved"
       }
+    },
+    {
+      "id": "24",
+      "title": "Исправить удаление вместо замены",
+      "requirements": [
+        "G21"
+      ],
+      "status": "in-progress",
+      "startedAt": "2026-10-10T09:26:43.132471+00:00",
+      "blockedBy": [],
+      "wave": 20,
+      "zone": [
+        "Sources/MacLayoutSwitcher",
+        "tools"
+      ],
+      "retries": 0,
+      "repairs": 0,
+      "handoffs": 0
     }
   ],
   "singlePass": null,
