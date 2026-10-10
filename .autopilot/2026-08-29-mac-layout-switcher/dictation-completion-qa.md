@@ -91,3 +91,12 @@ Mounted DMG1.4.6 version/helper/deepstrict/symlink/mainbinary exact PASS; see
 dmg-verification.json. Publication ritual follows this validation.
 Actual speech in Codex/privatecomposer/WindowServer remains pending; this is
 a scoped reproducible completion repair, not universal/atomic delivery proof.
+
+## Publication — verified 1.4.6
+Code commit f96f920104b538201d12c51bf7d8d8018eaf5b71; rawGitHubVERSION1.4.6 and
+HTTPS publicarchive SHA 532c606d13f4bb45a665d8fcef5acd9124a0f37d8e598f419f0eefe9f7c33d59 match server artifact.
+PAX commit and all64 final approved product files exact. Receipt preserved in
+audit/dictation-completion/publication-code-commit.json. Root metadata receipt
+commit follows; Source/tools/VERSION unchanged, finalarchive reverified externally.
+User asked to update via «Проверить обновления…» and dictate same harmless phrase
+in this Codex chat. Actualspeech remains pending; app installation not claimed.

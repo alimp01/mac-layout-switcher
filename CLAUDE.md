@@ -8,18 +8,20 @@
 
 ## Текущее состояние — 2026-10-10
 
-G23/T26: кандидат1.4.6 проверен и одобрен, публикация выполняется.
+Версия1.4.6 опубликована и проверена; G23/T26 scopedcomplete.
 Диктовка больше не отменяется из-за повторных/запоздавших собственных AX
 уведомлений; временная история ограничена активным чтением и16наборами,
 ожидание0.6s вне lock/main. Чужой снимок необратимо отменяет permit; после
 ожидания точные field/value/caret проверяются до следующей записи.
 LiteralbaselineREDfirst16 → finalfullphrase; foreign/multiOwn/capacity RED→GREEN.
 Root15nativegroups/Engine/delay/fullspeech/mountedDMG, Linux95exactreuse27files
-и оба finalreviews PASS. Фактическая диктовка в Codex ещё не принята; не
+и оба finalreviews PASS. Code f96f920, GitHubVERSION1.4.6/publicarchive64hashes
+проверены. Пользователю отправлена проверка update+samephrase. Фактическая
+диктовка в Codex ещё не принята; не
 включатьmic/privatecomposer tools. Canonical status .autopilot/state.js,
 dictation-completion-spec/qa и audit/dictation-completion.
 
-Версия v1.4.5, G22: исправлена задержка применения AXselection после ACK;
+Предыдущая v1.4.5, G22: исправлена задержка применения AXselection после ACK;
 новый boundedreadback/unconfirmedSelection удерживает очередь и recovery.
 На Mac установлен exactreviewedbinary; физический срфе+Space→chatspace
 подтверждён в двух ownCodexIAB полях и пользователем. RootLinux95/native

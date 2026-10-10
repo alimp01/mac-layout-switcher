@@ -1,7 +1,7 @@
 # T26 — диктовка вставляет полную фразу
 
 **Requirement:** G23
-**Status:** ready-for-release — frozen4 both reviews approved, native gates passed
+**Status:** done — 1.4.6 published and verified; actual speech manual acceptance pending
 **Blocked by:** None — can start immediately
 
 **What to build:** recognized phrase completes once in originaleditablefield
@@ -11,7 +11,7 @@ instead of firstchunk only; truthful selectable fullresult on failure.
 - [x] Minimalguarded fix, fullUnicode/selection/tail/caret and no duplicatewrites.
 - [x] Stickyfocus/input/AXmutation cancel and recovery preserved.
 - [x] G19/G22 regressions + nativefullspeech + Linux95 + twofreshreviews.
-- [ ] Version1.4.6/release after rootsignal; honestmanualUI boundaries.
+- [x] Version1.4.6/release after rootsignal; honestmanualUI boundaries.
 
 Read ../dictation-completion-spec.md and relevant previous G19/G22 specs/ADR.
 Fresh single-ticket executor /implement+/tdd. Codezone dictationdelivery/

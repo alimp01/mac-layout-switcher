@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-10T17:17:49.980263+00:00",
+  "updatedAt": "2026-10-10T17:27:38.248052+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -60,15 +60,16 @@ window.STATE =
     },
     {
       "id": "final",
-      "status": "active",
+      "status": "done",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "1.4.6 reviewed/packaged; commit/push/archive verification pending; actualspeech pending"
+      "note": "1.4.6 codecommit/rawVERSION/publicarchiveSHA/PAX64frozenfiles verified; actualspeech manualhandoff pending",
+      "finishedAt": "2026-10-10T17:27:38.248052+00:00"
     }
   ],
   "requirements": {
     "total": 30,
-    "done": 28,
-    "inTicket": 1,
+    "done": 29,
+    "inTicket": 0,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -711,7 +712,7 @@ window.STATE =
       "requirements": [
         "G23"
       ],
-      "status": "ready-for-release",
+      "status": "done",
       "startedAt": "2026-10-10T16:32:38.436837+00:00",
       "blockedBy": [],
       "zone": [
@@ -731,7 +732,9 @@ window.STATE =
         "passed": 95,
         "failed": 0,
         "nativeCompletionGroups": 15
-      }
+      },
+      "commit": "f96f920104b538201d12c51bf7d8d8018eaf5b71",
+      "finishedAt": "2026-10-10T17:27:38.248052+00:00"
     }
   ],
   "singlePass": null,
@@ -872,14 +875,14 @@ window.STATE =
     }
   },
   "blind": {
-    "run": "G22Linux95; frozenEngine/delayedselection/keyboard/notice/G19/fullspeech/mountedDMG PASS",
-    "verdict": "G22 concreteACK-before-apply selection fix reviewed and installed; actualownedCodex physicalSpaceGREEN",
-    "note": "1.4.5 published and verified; physicalSpaceGREEN bothownedCodexfields. Mainprivatecomposer/allapps/manualEnterShift nottested.",
+    "run": "G23 root15groups/Engine/delayedselection/fullspeech/mountedDMG PASS; exact27fileLinux95reuse",
+    "verdict": "Concrete own-notification completion + capacitywaitguards reviewed and published1.4.6",
+    "note": "ActualCodexspeech/WindowServer pending usermanualtest; no universaloratomicPASS",
     "drift": []
   },
   "manualAcceptance": {
-    "version": "1.4.5",
-    "status": "partial",
+    "version": "1.4.6",
+    "status": "pending",
     "checks": [
       "ozon после смены поля; b/B/z/Z и plan b",
       "Option по выделению с переносами и без выделения",
@@ -893,19 +896,26 @@ window.STATE =
       "ghbdtn+Space/Enter, Shift+Enter, быстрый ввод в native и Codex",
       "При неподтверждённой записи Enter остановлен, удержанный ввод сохраняется до явного Close"
     ],
-    "note": "PhysicalSpace1.4.5 GREEN in ownedCodexcontenteditable+textarea, userconfirmedchat; before-separator RU source/caret logged. Supplemental manualEnter/Shift question pending; mainprivatecomposer/allapps not tested. Previous1.4.4 acceptanceFAILED archivedinG22QA."
+    "note": "Userasked to update via menu and dictate literalphrase in own Codex chat. G23 no actualspeechPASS yet. PriorG22 physicalSpace1.4.5 GREEN ownIABfields; Enter/Shift/allapps remain untested."
   },
   "release": {
-    "version": "1.4.5",
-    "codeCommit": "2163e0a3e7fa7f388ba551ef97b69d9a6f0a3126",
-    "artifact": "MacLayoutSwitcher-1.4.5.dmg",
-    "sha256": "58e067a3d42eed8ba5db44c29202f8becf6d7f249b7fac6cc945f6609c9641b7",
-    "bytes": 10958211,
+    "version": "1.4.6",
+    "artifact": "MacLayoutSwitcher-1.4.6.dmg",
+    "sha256": "0571ae808a108550662b10decc38600b9df0519e81b383b79be19abaaa40e326",
+    "bytes": 10966502,
+    "binarySHA256": "cff40179237f82900269144880096325e4f71bf5147b9bb0c6465b60d8ca655f",
+    "mountedVerification": "version/helper/deepstrict/Applications symlink/main binary exact PASS",
+    "speechAcceptance": "manual Codex pending",
     "publication": "verified",
-    "physicalAcceptance": "Space correctin bothownedCodexfields; manualEnter/Shift and allapps not declaredpassed",
-    "verifiedAt": "2026-10-10T16:25:53.568774+00:00",
-    "verifiedPublicationHead": "5f6606fd1972229067d17be8c74e2726b1f97261",
-    "publicArchiveSHA256": "cfc49ec37a0b1558a805431cfd9205d44c8c030139b2d493b7419e0b83ae0aa2"
+    "verifiedPublicationHead": "f96f920104b538201d12c51bf7d8d8018eaf5b71",
+    "publicArchiveSHA256": "532c606d13f4bb45a665d8fcef5acd9124a0f37d8e598f419f0eefe9f7c33d59",
+    "frozenProductFilesVerified": 64,
+    "verification": "GitHub raw VERSION / server HEAD / HTTPS archive SHA / PAX commit / all64approved hashes exact",
+    "manualSpeech": "pending; no actual Codex/WindowServer acceptance claimed",
+    "codeCommit": "f96f920104b538201d12c51bf7d8d8018eaf5b71",
+    "verifiedAt": "2026-10-10T17:27:38.248052+00:00",
+    "physicalAcceptance": "G23 speechpending; priorG22 physicalSpace1.4.5 ownCodexfields GREEN",
+    "publicationNote": "Verification receipt covers exact published codecommit; root metadata follows, finalarchive externally reverified"
   },
   "wordCoverageAudit": {
     "independentRU": 459,
@@ -996,22 +1006,27 @@ window.STATE =
     "privacy": "No publishedscreenshot/privatecomposerautomation/microphone activation",
     "qa": "dictation-completion-qa.md",
     "baseline": "audit/dictation-completion/root-baseline-red.log",
-    "candidate": "Frozen4 finalapproved, nativeallgatesPASS; releasepending",
+    "candidate": "1.4.6 published/verified; actualCodexspeech manualhandoff pending",
     "initialFrozenSourceSHA": "506f8f646524805c7c09927a2354e1e7485ed09b4cc98b10d516ffe7c009e88a",
     "sourceSHA256": "cf3d4d6e29672b1c9601e0cd4234c9253ee94d3214d45f428a65f9429d351c41",
     "nativeCompletionGroups": 15,
-    "manualSpeech": "pending",
+    "manualSpeech": "Requested user update via menu then samephrase in Codex; awaiting response",
     "linux95Reuse": "27identicalCore/Tests/Package hashes",
-    "durableAudit": "audit/dictation-completion"
+    "durableAudit": "audit/dictation-completion",
+    "codeCommit": "f96f920104b538201d12c51bf7d8d8018eaf5b71",
+    "publication": "GitHub VERSION1.4.6 / HTTPSarchiveSHA / PAXcommit / all64approved files exact"
   },
-  "candidateRelease": {
-    "version": "1.4.6",
-    "artifact": "MacLayoutSwitcher-1.4.6.dmg",
-    "sha256": "0571ae808a108550662b10decc38600b9df0519e81b383b79be19abaaa40e326",
-    "bytes": 10966502,
-    "binarySHA256": "cff40179237f82900269144880096325e4f71bf5147b9bb0c6465b60d8ca655f",
-    "mountedVerification": "version/helper/deepstrict/Applications symlink/main binary exact PASS",
-    "speechAcceptance": "manual Codex pending",
-    "publication": "pending"
+  "finishedAt": "2026-10-10T17:27:38.248052+00:00",
+  "previousRelease": {
+    "version": "1.4.5",
+    "codeCommit": "2163e0a3e7fa7f388ba551ef97b69d9a6f0a3126",
+    "artifact": "MacLayoutSwitcher-1.4.5.dmg",
+    "sha256": "58e067a3d42eed8ba5db44c29202f8becf6d7f249b7fac6cc945f6609c9641b7",
+    "bytes": 10958211,
+    "publication": "verified",
+    "physicalAcceptance": "Space correctin bothownedCodexfields; manualEnter/Shift and allapps not declaredpassed",
+    "verifiedAt": "2026-10-10T16:25:53.568774+00:00",
+    "verifiedPublicationHead": "5f6606fd1972229067d17be8c74e2726b1f97261",
+    "publicArchiveSHA256": "cfc49ec37a0b1558a805431cfd9205d44c8c030139b2d493b7419e0b83ae0aa2"
   }
 }
