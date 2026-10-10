@@ -1,0 +1,16 @@
+{
+  "provenance": "Readonly CUA DOM log from owned IAB tab 2, URL http://127.0.0.1:18722/, physical user typing on installed MacLayoutSwitcher 1.4.4. Excerpt copied from tool output; event numbers retained. No private composer access.",
+  "events": [
+    {"n":2,"time":"2026-10-10T15:43:49.219Z","field":"editable","event":"keydown","trusted":true,"text":"","selection":[0,0],"key":"с","code":"KeyC","repeat":false},
+    {"n":7,"time":"2026-10-10T15:43:49.398Z","field":"editable","event":"keydown","trusted":true,"text":"с","selection":[1,1],"key":"р","code":"KeyH","repeat":false},
+    {"n":12,"time":"2026-10-10T15:43:49.964Z","field":"editable","event":"keydown","trusted":true,"text":"ср","selection":[2,2],"key":"ф","code":"KeyA","repeat":false},
+    {"n":17,"time":"2026-10-10T15:43:50.167Z","field":"editable","event":"keydown","trusted":true,"text":"срф","selection":[3,3],"key":"е","code":"KeyT","repeat":false},
+    {"n":20,"time":"2026-10-10T15:43:50.173Z","field":"editable","event":"selectionchange","trusted":true,"text":"срфе","selection":[4,4]},
+    {"n":22,"time":"2026-10-10T15:43:50.803Z","field":"editable","event":"selectionchange","trusted":true,"text":"срфе","selection":[0,4]},
+    {"n":23,"time":"2026-10-10T15:43:50.814Z","field":"editable","event":"keydown","trusted":true,"text":"срфе","selection":[0,4],"key":" ","code":"Space","repeat":false},
+    {"n":24,"time":"2026-10-10T15:43:50.816Z","field":"editable","event":"beforeinput","trusted":true,"text":"срфе","selection":[0,4],"inputType":"insertText","data":" ","composing":false},
+    {"n":25,"time":"2026-10-10T15:43:50.817Z","field":"editable","event":"input","trusted":true,"text":" ","selection":[1,1],"inputType":"insertText","data":" ","composing":false},
+    {"n":26,"time":"2026-10-10T15:43:50.818Z","field":"editable","event":"keyup","trusted":true,"text":" ","selection":[1,1],"key":" ","code":"Space","repeat":false},
+    {"n":27,"time":"2026-10-10T15:43:50.822Z","field":"editable","event":"selectionchange","trusted":true,"text":" ","selection":[1,1]}
+  ]
+}

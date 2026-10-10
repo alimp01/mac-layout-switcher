@@ -1,0 +1,30 @@
+T25/G22 executor checkpoint, 2026-10-10
+Product Sources stable/frozen: Engine.swift, InputFocusGuard.swift, Typist.swift, SelectionConverter.swift.
+No product edits after root review freeze; no git commit/push/release performed by executor.
+Candidate VERSION=1.4.5 authorized by root; publication/live candidate acceptance still pending.
+
+Delayed AX ACK regression, exact same final durable harness:
+Baseline RED: MLS_SELECTION_BASE_REF=c0be78e bash tools/test-keyboard-selection-delay.sh
+/tmp/mls-keyboard-selection-delay.eBof51: actual=" x", result=untouched, writes=0, replayed=4, no recovery, exit1.
+Final GREEN: bash tools/test-keyboard-selection-delay.sh
+/tmp/mls-keyboard-selection-delay.Q5NZVR: sourceсрфе preserved for unresolved Space/Enter/ShiftEnter/Tab plus fast x; source+complete plan+held input retained. Delayed selection/restoration, cancellation and preselected Unicode chatx pass, exit0.
+Preselected baseline RED: MLS_SELECTION_CASE=preselected MLS_SELECTION_BASE_REF=c0be78e bash tools/test-keyboard-selection-delay.sh
+/tmp/mls-keyboard-selection-delay.M5VdRj: actual="x", resultconfirmed, 1 old-range RPC. Final preselected chatx, zero selection RPC.
+All 27 files in each snapshot have frozen SHA256SUMS; source manifest independently verified.
+Final local AppKit receiving keyDown is on main thread (matching native receiver); product worker queues unchanged. Initial isolated baseline fixture HIToolbox concurrent TIS abort was fixed at this local receiving seam. No external post/AX/TCC.
+
+Other current checks:
+Engine regression wholePASS /tmp/mls-keyboard-engine.AWA36G and diagnostic-only /tmp/mls-keyboard-engine.OoscIn.
+Independent reviewer occasionally sees source-before-separator mismatch after real current TIS changes, e.g. actualпривет expectedghbdtn nowGп. Source assertion is preserved; the failed run does not prove replacement regression. Diagnostic fixture now prints initial/current Key5 and observed/actual characters on mismatch.
+G19 dictation-adapter PASS, including installed Codex framework routing metadata only.
+G19 panel PASS /tmp/mls-dictation-panel.ygkCYx/panel.png (native own glyphs/scroll/select/nonactivation/clipboard).
+Keyboard adapter + CG event production payload tests previously PASS with stronger failed-restoration result expectation.
+bash -n tools/test-keyboard-selection-delay.sh and git diff --check PASS.
+Root owns Linux95/core, fullspeech release build, two reviews, real candidate hardware verification and publication.
+
+Root actual hardware RED excerpt:
+/tmp/mls-g22-owned-codex-field/hardware-v2-excerpt.json SHA81cdbbf9e097e62fb25ffd9b2e08b79c4616b199d49f958372adb5f473c39542
+Owned HTML SHA8c6dd50e4d25282e7371d8f7c38f21653a1686a2b1d994c3cf98d07fdbc07b15
+Sourceсрфе caret4; later selected0/4, ordinary physical Space no repeat, input becomes one space, nochat Unicode insertion. Parent preserves exact event excerpt and provenance. Earlier actual native own editor hardware path succeeded; CUA per-process keys alone bypassed global frontmost distinction and were not taken as PASS.
+
+Primary mechanism: AX selection ACK can precede renderer application; stale caret was wrongly treated as untouched. New bounded readback waits before text, unresolved selection/restoration holds queue; already selected source avoids redundant RPC. Exact text/focus/cancellation guards and no retry/no clipboard remain.

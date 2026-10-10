@@ -1,0 +1,222 @@
+[
+  {
+    "path": "Sources/MacLayoutSwitcher/Config.swift",
+    "sha256": "d769ab6f1713ff7edf1e468a3c50077039b1af3b171a197c21c93b9405168c09"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/Engine.swift",
+    "sha256": "ff2fdb0c2164ecd909664a4f7b6dba51cac67625e9c12a3853dbceeb9dc7d637"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/Speech/DictationCoordinator.swift",
+    "sha256": "2a7ca365800eb47949f1868964fe019c9fa2e544844422028aa9aa1179846017"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/Speech/DictationRecorder.swift",
+    "sha256": "139b86617ec35156327e04caad899cf8859e326ab4be8976079ef8eaec79bdd6"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/Speech/DictationTarget.swift",
+    "sha256": "f3db3646a7219b10b0bce35afdf1105266f863114834fce6afdd48d66996401f"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/System/EventTap.swift",
+    "sha256": "ea88ec5aa001fef5c66137f678c6568125df7aed72fa4ac8282b788ad73c67bb"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/System/FrontApp.swift",
+    "sha256": "0df5a55050df15bb44327319c9290c345fd69fe5118b3d15b78645ae24103566"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/System/InputFocusGuard.swift",
+    "sha256": "107c68ba18f08741ff8d20917dc345ebe1643a4a1d7d23f45f0aa71e09e987e3"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/System/KeyStroke.swift",
+    "sha256": "3e9e8e0417dc87bfb09fe857ac396ef87a586263778f37f74f8755b40b8cab05"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/System/KeyTranslator.swift",
+    "sha256": "9750d4a28bd941173285e230699ae2ea218b6566453caf8735fa5e132d067b8f"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/System/LayoutSwitcher.swift",
+    "sha256": "7119d5a5f5ea2027a9155c2e38c7ab8f87e124f233172764b5a27019a3e078d5"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/System/LoginItem.swift",
+    "sha256": "08ca8be09ec14b3838885465a99bda3c7d0cf6cc4364b77b4d6ea179fed98604"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/System/Permissions.swift",
+    "sha256": "a93c81cecbfd6a38e76e72d962ca088b68c17a375c66199b531be7350b561433"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/System/SecureInput.swift",
+    "sha256": "257c71bedc4ce22aafbd9ee3c190c4152ca378060abb5a2b4e999af4ef6a3dac"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/System/SelectionConverter.swift",
+    "sha256": "8d91791f7196808ea0d9168aa92a96716babefae63ffe54daf2953ceb74947bf"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/System/SpeechModelStore.swift",
+    "sha256": "2d338d7fef4f17c3ddbf54e8b883b879da9184ea6f5c23ebb4b705e6a772a295"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/System/SpeechRecognitionProcess.swift",
+    "sha256": "694a5b7e910ebc47fe42216ab0c149e47be07480cb063dd5d53a3f3620552705"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/System/Typist.swift",
+    "sha256": "e1bb455628cdc65202fdd4c594e41af3088c05731c644c6d08d5a9b60ba111a9"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/System/Updater.swift",
+    "sha256": "c5a95484b0be473f5f1425ef5bcc80917b10ac1359785e0ab1d82d6d63306ed7"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/UI/ConversionNotice.swift",
+    "sha256": "16b756aa5aed607695cfcadda755eda93932af9712cb2e2bcc603eab8d70639d"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/UI/DictationPanel.swift",
+    "sha256": "86b2b4081bdb719cdd251bfc532d250580446098bbe246b9dfe204e7906094e1"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/UI/HotkeyRecorderWindow.swift",
+    "sha256": "3323ebdf4a912e87a28ac3840de786d892a36c314cc51afc6d0e2a59566588ef"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/UI/Sounds.swift",
+    "sha256": "67bf882882724354607f230cdb5bddd0ac9e82ee02a6ff1423aff4d6915db7ce"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/UI/StatusBarUI.swift",
+    "sha256": "1503ff9138bd0d40076fefb9855974851b0c8cd4acbb1479680d58a37c4a050f"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/main.swift",
+    "sha256": "b0a42310a18ec96c0b768987159a24751c1e99b404754e596cf15fa6619b75f6"
+  },
+  {
+    "path": "Sources/SpeechRecognizer/main.swift",
+    "sha256": "75f9761e66c4b9a5d1fa67ffeb74584de2195aaa11560330105b412c1da68e06"
+  },
+  {
+    "path": "Sources/SwitcherCore/Detector.swift",
+    "sha256": "6771603fc8db50211ae16b6c10ff0238619dba0cd6c75f8b78232c79b1aea9f1"
+  },
+  {
+    "path": "Sources/SwitcherCore/DetectorBigrams.swift",
+    "sha256": "844f9aefaa8cc23c2f67c3958f8c5c0a408a6f0a141d4f01cc577b68541165a9"
+  },
+  {
+    "path": "Sources/SwitcherCore/DictationSession.swift",
+    "sha256": "618e87f89fac5c2bd7867e6652f09f94212c46bd7b3fc18feeba2e088ae8af47"
+  },
+  {
+    "path": "Sources/SwitcherCore/EngineCore.swift",
+    "sha256": "0f45078d92f5ff7af5924f7e074cb33e6b9fcb04983ef40e75e637391b31d514"
+  },
+  {
+    "path": "Sources/SwitcherCore/Hotkey.swift",
+    "sha256": "70ac4c31684cc84f290df9e6b985842ce11e912425a22a42a32a73d4f59c84ce"
+  },
+  {
+    "path": "Sources/SwitcherCore/InputReplayPolicy.swift",
+    "sha256": "ab91695f1873fe91e2f71d1e2b304c759e3fd4127a133c5c7bf6bf86aa9222ee"
+  },
+  {
+    "path": "Sources/SwitcherCore/KeyMap.swift",
+    "sha256": "e136a278f56426e7e8f41d2de2f98bed7f2417d22e683bb88fbc13ad511c1114"
+  },
+  {
+    "path": "Sources/SwitcherCore/Lang.swift",
+    "sha256": "e02b7c4ad469735b92531f5585c7f5c2ffb7e390a33fe7bde475850a6948fb26"
+  },
+  {
+    "path": "Sources/SwitcherCore/ReplacementSource.swift",
+    "sha256": "69edae07bb47abd48dd923420e11616f714eead8d4c48fed55ca303b8eb47f5f"
+  },
+  {
+    "path": "Sources/SwitcherCore/SemVer.swift",
+    "sha256": "26bd1ae36c2429505a80b14fe317d60c9c16cacd1bb5459f8586fd1330538e9e"
+  },
+  {
+    "path": "Sources/SwitcherCore/ShortWords.swift",
+    "sha256": "570a7db73f487247bb147cc11efa055ea06d25f7740894d00536394c21675613"
+  },
+  {
+    "path": "Sources/SwitcherCore/SnippetStore.swift",
+    "sha256": "24a71a8daf13cab3b776aa51a325295a3ef136f18a0f216274214a05d17d44b6"
+  },
+  {
+    "path": "Sources/SwitcherCore/WordBuffer.swift",
+    "sha256": "b114b36c5c27a952e4eaeb903a54c578b559bc032b1a59e5826e843689cf8042"
+  },
+  {
+    "path": "tools/dictation-harness/adapter.swift",
+    "sha256": "ba995cda1fb2743c1481e0117cea70c157966beb106d07871e01e18f3e191894"
+  },
+  {
+    "path": "tools/dictation-harness/panel.swift",
+    "sha256": "dfcada2c84bed1ba6033dd7aac7fa7c9676e3110ccf218f6c1296ae972f687e1"
+  },
+  {
+    "path": "tools/keyboard-harness/README.md",
+    "sha256": "de2bbb932195084a7f2719870100dd52754629241ed8f2410fd356ed8478b40a"
+  },
+  {
+    "path": "tools/keyboard-harness/adapter.swift",
+    "sha256": "7543cbba2cdf4984a4eb5086cd87531a35ac920c42366e53bbef17e440faac0c"
+  },
+  {
+    "path": "tools/keyboard-harness/engine-boundary.swift",
+    "sha256": "3106c0be8e9887e1ebcdf41984e8bdf163a0f95ecdd3713e5421eb081dce4786"
+  },
+  {
+    "path": "tools/keyboard-harness/engine.swift",
+    "sha256": "526b843108f14edfc1bda819281e40ee6347b35baad97ccbc26cc222d67d35fc"
+  },
+  {
+    "path": "tools/keyboard-harness/notice.swift",
+    "sha256": "55d9b93f300eb2afcd962d512013fb84d13e4007f89b780f8fd137c829f9964c"
+  },
+  {
+    "path": "tools/keyboard-harness/selection-delay.swift",
+    "sha256": "e130cb7e36182ca42713b4e9f4e543fd934003fbe7258c1d2840d3f7a54c3049"
+  },
+  {
+    "path": "tools/keyboard-harness/transport.swift",
+    "sha256": "aba83c10ca59423eb535549df81fdb5a8d61aa2aa445d7bda45258fe49a5e6d2"
+  },
+  {
+    "path": "tools/make-icns.py",
+    "sha256": "a77b0fedc2318ea55a2742629201c162d7e7eaa7ee67a83b5e5768d7f5b9a81d"
+  },
+  {
+    "path": "tools/self-update.sh",
+    "sha256": "2c35726d61cdff96dbe16dbaae7258b65576b970b66cb349ad79c90b4b0fa27e"
+  },
+  {
+    "path": "tools/test-dictation-adapter.sh",
+    "sha256": "9cee3d8cccb39556b9bb2d9e185c96f3aaf038cad4e417357962e1243efc6a2a"
+  },
+  {
+    "path": "tools/test-dictation-panel.sh",
+    "sha256": "a35b99c4c5dc30929882e3ee1bc190631cd96afa16ae99cd7f988b07a34d690f"
+  },
+  {
+    "path": "tools/test-keyboard-adapter.sh",
+    "sha256": "a05f23019aece14d861b8739158daf3d5fe3623a337cdb2d8f5aee2e95288518"
+  },
+  {
+    "path": "tools/test-keyboard-engine.sh",
+    "sha256": "3302cc9dbb4a4e31b8c93dcf5251b71e55bb6753dd7408975b7fcc8429edcad4"
+  },
+  {
+    "path": "tools/test-keyboard-selection-delay.sh",
+    "sha256": "db53e1dce01e75c828693d8985fe655664170c0e2de97d3de99062ac6126b95e"
+  }
+]

@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-10T15:15:18.569320+00:00",
+  "updatedAt": "2026-10-10T15:58:25.015129+00:00",
   "finishedAt": null,
   "stages": [
     {
@@ -49,14 +49,14 @@ window.STATE =
       "id": "build",
       "status": "active",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G22 actual1.4.4 userrecording failure; newT25 diagnosis/repair",
+      "note": "G22 delayed AXselection ACK concreteRED fixed; candidate1.4.5 built; hardware gate pending",
       "finishedAt": "2026-10-10T14:37:25.105000+00:00"
     },
     {
       "id": "review",
-      "status": "pending",
+      "status": "done",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "G22 needs2freshreviews after realcausefix",
+      "note": "G22 Spec+Standards approve unchanged frozen Sources; supplemental tool recheck",
       "finishedAt": "2026-10-10T14:37:25.105000+00:00"
     },
     {
@@ -701,7 +701,9 @@ window.STATE =
         "tools"
       ],
       "wave": 21,
-      "validation": "Actualuserrecording failure, causepending"
+      "validation": "Actualuserrecording failure, causepending",
+      "candidateCodeCommit": "2163e0a3e7fa7f388ba551ef97b69d9a6f0a3126",
+      "reviews": "Both finalapproved0blockers"
     }
   ],
   "singlePass": null,
@@ -828,6 +830,11 @@ window.STATE =
       "spec": "review_autorepeat_spec",
       "standards": "review_autorepeat_standards",
       "result": "Both finalapproved;0blockers; frozen baselineRED/finalGREEN; hardware/userexactcause boundary documented"
+    },
+    "G22": {
+      "spec": "review_live_selection_spec",
+      "standards": "review_live_selection_standards",
+      "result": "Both finalapproved0blockers; supplemental tools also rechecked bySpec+Standards"
     }
   },
   "blind": {
@@ -919,11 +926,24 @@ window.STATE =
   "liveInsertionAudit": {
     "recording": "/Users/ilyaalimpiev/Desktop/Запись экрана 2026-10-10 в 17.57.37.mov",
     "evidence": "srfe→empty twice at4.6/9.6secs, nochat; installed1.4.4 freshsingleprocess",
-    "cause": "unproved; empty snippet excluded for срфе; own untrusted post received no events, not production failure proof",
+    "cause": "ACK-before-apply selection readback returns stale caret; old untouched replays separator against late source selection. Contract baselineRED plus matching actualownedCodexevent trace.",
     "ticket": "25",
-    "liveProbe": "V2 prepared/opened through CUA; source translator plus receiver/front PID logging; no permission request",
-    "blocker": "Mac locked; next live CUA key/foreground/tap discriminator needs manual unlock",
-    "productChange": "none; VERSION stays 1.4.4",
-    "qa": ".autopilot/2026-08-29-mac-layout-switcher/live-insertion-qa.md"
+    "liveProbe": "Native human srfe→chat PASS; ownedCodexIAB physical srfe→space deletionRED, valid V2log27events",
+    "blocker": "Mac relocked; manualunlock requested for candidate1.4.5 install and hardwareGREEN",
+    "productChange": "Candidate1.4.5 bounded selectionconfirmation + unconfirmedSelection queue hold/recovery; public remains1.4.4",
+    "qa": ".autopilot/2026-08-29-mac-layout-switcher/live-insertion-qa.md",
+    "candidateScratch": "/var/folders/s7/blf5jdcs7q7bfjjxbt621w500000gn/T/mls-g22-candidate.zaw8onaw",
+    "linux": "/tmp/mls-g22-linux.HdVgbk/run.log",
+    "rootSelectionDelay": "/tmp/mls-keyboard-selection-delay.2TBufd/run.log",
+    "hardwareExcerptSHA256": "81cdbbf9e097e62fb25ffd9b2e08b79c4616b199d49f958372adb5f473c39542",
+    "rootEngine": "/tmp/mls-keyboard-engine.KPSkna/run.log",
+    "dmgCandidate": {
+      "version": "1.4.5",
+      "sha256": "58e067a3d42eed8ba5db44c29202f8becf6d7f249b7fac6cc945f6609c9641b7",
+      "verified": "mounted version/deepstrict/helper/symlink/binarymatches PASS"
+    },
+    "durableAudit": "audit/live-insertion",
+    "candidateCodeCommit": "2163e0a3e7fa7f388ba551ef97b69d9a6f0a3126",
+    "publication": "not-pushed; public remains1.4.4 until candidatehardwareGREEN"
   }
 }

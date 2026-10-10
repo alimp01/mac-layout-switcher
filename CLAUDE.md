@@ -27,6 +27,15 @@ dictation-insertion-spec.md /dictation-insertion-qa.md, word-coverage-qa.md
 без chat дважды. G22/T25 active; freshexecutor +2reviews, root onlydocs/CUA.
 См. live-insertion-spec.md / live-insertion-qa.md. RepeatfixG21 не закрыл реальную
 жалобу. Нельзя заявлять actualWindowServerPASS по локальному finalpostfixture.
+G22/T25 кандидат1.4.5: concrete ACK-before-apply selection RED найден и исправлен.
+В own Codex IAB физический срфе→пробел RED совпадает с этим сценарием;
+native own AppKit physical chat PASS. Bounded selection confirmation и
+unconfirmedSelection удерживают всю текущую очередь, original/planned/held
+сохранены. Sources frozen, Spec+Standards approve0blockers; finaltoolsSpec
+also approved. RootLinux95/fullspeech/codesign, Engine и delayedfixturePASS.
+CandidateDMG mountedversion/deepstrict/helper/symlinkPASS; durableaudit live-insertion.
+Публичная1.4.4; кандидат НЕ установлен/выпущен до hardwareGREEN. Mac relocked,
+разблокировка запрошена. Scratch /tmp path через qa/state (TMPDIRvarfolders).
 
 Полный Linux XCTest95/95; native panel/adapter/debug/release passed;
 mounted DMG1.4.3 version/codesign/helper проверены;
@@ -55,7 +64,8 @@ Space, но автозамена не запустилась: не PASS. Foregro
 Собственный untrusted CG probe не получил событий: не причина production.
 V2 /tmp/mls-t25-own-key-events/TransportProbe.app открыт для следующей
 проверки receiver/frontPID/KeyTranslator. Mac вновь locked, CUA не может
-продолжить; нужна ручная разблокировка. Код/VERSION не менялись.
+продолжить; нужна ручная разблокировка. Это предыдущий диагностический checkpoint;
+нынешний кандидат1.4.5 описан выше.
 После обновления проверить обычный Space/Enter/ShiftEnter и быстрый набор.
 
 G20/T23 завершён для1.4.3, код d7b003d. Keyboard Target использует

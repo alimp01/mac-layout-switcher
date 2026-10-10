@@ -1,0 +1,10 @@
+{
+  "status": "candidate-not-released",
+  "version": "1.4.5",
+  "artifact": "/Users/ilyaalimpiev/Documents/Codex/2026-09-16/mac-layout-switcher-punto-caramba-switcher/outputs/MacLayoutSwitcher-1.4.5-candidate.dmg",
+  "bytes": 10958211,
+  "sha256": "58e067a3d42eed8ba5db44c29202f8becf6d7f249b7fac6cc945f6609c9641b7",
+  "binary_sha256": "c0d8f234e223623cda80149e3c43eec6a8b520798e09a63c2ffb06633b81dfe9",
+  "helper_sha256": "30e91013f18147cddecfec6469830adb709e8d6887d20d9810da83cdecb12049",
+  "checks": "mounted read-only plist/codesign deep strict/helper/Applications symlink/binarymatches builtcandidate PASS"
+}
