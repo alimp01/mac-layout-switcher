@@ -1,0 +1,241 @@
+import AppKit
+import ApplicationServices
+import SwitcherCore
+func require(_ condition: @autoclosure () -> Bool, _ message: String) {
+ guard condition() else { fputs("FAIL: \(message)\n", stderr); exit(1) }
+}
+func mainValue<T>(_ block: () -> T) -> T {
+ if Thread.isMainThread { return block() }
+ return DispatchQueue.main.sync(execute: block)
+}
+final class FixtureAX: DictationAccessibility {
+ let editor = NSTextView()
+ let element = AXUIElementCreateApplication(harnessPID)
+ let unicode: Bool
+ var isTrusted: Bool { true }
+ var isSecure: Bool { false }
+ var selectionHook: (() -> Void)?
+ var ignoreWrites = false
+ var suppressedUpsValid = true
+ var syntheticFilter: ((CGEvent) -> TapDecision)?
+ var posted: [(CGEventType, UInt16, CGEventFlags)] = []
+ init(unicode: Bool) { self.unicode = unicode }
+ func focusedElement(pid: pid_t) -> AXUIElement? { pid == harnessPID ? element : nil }
+ func enableAccessibility(pid: pid_t) {}
+ func attribute(_ name: String, of element: AXUIElement) -> CFTypeRef? {
+  mainValue {
+   switch name {
+   case kAXValueAttribute: return editor.string as CFString
+   case kAXSelectedTextRangeAttribute:
+    let ns=editor.selectedRange(); var range=CFRange(location:ns.location,length:ns.length)
+    return AXValueCreate(.cfRange,&range)
+   case kAXRoleAttribute: return kAXTextAreaRole as CFString
+   default: return nil
+   }
+  }
+ }
+ func selectedTextIsSettable(_ element: AXUIElement) -> Bool { true }
+ func supportsUnicodeInsertion(_ element: AXUIElement) -> Bool { true }
+ func prefersUnicodeInsertion(pid: pid_t) -> Bool { unicode }
+ func setSelectedText(_ text: String, in element: AXUIElement) -> AXError {
+  if !ignoreWrites { mainValue { editor.setAccessibilitySelectedText(text) } }; return .success
+ }
+ func postUnicode(_ text: String, pid: pid_t) -> Bool {
+  SystemDictationAccessibility(postEvent: { event, _ in if !self.ignoreWrites { self.receive(event) } }).postUnicode(text,pid:pid)
+ }
+ func setSelection(_ range: CFRange, in element: AXUIElement) -> Bool {
+  mainValue {
+   editor.setSelectedRange(NSRange(location:range.location,length:range.length))
+   if range.length > 0, let hook=selectionHook { selectionHook=nil; hook() }
+  }; return true
+ }
+ func observe(_ element: AXUIElement,pid:pid_t,changed:@escaping (DictationAXChange)->Void) -> AnyObject? { NSObject() }
+ func receive(_ event: CGEvent, resolvingPhysicalKey: Bool = false) {
+  mainValue {
+   guard let data=event.data,let received=CGEvent(withDataAllocator:nil,data:data) else { fatalError("CG serialization") }
+   let code=UInt16(truncatingIfNeeded:event.getIntegerValueField(.keyboardEventKeycode))
+   if event.getIntegerValueField(.eventSourceUserData)==EventTap.syntheticMarker {
+    require(syntheticFilter?(event) == .pass,"own synthetic down/up bypasses EventTap state machine")
+   }
+   if resolvingPhysicalKey { posted.append((event.type,code,event.flags)) }
+   let native: NSEvent
+   if resolvingPhysicalKey && code != 0 {
+    // WindowServer is absent from this local receiver. Resolve native physical
+    // key identity/flags here, preserving the recorded original posted event.
+    let code=UInt16(truncatingIfNeeded:received.getIntegerValueField(.keyboardEventKeycode))
+    guard let resolved=NSEvent.keyEvent(with:received.type == .keyDown ? .keyDown : .keyUp,
+     location:.zero,modifierFlags:NSEvent.ModifierFlags(rawValue:UInt(received.flags.rawValue)),
+     timestamp:0,windowNumber:0,context:nil,
+     characters:KeyTranslator.characters(keyCode:code,flags:received.flags),
+     charactersIgnoringModifiers:KeyTranslator.characters(keyCode:code,flags:[]),
+     isARepeat:received.getIntegerValueField(.keyboardEventAutorepeat) != 0,keyCode:code) else { fatalError("native key resolution") }
+    native=resolved
+   } else {
+    // Unicode retains production event creation, payload and CG roundtrip.
+    guard let event=NSEvent(cgEvent:received) else { fatalError("NSEvent Unicode interpretation") }; native=event
+   }
+   if received.type == .keyDown { editor.keyDown(with:native) }
+   if received.type == .keyUp { editor.keyUp(with:native) }
+  }
+ }
+
+}
+let app=NSApplication.shared
+app.setActivationPolicy(.prohibited)
+func drain(_ duration: Double = 0.35) { RunLoop.current.run(until:Date().addingTimeInterval(duration)) }
+func fixture(unicode:Bool) -> Engine {
+ currentFixture=FixtureAX(unicode:unicode)
+ currentFixture.editor.string=""; currentFixture.editor.setSelectedRange(NSRange(location:0,length:0))
+ let directory=URL(fileURLWithPath:NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+ let config=Config(directory:directory); config.update { $0.excludedApps=[]; $0.sounds=false }
+ let engine=Engine(config:config); require(engine.start(),"inert registration starts")
+ currentFixture.syntheticFilter = { [weak engine] in engine?.probeEvent($0) ?? .pass }
+ let event=CGEvent(keyboardEventSource:CGEventSource(stateID:.privateState),virtualKey:58,keyDown:false)!
+ event.type = .flagsChanged; event.flags=[]; _=engine.probeEvent(event); drain()
+ return engine
+}
+func physical(_ engine:Engine, code:UInt16, autorepeat:Bool=false, flags:CGEventFlags=[], deliver:Bool=true) -> TapDecision {
+ let source=CGEventSource(stateID:.privateState)
+ let down=CGEvent(keyboardEventSource:source,virtualKey:CGKeyCode(code),keyDown:true)!
+ down.flags=flags; down.setIntegerValueField(.keyboardEventAutorepeat,value:autorepeat ? 1 : 0)
+ let characters=KeyTranslator.characters(keyCode:code,flags:flags); let utf16=Array(characters.utf16)
+ utf16.withUnsafeBufferPointer { down.keyboardSetUnicodeString(stringLength:$0.count,unicodeString:$0.baseAddress) }
+ let decision=engine.probeEvent(down)
+ if decision == .pass && deliver { currentFixture.receive(down) }
+ let up=CGEvent(keyboardEventSource:source,virtualKey:CGKeyCode(code),keyDown:false)!
+ up.flags=flags; let upDecision=engine.probeEvent(up)
+ if decision == .suppress && upDecision != .suppress { currentFixture.suppressedUpsValid = false }
+ if upDecision == .pass && deliver { currentFixture.receive(up) }
+ return decision
+}
+// Read the real current input source; do not switch it. Only the private
+// fixture text below is typed, and its wrong-layout source is checked before
+// the separator. This also runs when the system is locked (SecureInput is the
+// explicitly injected false boundary, never modified in the OS).
+let g=KeyTranslator.characters(keyCode:5,flags:[])
+require(g=="g" || g=="п","harness requires an enabled RU/EN keyboard source")
+let startsEnglish=g=="g"
+let codes:[UInt16]=startsEnglish ? [5,4,11,2,17,45] : [4,14,37,37,31]
+let original=startsEnglish ? "ghbdtn" : "руддщ"
+let converted=startsEnglish ? "привет" : "hello"
+func typeSource(_ engine:Engine) {
+ for code in codes { require(physical(engine,code:code) == .pass,"source key passes before correction") }
+ require(currentFixture.editor.string==original,"literal wrong-layout source verified BEFORE separator")
+}
+func postedKeys(_ codes:[UInt16],flags:CGEventFlags=[]) {
+ require(currentFixture.suppressedUpsValid,"all suppressed physical downs own their keyUps, including original separator")
+ let events=currentFixture.posted
+ require(events.count==codes.count*2,"complete posted down/up pairs")
+ for (i,code) in codes.enumerated() {
+  require(events[i*2].0 == .keyDown && events[i*2+1].0 == .keyUp,"posted native order down/up")
+  require(events[i*2].1==code && events[i*2+1].1==code,"posted original keycode")
+  require(events[i*2].2==flags && events[i*2+1].2==flags,"posted original modifier flags")
+ }
+}
+for unicode in [false,true] {
+ let route=unicode ? "Unicode" : "AX"
+ for (code,flags,separator) in [(UInt16(49),CGEventFlags()," "),(UInt16(36),CGEventFlags(),"\n"),(UInt16(36),CGEventFlags.maskShift,"\n"),(UInt16(48),CGEventFlags(),"\t")] {
+  let engine=fixture(unicode:unicode); typeSource(engine)
+  currentFixture.selectionHook={ _=physical(engine,code:code,autorepeat:true,flags:flags) }
+  require(physical(engine,code:code,flags:flags) == .suppress,"automatic separator suppresses initial physical down")
+  drain(0.7)
+  require(currentFixture.editor.string==converted+separator+separator,"entire corrected word plus both separators survive \(route)/\(code): actual=\(currentFixture.editor.string.debugDescription)")
+  postedKeys(code==49 ? [49] : [code,code],flags:flags)
+  engine.stop(); drain()
+ }
+ print("PASS: \(route) Space/Enter/Shift+Enter/Tab repeat after temporary selection, down/up, flags, own markers")
+ // The repeated printable character is captured from the original layout;
+ // it is replayed as Unicode rather than translated after layout switching.
+ for repeatCode:UInt16 in [5,51] {
+  let engine=fixture(unicode:unicode); typeSource(engine)
+  let repeated=KeyTranslator.characters(keyCode:repeatCode,flags:[])
+  currentFixture.selectionHook={ require(physical(engine,code:repeatCode,autorepeat:true) == .suppress,"busy text-edit repeat queued") }
+  require(physical(engine,code:49) == .suppress,"auto correction queued before repeat")
+  drain(0.7)
+  let expected=repeatCode==51 ? converted : converted+" "+repeated
+  require(currentFixture.editor.string==expected,"printable/backspace repeat follows complete replacement")
+  postedKeys([repeatCode==51 ? 51 : 0])
+  engine.stop(); drain()
+ }
+ print("PASS: \(route) printable and Backspace repeats preserve text-edit order")
+ let series=fixture(unicode:unicode); typeSource(series)
+ currentFixture.selectionHook={ for _ in 0..<3 { require(physical(series,code:49,autorepeat:true) == .suppress,"every repeat in held series is queued") } }
+ require(physical(series,code:49) == .suppress,"series follows initial correction")
+ drain(0.7)
+ require(currentFixture.editor.string==converted+"    ","three repeated spaces delivered once after full correction")
+ postedKeys([49,49,49]); series.stop(); drain()
+ print("PASS: \(route) three queued repeats arrive exactly once")
+ let engine=fixture(unicode:unicode); typeSource(engine)
+ let following=KeyTranslator.characters(keyCode:5,flags:[])
+ currentFixture.selectionHook={
+  require(physical(engine,code:36,autorepeat:true) == .suppress,"repeat Enter queued")
+  require(physical(engine,code:5) == .suppress,"fast next letter queued behind navigation")
+ }
+ require(physical(engine,code:36) == .suppress,"initial Enter queued")
+ drain(0.7)
+ require(currentFixture.editor.string==converted+"\n\n"+following,"fast next letter follows both Enter deliveries")
+ postedKeys([36,36,0]); engine.stop(); drain()
+ print("PASS: \(route) original keyUp/repeated down-up/fast letter after queued Enter")
+ // A quick next word still reaches EngineCore during ordinary replay; its
+ // literal text must follow the first corrected word without stale conversion.
+ let next=fixture(unicode:unicode); typeSource(next)
+ let latinCodes:[UInt16]=[31,6,31,45]
+ let nextWord=startsEnglish ? "ozon" : "щящт"
+ currentFixture.selectionHook={ for code in latinCodes { require(physical(next,code:code) == .suppress,"rapid next word queued") } }
+ require(physical(next,code:49) == .suppress,"initial Space queued")
+ drain(0.7)
+ require(currentFixture.editor.string==converted+" "+nextWord,"rapid next word kept after correction")
+ postedKeys([0,0,0,0]); next.stop(); drain()
+ print("PASS: \(route) fast next word remains in original captured layout")
+}
+// Controls and unrelated navigation keep the preexisting cancellation contract.
+// The external application's command action is deliberately not modeled here:
+// the real EventTap/Translator/Engine still must pass it and cancel its permit.
+for (code,flags) in [(UInt16(123),CGEventFlags()),(UInt16(124),CGEventFlags()),(UInt16(115),CGEventFlags()),(UInt16(119),CGEventFlags()),(UInt16(53),CGEventFlags()),(UInt16(122),CGEventFlags()),(UInt16(5),CGEventFlags.maskCommand),(UInt16(5),CGEventFlags.maskControl)] {
+ let engine=fixture(unicode:false); typeSource(engine)
+ currentFixture.selectionHook={ require(physical(engine,code:code,autorepeat:true,flags:flags,deliver:false) == .pass,"navigation/command repeat passes and cancels replacement") }
+ require(physical(engine,code:49) == .suppress,"correction starts before unrelated navigation")
+ drain(0.7)
+ require(currentFixture.editor.string==original && currentFixture.posted.isEmpty,"cancelled correction cannot modify or replay into unrelated navigation")
+ engine.stop(); drain()
+}
+let clicked=fixture(unicode:false); typeSource(clicked)
+currentFixture.selectionHook={
+ let click=CGEvent(mouseEventSource:CGEventSource(stateID:.privateState),mouseType:.leftMouseDown,mouseCursorPosition:.zero,mouseButton:.left)!
+ require(clicked.probeEvent(click) == .pass,"physical click invalidates correction")
+}
+require(physical(clicked,code:49) == .suppress,"correction starts before click")
+drain(0.7)
+require(currentFixture.editor.string==original && currentFixture.posted.isEmpty,"click cancels old target without source mutation")
+clicked.stop(); drain()
+print("PASS: Left/Right/Home/End/Esc/F1/Cmd/Ctrl autorepeat and click preserve cancellation")
+func viewText(_ view:NSView) -> [String] {
+ (view as? NSTextView).map { [$0.string] } ?? view.subviews.flatMap(viewText)
+}
+for unicode in [false,true] {
+ let engine=fixture(unicode:unicode); typeSource(engine)
+ let previousWindows=Set(NSApplication.shared.windows.map(ObjectIdentifier.init))
+ currentFixture.ignoreWrites=true
+ currentFixture.selectionHook={ require(physical(engine,code:36,autorepeat:true) == .suppress,"uncertain-path Enter repeat queued before failure known") }
+ require(physical(engine,code:49) == .suppress,"attempted correction owns original Space")
+ drain(0.7)
+ require(currentFixture.editor.string==original && currentFixture.posted.isEmpty,"no-op write retains source and never submits queued repeat Enter")
+ require(currentFixture.suppressedUpsValid,"uncertain queue still owns physical keyUps")
+ let recovery=NSApplication.shared.windows.filter { !previousWindows.contains(ObjectIdentifier($0)) && $0.title=="Конвертация раскладки" }.flatMap { $0.contentView.map(viewText) ?? [] }.joined(separator:"\n")
+ require(recovery.contains(original) && recovery.contains(converted) && recovery.contains("⏎"),"production recovery retains original, planned replacement and held repeat Enter")
+ engine.stop(); drain()
+}
+print("PASS: unconfirmed AX/Unicode keeps source, planned replacement, repeat Enter and keyUp without submission")
+for repeatCode:UInt16 in [49,36,48,5,51] {
+ let engine=fixture(unicode:false); typeSource(engine)
+ let appended=repeatCode==49 ? " " : repeatCode==36 ? "\n" : repeatCode==48 ? "\t" : KeyTranslator.characters(keyCode:repeatCode,flags:[])
+ require(physical(engine,code:repeatCode,autorepeat:true) == .pass,"outside busy repeat passes natively")
+ let expected=repeatCode==51 ? String(original.dropLast()) : original+appended
+ require(currentFixture.editor.string==expected,"outside busy repeat preserves physical edit")
+ require(physical(engine,code:49) == .pass,"repeat cleared correction buffer instead of growing it")
+ require(currentFixture.editor.string==expected+" ","no delayed correction after outside-busy repeat")
+ require(currentFixture.posted.isEmpty,"outside-busy repeat is never replayed")
+ engine.stop(); drain()
+}
+print("PASS: outside-busy printable/Backspace/Space/Enter/Tab repeats pass and reset correction candidates")
+print("Production EventTap→KeyTranslator→Engine regression passed. Private AppKit receiver; native physical-post resolution injected; no hardware/WindowServer delivery proof.")

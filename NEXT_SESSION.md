@@ -5,29 +5,44 @@ GitHub: https://github.com/alimp01/mac-layout-switcher
 
 Сначала прочитай `CLAUDE.md`, `.autopilot/state.js`, затем manifest и актуальные тикеты в `.autopilot/2026-08-29-mac-layout-switcher/`. Они определяют состояние ревью и релиза; VERSION сам по себе не доказывает публикацию.
 
-## Незавершённая защита G21 (10.10.2026, VERSION остаётся 1.4.3)
+## G21 / 1.4.4: исправление одобрено и готово к выпуску (10.10.2026)
 
-- Пользователь сообщает удаление слова без вставки. Причина пока не доказана;
-  не выпускать защиту восстановления как исправление доставки. Root проверил
-  установленную 1.4.3 на собственном TextEdit и официальном textarea MDN в Chrome:
-  прогретая замена доставила «привет». Нужен конкретный пользовательский редактор
-  и способ вызова, чтобы воспроизвести deletion-only в реальном transport.
-- Typist и SelectionConverter передают точный исходник и полный планируемый текст
-  в persistent/selectable recovery panel при uncertain. Диктовка также сохраняет
-  выделенный исходник при unconfirmed; весь результат распознавания остаётся
-  в прежней панели диктовки. Enter/Tab очереди удерживаются, retry/restore в поле нет.
-- SystemDictationAccessibility получает seam только на финальном post(CGEvent,pid).
-  Настоящее создание событий, CGEvent.data roundtrip, NSEvent и NSTextView.keyDown
-  теперь входят в tools/test-keyboard-adapter.sh. Ошибки/no-op/partial/deletion-only
-  проверяются через production Target/Typist/SelectionConverter и recovery UI.
-  Это локальная AppKit-интерпретация, а не WindowServer cross-process delivery.
-- Реальный postToPid в собственный непоказанный command process не доставил
-  событий без AX trust. Никаких разрешений или TCC не меняли. CFData roundtrip
-  на Mac15.6.1 не сохраняет eventSourceUserData; AppKit может переинтерпретировать
-  characters keyUp по vk0. Эти наблюдения не доказывают причину удаления и не
-  оправдывают спекулятивную смену keycode/post path. Production transport не менялся.
-- VERSION не повышен; git/reviews/release ведёт root. Защита требует двух ревью,
-  а полный G21 остаётся pending до доказанной причины и проверки исправления.
+- Пользователь уточнил: удаление происходит «во всех» приложениях при
+  автоматическом исправлении после пробела/Enter. Option-проверка отменена.
+- Воспроизведён конкретный путь: физический autorepeat, пришедший после
+  временного выделения исходного слова, раньше попадал в early reset→invalidate
+  и проходил в редактор. Настоящий NSTextView.keyDown заменял выделенное слово
+  пробелом или переносом, после чего worker отменял исправление. Baseline
+  EventTap→KeyTranslator→Engine дал red для AX и Unicode; источник неверной
+  раскладки проверен ДО разделителя.
+- Engine теперь сбрасывает только решения ядра и ставит text-edit autorepeat
+  за текущей заменой, сохраняя permit. Enter/Tab сохраняют navigation route;
+  команды, клик и обычная навигация отменяют старую цель. Подавленные исходные
+  separator down/up принадлежат одной паре. Нативная генерация Unicode,
+  postToPid, размеры порций и clipboard не менялись.
+- Новый `tools/test-keyboard-engine.sh`: actual EventTap.process и unchanged
+  KeyTranslator, полные production callbacks/queue/Target, свои скрытые
+  NSTextView и временный Config. Проверяет Space/Enter/Shift+Enter/Tab,
+  printing/Backspace/серии repeats, keyUp/markers, быстрый следующий ввод,
+  outside-busy reset, command/navigation/click cancellation и uncertain
+  recovery с изоляцией панели каждого case. Baseline:
+  `MLS_ENGINE_BASE_REF=eb11af4 bash tools/test-keyboard-engine.sh`.
+- Runner подменяет системные AX/focus/secure-input/TIS selection границы и
+  только final event post. Реальный текущий RU/EN источник читается; физические
+  replay keycode/flags разрешаются в NSEvent на локальной принимающей границе,
+  заменяющей WindowServer. Это не аппаратная или cross-process UI-приёмка.
+- Прежние CUA правильные конечные слова не доказывали замену: не было снимка
+  исходника до разделителя, активная раскладка могла уже быть RU. Root снял
+  этот вывод. Установленная 1.4.3 и G20 runtime проверены по metadata/symbols;
+  работающий процесс один. Реальные приложения и все случаи жалобы ещё не
+  приняты пользователем; новая версия не устанавливается посреди ввода.
+- Protective recovery сохраняет исходник, полную замену и held input до Close;
+  нет blind retry/restore, автоматического clipboard или прежних backspace loops.
+  VERSION повышен до 1.4.4 по сигналу root. Spec и Standards независимо
+  одобрили финальный код без blockers; frozen Engine regression, Linux95,
+  native fullspeech release и прежние keyboard/G19 harnesses PASS. Исправление
+  готово к выпуску, но публикация и установка пока не подтверждены. Root ведёт
+  упаковку/публикацию; актуальные доказательства — в .autopilot state/QA.
 
 ## Изменения для 1.4.3 (G20, 08.10.2026)
 

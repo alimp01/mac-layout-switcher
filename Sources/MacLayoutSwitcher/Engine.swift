@@ -317,6 +317,20 @@ public final class Engine {
                 return .suppress
             }
             let events = translate(stroke)
+            // A repeat can arrive while AX has temporarily selected the source.
+            // Letting it pass would replace that source with the repeated key
+            // before the worker can write. Reset word decisions, but keep the
+            // active replacement and serialize the actual text-editing input.
+            if typist.isBusy, let ticket = inputFocus.ticket,
+               let event = Self.textEditingRepeat(for: stroke),
+               let replay = Self.replayPress(for: stroke, events: [event]) {
+                _ = core.handle(.reset)
+                let navigates = Self.isNavigationBoundary(event)
+                typist.send(replay, ticket: ticket, navigates: navigates)
+                if navigates { queuedNavigation = true }
+                suppressedKeyUps.insert(stroke.keyCode)
+                return .suppress
+            }
             if events.contains(.reset) {
                 inputFocus.invalidate()
                 return .pass
@@ -360,6 +374,7 @@ public final class Engine {
                 if decision == .pass { inputFocus.invalidate() }
                 else { queuedNavigation = true }
             }
+            if decision == .suppress { suppressedKeyUps.insert(stroke.keyCode) }
             return decision
         }
     }
@@ -367,6 +382,18 @@ public final class Engine {
     private static func isNavigationBoundary(_ event: InputEvent) -> Bool {
         if case .boundary(let separator) = event { return separator != " " }
         return false
+    }
+
+    /// Repeats never grow the decision buffer. Only text editing is queued;
+    /// commands, cursor movement and other navigation still cancel ownership.
+    private static func textEditingRepeat(for stroke: KeyStroke) -> InputEvent? {
+        guard stroke.isAutorepeat, !stroke.flags.contains(.maskCommand),
+              !stroke.flags.contains(.maskControl) else { return nil }
+        if stroke.keyCode == backspaceKeyCode { return .backspace }
+        guard stroke.characters.count == 1, let character = stroke.characters.first else { return nil }
+        if boundaryChars.contains(character) { return .boundary(character) }
+        guard !character.unicodeScalars.contains(where: CharacterSet.controlCharacters.contains) else { return nil }
+        return .char(character)
     }
 
     /// Событие для переигрывания нажатия, попавшего в окно перепечатки.
