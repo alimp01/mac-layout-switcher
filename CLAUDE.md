@@ -6,7 +6,7 @@
 исправление, автозапуск, индикатор RU/EN и утка, самообновление, локальная
 диктовка GigaAM v3. Дневника набора нет.
 
-## Текущее состояние — 2026-10-08
+## Текущее состояние — 2026-10-10
 
 Версия v1.4.3, G20: Option и автозамена используют проверяемый keyboard runtime,
 сохранение первого слова/удержанного ввода, переключение пустого поля.
@@ -20,12 +20,24 @@ b/B/z/Z → и/И/я/Я, повторное использование моде�
 Актуальные статусы/доказательства — .autopilot/state.js, manifest.md,
 dictation-insertion-spec.md /dictation-insertion-qa.md, word-coverage-qa.md
 и input-repair-qa.md в каталоге прогона.
-На Mac пользователя установлена1.4.1 (Info.plist проверен08.10); новая1.4.3
-поставляется обновлением/DMG, установленное приложение автоматически не заменяем.
+На Mac пользователя установлена1.4.3 (Info.plist проверен10.10); новая версия
+не выпускалась, установленное приложение автоматически не заменяем.
 Полный Linux XCTest95/95; native panel/adapter/debug/release passed;
 mounted DMG1.4.3 version/codesign/helper проверены;
 G20 keyboard/Typist/recovery panel и оба независимых ревью PASS;
 пользователь сообщил ошибки скриншотами, а не подтвердил полную приёмку.
+
+G21/T24 открыт: пользователь сообщает удаление слова без замены. Причина ещё
+не доказана. Защитный поднабор сохраняет исходник, полную замену и held input
+до явного Close; VERSION остаётся1.4.3, не публиковать как исправление доставки.
+Frozen66file snapshot, native fullspeech, keyboard/CG/notice/G19 harnesses,
+Linux95 и два независимых ревью поднабора PASS. См. deletion-repair-qa.md.
+Живой CUA тест установленной1.4.3: собственный TextEdit ghbdtn+Space→Привет,
+тёплый ChromeMDN textarea ghbdtn+Space→привет. Первый холодный ввод Chrome
+не исправился. В этих полях deletion-only не воспроизведён. Приложение/поле
+пользователя и триггер Option либо автоматика запрошены, ответа пока нет.
+CG→NSEvent→NSTextView harness не доказывает WindowServer delivery. Не менять
+транспорт/clipboard по недоказанной гипотезе и не закрывать G21 по recovery-only.
 
 G20/T23 завершён для1.4.3, код d7b003d. Keyboard Target использует
 общую AX границу G19: bounded bootstrap, direct/Unicode routing, единый

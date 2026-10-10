@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-10T09:26:43.132471+00:00",
+  "updatedAt": "2026-10-10T09:44:20.027236+00:00",
   "finishedAt": null,
   "stages": [
     {
@@ -49,19 +49,19 @@ window.STATE =
       "id": "build",
       "status": "active",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G21 deletion-only repair T24"
+      "note": "G21 защитный поднабор c57e700 проверен; причина/доставка pending user repro"
     },
     {
       "id": "review",
       "status": "pending",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "G21 deletion-only repair T24"
+      "note": "Spec+Standards approved защитный поднабор; fullG21 spec incomplete"
     },
     {
       "id": "final",
       "status": "pending",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "G21 deletion-only repair T24"
+      "note": "НетVERSION bump/publish: deletion-only cause/delivery not demonstrated"
     }
   ],
   "requirements": {
@@ -669,14 +669,26 @@ window.STATE =
       ],
       "retries": 0,
       "repairs": 0,
-      "handoffs": 0
+      "handoffs": 0,
+      "partialCommit": "c57e700f9f44f62dd79d2576e88300d994932ccb",
+      "validation": "Frozen66files exact; native fullspeech/CG/keyboard/notice/G19 PASS; rootLinux95 PASS; actual installed1.4.3 TextEdit and warmChrome delivery PASS, userdeletion not reproduced",
+      "tests": {
+        "passed": 95,
+        "failed": 0
+      },
+      "review": {
+        "spec": "partial",
+        "standards": "approved",
+        "scope": "Defensive recovery approved on both axes; fullG21 delivery pending"
+      },
+      "note": "Awaiting exact affected app/field and Option versus automatic trigger; no release, VERSION1.4.3"
     }
   ],
   "singlePass": null,
   "tests": {
     "passed": 95,
     "failed": 0,
-    "note": "Linux actual53file snapshot identical; native panel/adapter + debug/release/DMG passed. No live usereditor/microphone testing."
+    "note": "G21 frozen66file payload rootLinux95PASS; native fullspeech+CG/keyboard/notice/G19 PASS. OwnedTextEdit/warmChrome actual installed1.4.3 PASS; no microphone/privateeditor/TCC forcing."
   },
   "debt": {
     "placeholders": [],
@@ -765,7 +777,8 @@ window.STATE =
     "T08 Hotkey.swift — rightCommand/rightOption/... в модели, но не порождаются (Engine и рекордер схлопывают лево/право); speculative generality; условие: либо различать, либо убрать кейсы",
     "T08 HotkeyRecorderWindow — рекордер записывает голый печатный keyDown (напр. «K»), который под .listenOnly и сработает, и напечатается; условие: отклонять/предупреждать голый печатный keyCode",
     "T08 HotkeyTests/HotkeyEngineTests — @testable import избыточен; условие: обычный import",
-    "2026-09-16: baseline swift build успешен на macOS15.6.1 arm64; swift test на Mac blocked: CLT без XCTest. Тесты выполнять на доступном claudebot-server (Swift6.0.3). v1.2.0 ручная приёмка ещё не выполнена."
+    "2026-09-16: baseline swift build успешен на macOS15.6.1 arm64; swift test на Mac blocked: CLT без XCTest. Тесты выполнять на доступном claudebot-server (Swift6.0.3). v1.2.0 ручная приёмка ещё не выполнена.",
+    "G21 2026-10-10: user reports deletion-only in installed1.4.3. Source/replacement recovery committed locally, but cause/delivery notfixed or released. Need exactapp/field and Option/automatic repro; do notclose bymockPASS. Actual ownedTextEdit/warmChrome autoPASS."
   ],
   "reviewers": {
     "manifestSpec": "a3373fd28e916b546",
@@ -789,12 +802,17 @@ window.STATE =
       "spec": "review_dictation_spec",
       "standards": "review_dictation_standards",
       "result": "Both final approved, no blocking findings; liveAX/CG and notification-window limitations documented"
+    },
+    "G21": {
+      "spec": "review_deletion_spec",
+      "standards": "review_deletion_standards",
+      "result": "Defensive subset safe tocommit, no blockers; fullG21 reproduction/delivery incomplete"
     }
   },
   "blind": {
     "run": "95Linux; keyboard/Typist/recovery panel; G19 adapter/panel; fullspeech release; mounted DMG PASS",
     "verdict": "G20 implemented/reviewed VERSION1.4.3",
-    "note": "Installed1.4.1 unchanged; Mac locked during final checks; liveOption/Codex pending; no private-field or mic testing",
+    "note": "HistoricalG20 locked-session limitation; now installed1.4.3 confirmed10.10, ownedTextEdit/warmChrome automaticPASS; modifier-onlyOption/Codex actualdelivery stillpending",
     "drift": []
   },
   "manualAcceptance": {
@@ -843,7 +861,18 @@ window.STATE =
     "review": "Spec+Standards approved",
     "native": "Production Target/Typist + mock AX/CG and owned NSTextView; recovery NSPanel headless",
     "scope": "Lazy capture, same-snapshot source, readback, selection RPC uncertainty, fastinput retention, Option fallback",
-    "live": "pending; locked session, CUA cannot press modifier-only Option",
+    "live": "Installed1.4.3 actualCUA TextEdit+warmChrome autoPASS10.10; user-specific deletion and modifier-onlyOption pending",
     "coldLimit": "First separator before any AX capture passes without late correction; explicit Option may recover word"
+  },
+  "deletionRepairAudit": {
+    "partialCommit": "c57e700f9f44f62dd79d2576e88300d994932ccb",
+    "snapshot": "/tmp/mls-g21-native.3fapzn4w",
+    "files": 66,
+    "linux": "/tmp/mls-g21-tests.fKQES6",
+    "cause": "Unproved; exactuserapp/triggerquestionpending",
+    "transport": "Unchanged productionpostToPid; realCG/NSEvent harness injects finalpost, notWindowServerproof",
+    "recovery": "Original+completeplannedreplacement+heldinput preserveduntilClose",
+    "review": "Both approve defensive subset only",
+    "release": "None; VERSION1.4.3 unchanged"
   }
 }
