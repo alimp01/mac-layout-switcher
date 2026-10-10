@@ -1,0 +1,2 @@
+"disk8" ejected.
+{"version": "1.4.6", "artifact": "MacLayoutSwitcher-1.4.6.dmg", "sha256": "0571ae808a108550662b10decc38600b9df0519e81b383b79be19abaaa40e326", "bytes": 10966502, "binarySHA256": "cff40179237f82900269144880096325e4f71bf5147b9bb0c6465b60d8ca655f", "mountedVerification": "version/helper/deepstrict/Applications symlink/main binary exact PASS", "speechAcceptance": "manual Codex pending"}

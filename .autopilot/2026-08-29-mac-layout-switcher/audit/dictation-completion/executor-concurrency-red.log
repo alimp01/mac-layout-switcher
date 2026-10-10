@@ -1,0 +1,3 @@
+Sources snapshot: /tmp/mls-dictation-completion.pzBxuG
+FAIL: sampled foreign state did not cancel permanently
+sampled foreign AXValue / first confirmWrite: result=inserted posts=3 allowed=true value="Давай проверим, работает ли вставка."

@@ -1,0 +1,34 @@
+==> swift build -c release
+Building for production...
+[0/10] Write sources
+[3/10] Copying libgigastt_ffi.a
+[5/10] Write swift-version--1AB21518FC5DEDBE.txt
+[7/12] Compiling GigaSTT GigaSTT.swift
+[8/13] Compiling SwitcherCore Detector.swift
+[9/14] Compiling SpeechRecognizer main.swift
+[9/14] Write Objects.LinkFileList
+[10/14] Linking SpeechRecognizer
+[12/14] Compiling MacLayoutSwitcher Config.swift
+[12/14] Write Objects.LinkFileList
+[13/14] Linking MacLayoutSwitcher
+Build complete! (64.68s)
+==> Собираю бандл /tmp/mls-g23-approved-dist/MacLayoutSwitcher.app
+/tmp/mls-g23-approved-dist/MacLayoutSwitcher.app/Contents/Helpers/SpeechRecognizer: replacing existing signature
+==> codesign (ad-hoc)
+/tmp/mls-g23-approved-dist/MacLayoutSwitcher.app: replacing existing signature
+
+Готово: /tmp/mls-g23-approved-dist/MacLayoutSwitcher.app
+
+Первый запуск:
+  1. Открыть приложение: open "/tmp/mls-g23-approved-dist/MacLayoutSwitcher.app"
+     (ad-hoc подпись — Gatekeeper может ругнуться: правый клик по .app → «Открыть».)
+  2. Выдать разрешения по подсказке приложения:
+       Системные настройки → Конфиденциальность и безопасность →
+         • Универсальный доступ (Accessibility)
+         • Мониторинг ввода (Input Monitoring)
+     Включить «MacLayoutSwitcher» в обоих списках.
+  3. Перезапустить приложение (пункт меню-бара «Я выдал разрешения»).
+
+Иконка появится в меню-баре (клавиатура). Dock-иконки нет — это ожидаемо.
+
+Для .dmg-дистрибутива (установка перетаскиванием в «Программы»): ./build-dmg.sh

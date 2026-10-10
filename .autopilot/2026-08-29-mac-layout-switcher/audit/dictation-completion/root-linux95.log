@@ -1,0 +1,301 @@
+Building for debugging...
+[0/17] Write sources
+[3/17] Write swift-version--23A62BF5FB5B888A.txt
+[5/28] Emitting module SwitcherCore
+[6/31] Compiling SwitcherCore Lang.swift
+[7/31] Compiling SwitcherCore ReplacementSource.swift
+[8/31] Compiling SwitcherCore SemVer.swift
+[9/31] Compiling SwitcherCore ShortWords.swift
+[10/31] Compiling SwitcherCore SnippetStore.swift
+[11/31] Compiling SwitcherCore WordBuffer.swift
+[12/31] Compiling SwitcherCore Detector.swift
+[13/31] Compiling SwitcherCore DetectorBigrams.swift
+[14/31] Compiling SwitcherCore DictationSession.swift
+[15/31] Compiling SwitcherCore EngineCore.swift
+[16/31] Compiling SwitcherCore Hotkey.swift
+[17/31] Compiling SwitcherCore InputReplayPolicy.swift
+[18/31] Compiling SwitcherCore KeyMap.swift
+[19/32] Wrapping AST for SwitcherCore for debugging
+[21/62] Emitting module MacLayoutSwitcher
+[22/68] Compiling MacLayoutSwitcher SecureInput.swift
+[23/68] Compiling MacLayoutSwitcher SelectionConverter.swift
+[24/68] Compiling MacLayoutSwitcher SpeechModelStore.swift
+[25/68] Compiling MacLayoutSwitcher SpeechRecognitionProcess.swift
+[26/68] Compiling MacLayoutSwitcher Typist.swift
+[27/68] Compiling MacLayoutSwitcher Updater.swift
+[28/68] Compiling MacLayoutSwitcher InputFocusGuard.swift
+[29/68] Compiling MacLayoutSwitcher KeyStroke.swift
+[30/68] Compiling MacLayoutSwitcher KeyTranslator.swift
+[31/68] Compiling MacLayoutSwitcher LayoutSwitcher.swift
+[32/68] Compiling MacLayoutSwitcher LoginItem.swift
+[33/68] Compiling MacLayoutSwitcher Permissions.swift
+[34/68] Compiling MacLayoutSwitcher Config.swift
+[35/68] Compiling MacLayoutSwitcher Engine.swift
+[36/68] Compiling MacLayoutSwitcher DictationCoordinator.swift
+[37/68] Compiling MacLayoutSwitcher DictationRecorder.swift
+[38/68] Compiling MacLayoutSwitcher DictationTarget.swift
+[39/68] Compiling MacLayoutSwitcher EventTap.swift
+[40/68] Compiling SwitcherCoreTests KeyMapTests.swift
+[41/68] Compiling MacLayoutSwitcher ConversionNotice.swift
+[42/68] Compiling MacLayoutSwitcher DictationPanel.swift
+[43/68] Compiling MacLayoutSwitcher HotkeyRecorderWindow.swift
+[44/68] Compiling MacLayoutSwitcher Sounds.swift
+[45/68] Compiling MacLayoutSwitcher StatusBarUI.swift
+[46/68] Compiling MacLayoutSwitcher main.swift
+[47/69] Wrapping AST for MacLayoutSwitcher for debugging
+[48/69] Write Objects.LinkFileList
+[50/69] Emitting module SwitcherCoreTests
+[50/72] Linking MacLayoutSwitcher
+[61/72] Compiling SwitcherCoreTests SnippetStoreTests.swift
+[62/72] Compiling SwitcherCoreTests WordBufferTests.swift
+[63/72] Compiling SwitcherCoreTests WordCoverageTests.swift
+[64/73] /tmp/mls-g23-linux-5u2fjkwl/mac-layout-switcher/.build/x86_64-unknown-linux-gnu/debug/MacLayoutSwitcherPackageDiscoveredTests.derived/all-discovered-tests.swift
+[65/73] Write sources
+[66/73] Wrapping AST for SwitcherCoreTests for debugging
+[68/76] Compiling MacLayoutSwitcherPackageDiscoveredTests all-discovered-tests.swift
+[69/76] Emitting module MacLayoutSwitcherPackageDiscoveredTests
+[70/76] Compiling MacLayoutSwitcherPackageDiscoveredTests SwitcherCoreTests.swift
+[71/77] /tmp/mls-g23-linux-5u2fjkwl/mac-layout-switcher/.build/x86_64-unknown-linux-gnu/debug/MacLayoutSwitcherPackageTests.derived/runner.swift
+[72/77] Write sources
+[73/77] Wrapping AST for MacLayoutSwitcherPackageDiscoveredTests for debugging
+[75/79] Emitting module MacLayoutSwitcherPackageTests
+[76/79] Compiling MacLayoutSwitcherPackageTests runner.swift
+[77/80] Wrapping AST for MacLayoutSwitcherPackageTests for debugging
+[78/80] Write Objects.LinkFileList
+[79/80] Linking MacLayoutSwitcherPackageTests.xctest
+Build complete! (9.06s)
+Test Suite 'All tests' started at 2026-10-10 16:46:28.308
+Test Suite 'debug.xctest' started at 2026-10-10 16:46:28.309
+Test Suite 'DetectorTests' started at 2026-10-10 16:46:28.309
+Test Case 'DetectorTests.testCollisionsAreResolvedByContextOfPreviousWord' started at 2026-10-10 16:46:28.309
+Test Case 'DetectorTests.testCollisionsAreResolvedByContextOfPreviousWord' passed (0.002 seconds)
+Test Case 'DetectorTests.testCorpusDetectsWrongLayoutWords' started at 2026-10-10 16:46:28.311
+Test Case 'DetectorTests.testCorpusDetectsWrongLayoutWords' passed (0.001 seconds)
+Test Case 'DetectorTests.testCorpusNoFalsePositivesOnValidWords' started at 2026-10-10 16:46:28.312
+Test Case 'DetectorTests.testCorpusNoFalsePositivesOnValidWords' passed (0.001 seconds)
+Test Case 'DetectorTests.testExclusionsSilenceVerdictAndSurviveReload' started at 2026-10-10 16:46:28.313
+Test Case 'DetectorTests.testExclusionsSilenceVerdictAndSurviveReload' passed (0.003 seconds)
+Test Case 'DetectorTests.testLoadOfMissingOrCorruptFileMeansEmptyExclusions' started at 2026-10-10 16:46:28.316
+Test Case 'DetectorTests.testLoadOfMissingOrCorruptFileMeansEmptyExclusions' passed (0.002 seconds)
+Test Case 'DetectorTests.testShortMixedAndDigitWordsAreUnsure' started at 2026-10-10 16:46:28.318
+Test Case 'DetectorTests.testShortMixedAndDigitWordsAreUnsure' passed (0.0 seconds)
+Test Case 'DetectorTests.testShortRussianWordsTypedInEnAreDetected' started at 2026-10-10 16:46:28.318
+Test Case 'DetectorTests.testShortRussianWordsTypedInEnAreDetected' passed (0.0 seconds)
+Test Case 'DetectorTests.testShortWordCaseSurvivesConversionEndToEnd' started at 2026-10-10 16:46:28.318
+Test Case 'DetectorTests.testShortWordCaseSurvivesConversionEndToEnd' passed (0.0 seconds)
+Test Case 'DetectorTests.testSingleLetterWordsRespectConfirmingContext' started at 2026-10-10 16:46:28.319
+Test Case 'DetectorTests.testSingleLetterWordsRespectConfirmingContext' passed (0.0 seconds)
+Test Case 'DetectorTests.testValidShortWordsAreLeftAloneWithoutContext' started at 2026-10-10 16:46:28.319
+Test Case 'DetectorTests.testValidShortWordsAreLeftAloneWithoutContext' passed (0.0 seconds)
+Test Suite 'DetectorTests' passed at 2026-10-10 16:46:28.319
+	 Executed 10 tests, with 0 failures (0 unexpected) in 0.01 (0.01) seconds
+Test Suite 'DictationTests' started at 2026-10-10 16:46:28.319
+Test Case 'DictationTests.testFailureEmptyResultAndRetry' started at 2026-10-10 16:46:28.319
+Test Case 'DictationTests.testFailureEmptyResultAndRetry' passed (0.0 seconds)
+Test Case 'DictationTests.testHoldGestureSuppressesAutorepeatAndMatchingKeyUpAfterModifierRelease' started at 2026-10-10 16:46:28.319
+Test Case 'DictationTests.testHoldGestureSuppressesAutorepeatAndMatchingKeyUpAfterModifierRelease' passed (0.0 seconds)
+Test Case 'DictationTests.testHoldReleaseAndLateCompletion' started at 2026-10-10 16:46:28.320
+Test Case 'DictationTests.testHoldReleaseAndLateCompletion' passed (0.0 seconds)
+Test Case 'DictationTests.testHotkeyValidationRejectsBareKeysAndOverlappingModifierGestures' started at 2026-10-10 16:46:28.320
+Test Case 'DictationTests.testHotkeyValidationRejectsBareKeysAndOverlappingModifierGestures' passed (0.0 seconds)
+Test Case 'DictationTests.testMissedModifierReleaseDoesNotConsumeAnUnrelatedKey' started at 2026-10-10 16:46:28.320
+Test Case 'DictationTests.testMissedModifierReleaseDoesNotConsumeAnUnrelatedKey' passed (0.0 seconds)
+Test Case 'DictationTests.testModelControlCharactersCannotSubmitOrTabAway' started at 2026-10-10 16:46:28.321
+Test Case 'DictationTests.testModelControlCharactersCannotSubmitOrTabAway' passed (0.0 seconds)
+Test Case 'DictationTests.testModifierOnlyHoldAndEscapeCannotRestartUntilRelease' started at 2026-10-10 16:46:28.321
+Test Case 'DictationTests.testModifierOnlyHoldAndEscapeCannotRestartUntilRelease' passed (0.0 seconds)
+Test Case 'DictationTests.testReleaseBeforeMicrophoneStartsNeverRecords' started at 2026-10-10 16:46:28.321
+Test Case 'DictationTests.testReleaseBeforeMicrophoneStartsNeverRecords' passed (0.0 seconds)
+Test Case 'DictationTests.testRepeatedPressDoesNotRestartSession' started at 2026-10-10 16:46:28.321
+Test Case 'DictationTests.testRepeatedPressDoesNotRestartSession' passed (0.0 seconds)
+Test Case 'DictationTests.testResetAfterDictationPreventsUndoAndNextSpaceCorrection' started at 2026-10-10 16:46:28.321
+Test Case 'DictationTests.testResetAfterDictationPreventsUndoAndNextSpaceCorrection' passed (0.0 seconds)
+Test Case 'DictationTests.testResetAfterLostKeyUpPreservesOrdinarySpaceAndNextHold' started at 2026-10-10 16:46:28.322
+Test Case 'DictationTests.testResetAfterLostKeyUpPreservesOrdinarySpaceAndNextHold' passed (0.1 seconds)
+Test Case 'DictationTests.testResetClearsCancelledModifierHoldAwaitingUnobservedRelease' started at 2026-10-10 16:46:28.422
+Test Case 'DictationTests.testResetClearsCancelledModifierHoldAwaitingUnobservedRelease' passed (0.0 seconds)
+Test Case 'DictationTests.testSetupCompletionRequiresNewHoldEvenWhenStillHeld' started at 2026-10-10 16:46:28.422
+Test Case 'DictationTests.testSetupCompletionRequiresNewHoldEvenWhenStillHeld' passed (0.0 seconds)
+Test Suite 'DictationTests' passed at 2026-10-10 16:46:28.423
+	 Executed 13 tests, with 0 failures (0 unexpected) in 0.103 (0.103) seconds
+Test Suite 'EngineCoreTests' started at 2026-10-10 16:46:28.423
+Test Case 'EngineCoreTests.testAutoSwitchOffSilencesDetectorButOptionStillWorks' started at 2026-10-10 16:46:28.423
+Test Case 'EngineCoreTests.testAutoSwitchOffSilencesDetectorButOptionStillWorks' passed (0.0 seconds)
+Test Case 'EngineCoreTests.testCorrectionOnlyAtWordBoundaryNotMidWord' started at 2026-10-10 16:46:28.423
+Test Case 'EngineCoreTests.testCorrectionOnlyAtWordBoundaryNotMidWord' passed (0.0 seconds)
+Test Case 'EngineCoreTests.testLegacyModeKeepsAlreadyTypedSeparatorInReplacement' started at 2026-10-10 16:46:28.423
+Test Case 'EngineCoreTests.testLegacyModeKeepsAlreadyTypedSeparatorInReplacement' passed (0.0 seconds)
+Test Case 'EngineCoreTests.testOptionConvertsInProgressWordAndTogglesBack' started at 2026-10-10 16:46:28.423
+Test Case 'EngineCoreTests.testOptionConvertsInProgressWordAndTogglesBack' passed (0.101 seconds)
+Test Case 'EngineCoreTests.testOptionConvertsLastCompletedWord' started at 2026-10-10 16:46:28.524
+Test Case 'EngineCoreTests.testOptionConvertsLastCompletedWord' passed (0.101 seconds)
+Test Case 'EngineCoreTests.testOptionOutsideWindowDoesNotUndo' started at 2026-10-10 16:46:28.624
+Test Case 'EngineCoreTests.testOptionOutsideWindowDoesNotUndo' passed (0.0 seconds)
+Test Case 'EngineCoreTests.testOptionUndoesAutoCorrectionWithinWindowAndExcludes' started at 2026-10-10 16:46:28.625
+Test Case 'EngineCoreTests.testOptionUndoesAutoCorrectionWithinWindowAndExcludes' passed (0.0 seconds)
+Test Case 'EngineCoreTests.testPausedStaysSilentAndDoesNotBuffer' started at 2026-10-10 16:46:28.625
+Test Case 'EngineCoreTests.testPausedStaysSilentAndDoesNotBuffer' passed (0.0 seconds)
+Test Case 'EngineCoreTests.testResetPreventsCorrection' started at 2026-10-10 16:46:28.625
+Test Case 'EngineCoreTests.testResetPreventsCorrection' passed (0.0 seconds)
+Test Case 'EngineCoreTests.testSnippetExpansionTakesPriorityOverDetector' started at 2026-10-10 16:46:28.625
+Test Case 'EngineCoreTests.testSnippetExpansionTakesPriorityOverDetector' passed (0.002 seconds)
+Test Case 'EngineCoreTests.testUndoBelowThresholdDoesNotExcludeButStillCorrects' started at 2026-10-10 16:46:28.627
+Test Case 'EngineCoreTests.testUndoBelowThresholdDoesNotExcludeButStillCorrects' passed (0.0 seconds)
+Test Case 'EngineCoreTests.testUndoCountsAreIndependentPerWordAndCaseInsensitive' started at 2026-10-10 16:46:28.627
+Test Case 'EngineCoreTests.testUndoCountsAreIndependentPerWordAndCaseInsensitive' passed (0.101 seconds)
+Test Case 'EngineCoreTests.testUndoThresholdOfOneReproducesImmediateExclusion' started at 2026-10-10 16:46:28.728
+Test Case 'EngineCoreTests.testUndoThresholdOfOneReproducesImmediateExclusion' passed (0.1 seconds)
+Test Case 'EngineCoreTests.testValidWordIsLeftUntouched' started at 2026-10-10 16:46:28.828
+Test Case 'EngineCoreTests.testValidWordIsLeftUntouched' passed (0.0 seconds)
+Test Case 'EngineCoreTests.testWrongLayoutWordIsCorrectedBeforeSeparatorIsDelivered' started at 2026-10-10 16:46:28.829
+Test Case 'EngineCoreTests.testWrongLayoutWordIsCorrectedBeforeSeparatorIsDelivered' passed (0.0 seconds)
+Test Suite 'EngineCoreTests' passed at 2026-10-10 16:46:28.829
+	 Executed 15 tests, with 0 failures (0 unexpected) in 0.406 (0.406) seconds
+Test Suite 'HotkeyEngineTests' started at 2026-10-10 16:46:28.829
+Test Case 'HotkeyEngineTests.testConvertReproducesManualOption' started at 2026-10-10 16:46:28.829
+Test Case 'HotkeyEngineTests.testConvertReproducesManualOption' passed (0.0 seconds)
+Test Case 'HotkeyEngineTests.testConvertUndoStillHitsThresholdFromTask06' started at 2026-10-10 16:46:28.829
+Test Case 'HotkeyEngineTests.testConvertUndoStillHitsThresholdFromTask06' passed (0.0 seconds)
+Test Case 'HotkeyEngineTests.testToggleAutoFlipsAutoSwitch' started at 2026-10-10 16:46:28.829
+Test Case 'HotkeyEngineTests.testToggleAutoFlipsAutoSwitch' passed (0.0 seconds)
+Test Case 'HotkeyEngineTests.testToggleAutoOffThenBoundaryDoesNotAutoCorrect' started at 2026-10-10 16:46:28.830
+Test Case 'HotkeyEngineTests.testToggleAutoOffThenBoundaryDoesNotAutoCorrect' passed (0.0 seconds)
+Test Case 'HotkeyEngineTests.testToggleAutoWorksEvenWhenPaused' started at 2026-10-10 16:46:28.830
+Test Case 'HotkeyEngineTests.testToggleAutoWorksEvenWhenPaused' passed (0.0 seconds)
+Test Suite 'HotkeyEngineTests' passed at 2026-10-10 16:46:28.830
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'HotkeyTests' started at 2026-10-10 16:46:28.830
+Test Case 'HotkeyTests.testCapsLockSingleModifier' started at 2026-10-10 16:46:28.830
+Test Case 'HotkeyTests.testCapsLockSingleModifier' passed (0.0 seconds)
+Test Case 'HotkeyTests.testCodableRoundTrip' started at 2026-10-10 16:46:28.830
+Test Case 'HotkeyTests.testCodableRoundTrip' passed (0.001 seconds)
+Test Case 'HotkeyTests.testDefaultConvertIsOption' started at 2026-10-10 16:46:28.831
+Test Case 'HotkeyTests.testDefaultConvertIsOption' passed (0.0 seconds)
+Test Case 'HotkeyTests.testDisplayName' started at 2026-10-10 16:46:28.831
+Test Case 'HotkeyTests.testDisplayName' passed (0.0 seconds)
+Test Case 'HotkeyTests.testEquatable' started at 2026-10-10 16:46:28.831
+Test Case 'HotkeyTests.testEquatable' passed (0.0 seconds)
+Test Case 'HotkeyTests.testKeyWithModifiersMatches' started at 2026-10-10 16:46:28.832
+Test Case 'HotkeyTests.testKeyWithModifiersMatches' passed (0.0 seconds)
+Test Case 'HotkeyTests.testSingleModifierMatchesExactlyAndNotWithExtraKeys' started at 2026-10-10 16:46:28.832
+Test Case 'HotkeyTests.testSingleModifierMatchesExactlyAndNotWithExtraKeys' passed (0.0 seconds)
+Test Suite 'HotkeyTests' passed at 2026-10-10 16:46:28.832
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
+Test Suite 'InputIntegrityTests' started at 2026-10-10 16:46:28.832
+Test Case 'InputIntegrityTests.testEnglishContextAndUserExclusionsPreserveSingleLetterLabels' started at 2026-10-10 16:46:28.832
+Test Case 'InputIntegrityTests.testEnglishContextAndUserExclusionsPreserveSingleLetterLabels' passed (0.0 seconds)
+Test Case 'InputIntegrityTests.testFailedUndoDoesNotTeachExclusionOrKeepStaleRegion' started at 2026-10-10 16:46:28.832
+Test Case 'InputIntegrityTests.testFailedUndoDoesNotTeachExclusionOrKeepStaleRegion' passed (0.0 seconds)
+Test Case 'InputIntegrityTests.testFreshContextCorrectsOriginalSingleLetterRegressionAtBoundary' started at 2026-10-10 16:46:28.833
+Test Case 'InputIntegrityTests.testFreshContextCorrectsOriginalSingleLetterRegressionAtBoundary' passed (0.0 seconds)
+Test Case 'InputIntegrityTests.testOldFailedTransactionCannotClearNewFieldBuffer' started at 2026-10-10 16:46:28.833
+Test Case 'InputIntegrityTests.testOldFailedTransactionCannotClearNewFieldBuffer' passed (0.0 seconds)
+Test Case 'InputIntegrityTests.testOldWordCannotBeRestoredAfterClickNavigationOrPause' started at 2026-10-10 16:46:28.833
+Test Case 'InputIntegrityTests.testOldWordCannotBeRestoredAfterClickNavigationOrPause' passed (0.0 seconds)
+Test Case 'InputIntegrityTests.testOzonAndCorrectSingleLettersAreNeverChanged' started at 2026-10-10 16:46:28.833
+Test Case 'InputIntegrityTests.testOzonAndCorrectSingleLettersAreNeverChanged' passed (0.0 seconds)
+Test Case 'InputIntegrityTests.testPhysicalKeysFollowDeliveredTabButNeverAnUnrelatedClick' started at 2026-10-10 16:46:28.834
+Test Case 'InputIntegrityTests.testPhysicalKeysFollowDeliveredTabButNeverAnUnrelatedClick' passed (0.0 seconds)
+Test Case 'InputIntegrityTests.testReplacementCarriesExactSourceForExecutorValidation' started at 2026-10-10 16:46:28.834
+Test Case 'InputIntegrityTests.testReplacementCarriesExactSourceForExecutorValidation' passed (0.0 seconds)
+Test Case 'InputIntegrityTests.testReplacementSourceRejectsSelectionMissingTextAndStalePrefix' started at 2026-10-10 16:46:28.834
+Test Case 'InputIntegrityTests.testReplacementSourceRejectsSelectionMissingTextAndStalePrefix' passed (0.0 seconds)
+Test Case 'InputIntegrityTests.testResetForgetsLanguageAndOldWordBeforeNewField' started at 2026-10-10 16:46:28.834
+Test Case 'InputIntegrityTests.testResetForgetsLanguageAndOldWordBeforeNewField' passed (0.0 seconds)
+Test Case 'InputIntegrityTests.testSubmissionDoesNotLeaveOldUndoInNewInput' started at 2026-10-10 16:46:28.834
+Test Case 'InputIntegrityTests.testSubmissionDoesNotLeaveOldUndoInNewInput' passed (0.0 seconds)
+Test Suite 'InputIntegrityTests' passed at 2026-10-10 16:46:28.835
+	 Executed 11 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
+Test Suite 'KeyMapTests' started at 2026-10-10 16:46:28.835
+Test Case 'KeyMapTests.testConvertEnToRuLowercase' started at 2026-10-10 16:46:28.835
+Test Case 'KeyMapTests.testConvertEnToRuLowercase' passed (0.0 seconds)
+Test Case 'KeyMapTests.testConvertKeepsCase' started at 2026-10-10 16:46:28.835
+Test Case 'KeyMapTests.testConvertKeepsCase' passed (0.0 seconds)
+Test Case 'KeyMapTests.testConvertLeavesUnmappedCharactersAlone' started at 2026-10-10 16:46:28.835
+Test Case 'KeyMapTests.testConvertLeavesUnmappedCharactersAlone' passed (0.0 seconds)
+Test Case 'KeyMapTests.testConvertPunctuationKeys' started at 2026-10-10 16:46:28.835
+Test Case 'KeyMapTests.testConvertPunctuationKeys' passed (0.0 seconds)
+Test Case 'KeyMapTests.testConvertRuToEnLowercase' started at 2026-10-10 16:46:28.835
+Test Case 'KeyMapTests.testConvertRuToEnLowercase' passed (0.0 seconds)
+Test Case 'KeyMapTests.testSelectionConversionMapsPhysicalPunctuationKeys' started at 2026-10-10 16:46:28.835
+Test Case 'KeyMapTests.testSelectionConversionMapsPhysicalPunctuationKeys' passed (0.0 seconds)
+Test Case 'KeyMapTests.testSelectionConversionPreservesMultilineCaseAndUnknownCharacters' started at 2026-10-10 16:46:28.835
+Test Case 'KeyMapTests.testSelectionConversionPreservesMultilineCaseAndUnknownCharacters' passed (0.0 seconds)
+Test Case 'KeyMapTests.testSelectionConversionUsesEnglishForMappedCyrillicEvenInMixedText' started at 2026-10-10 16:46:28.836
+Test Case 'KeyMapTests.testSelectionConversionUsesEnglishForMappedCyrillicEvenInMixedText' passed (0.0 seconds)
+Test Suite 'KeyMapTests' passed at 2026-10-10 16:46:28.836
+	 Executed 8 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'SemVerTests' started at 2026-10-10 16:46:28.836
+Test Case 'SemVerTests.testDifferentLength' started at 2026-10-10 16:46:28.836
+Test Case 'SemVerTests.testDifferentLength' passed (0.0 seconds)
+Test Case 'SemVerTests.testEqual' started at 2026-10-10 16:46:28.836
+Test Case 'SemVerTests.testEqual' passed (0.0 seconds)
+Test Case 'SemVerTests.testGarbageComponentIsZero' started at 2026-10-10 16:46:28.836
+Test Case 'SemVerTests.testGarbageComponentIsZero' passed (0.0 seconds)
+Test Case 'SemVerTests.testGreaterAndLess' started at 2026-10-10 16:46:28.836
+Test Case 'SemVerTests.testGreaterAndLess' passed (0.0 seconds)
+Test Case 'SemVerTests.testNumericNotLexicographic' started at 2026-10-10 16:46:28.836
+Test Case 'SemVerTests.testNumericNotLexicographic' passed (0.0 seconds)
+Test Case 'SemVerTests.testTrimsWhitespace' started at 2026-10-10 16:46:28.837
+Test Case 'SemVerTests.testTrimsWhitespace' passed (0.0 seconds)
+Test Suite 'SemVerTests' passed at 2026-10-10 16:46:28.837
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'ShortWordsTests' started at 2026-10-10 16:46:28.837
+Test Case 'ShortWordsTests.testCollisionSetIsExactlyTheDocumentedOne' started at 2026-10-10 16:46:28.837
+Test Case 'ShortWordsTests.testCollisionSetIsExactlyTheDocumentedOne' passed (0.001 seconds)
+Test Case 'ShortWordsTests.testContainsIsCaseInsensitive' started at 2026-10-10 16:46:28.838
+Test Case 'ShortWordsTests.testContainsIsCaseInsensitive' passed (0.0 seconds)
+Test Case 'ShortWordsTests.testDictionariesAreLargeEnoughAndShort' started at 2026-10-10 16:46:28.838
+Test Case 'ShortWordsTests.testDictionariesAreLargeEnoughAndShort' passed (0.0 seconds)
+Test Suite 'ShortWordsTests' passed at 2026-10-10 16:46:28.838
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'SnippetStoreTests' started at 2026-10-10 16:46:28.838
+Test Case 'SnippetStoreTests.testCorruptJSONMeansEmptySet' started at 2026-10-10 16:46:28.838
+Test Case 'SnippetStoreTests.testCorruptJSONMeansEmptySet' passed (0.002 seconds)
+Test Case 'SnippetStoreTests.testLoadsSnippetsFromJSONAndExpands' started at 2026-10-10 16:46:28.840
+Test Case 'SnippetStoreTests.testLoadsSnippetsFromJSONAndExpands' passed (0.001 seconds)
+Test Case 'SnippetStoreTests.testMissingFileMeansEmptySet' started at 2026-10-10 16:46:28.841
+Test Case 'SnippetStoreTests.testMissingFileMeansEmptySet' passed (0.0 seconds)
+Test Case 'SnippetStoreTests.testReloadReplacesPreviousSetOnCorruptFile' started at 2026-10-10 16:46:28.842
+Test Case 'SnippetStoreTests.testReloadReplacesPreviousSetOnCorruptFile' passed (0.002 seconds)
+Test Suite 'SnippetStoreTests' passed at 2026-10-10 16:46:28.844
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.006 (0.006) seconds
+Test Suite 'WordBufferTests' started at 2026-10-10 16:46:28.844
+Test Case 'WordBufferTests.testAppendAccumulatesWord' started at 2026-10-10 16:46:28.844
+Test Case 'WordBufferTests.testAppendAccumulatesWord' passed (0.0 seconds)
+Test Case 'WordBufferTests.testBackspaceRemovesLastCharAndSurvivesEmptyWord' started at 2026-10-10 16:46:28.844
+Test Case 'WordBufferTests.testBackspaceRemovesLastCharAndSurvivesEmptyWord' passed (0.0 seconds)
+Test Case 'WordBufferTests.testBoundaryAndResetClearWord' started at 2026-10-10 16:46:28.844
+Test Case 'WordBufferTests.testBoundaryAndResetClearWord' passed (0.0 seconds)
+Test Suite 'WordBufferTests' passed at 2026-10-10 16:46:28.845
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.0 (0.0) seconds
+Test Suite 'WordCoverageTests' started at 2026-10-10 16:46:28.845
+Test Case 'WordCoverageTests.testAuditedLexicalGapsAndValidWordsAcrossCaseAndContext' started at 2026-10-10 16:46:28.845
+Test Case 'WordCoverageTests.testAuditedLexicalGapsAndValidWordsAcrossCaseAndContext' passed (0.017 seconds)
+Test Case 'WordCoverageTests.testEnglishLabelsSurviveThroughTheEngine' started at 2026-10-10 16:46:28.861
+Test Case 'WordCoverageTests.testEnglishLabelsSurviveThroughTheEngine' passed (0.001 seconds)
+Test Case 'WordCoverageTests.testEveryRussianSingleLetterWordUsesTheSameContextRule' started at 2026-10-10 16:46:28.862
+Test Case 'WordCoverageTests.testEveryRussianSingleLetterWordUsesTheSameContextRule' passed (0.001 seconds)
+Test Case 'WordCoverageTests.testExclusionsProtectWholeTokenAndBareCoreAcrossCase' started at 2026-10-10 16:46:28.864
+Test Case 'WordCoverageTests.testExclusionsProtectWholeTokenAndBareCoreAcrossCase' passed (0.002 seconds)
+Test Case 'WordCoverageTests.testIdentifiersMalformedWrappersAndValidPunctuatedWordsStayIntact' started at 2026-10-10 16:46:28.865
+Test Case 'WordCoverageTests.testIdentifiersMalformedWrappersAndValidPunctuatedWordsStayIntact' passed (0.002 seconds)
+Test Case 'WordCoverageTests.testRealCollisionsNeedContextInBothDirections' started at 2026-10-10 16:46:28.867
+Test Case 'WordCoverageTests.testRealCollisionsNeedContextInBothDirections' passed (0.002 seconds)
+Test Case 'WordCoverageTests.testResetPauseAndDisabledAutocorrectionKeepNewTokensUntouched' started at 2026-10-10 16:46:28.869
+Test Case 'WordCoverageTests.testResetPauseAndDisabledAutocorrectionKeepNewTokensUntouched' passed (0.0 seconds)
+Test Case 'WordCoverageTests.testSafeWrappersPreservePhysicalLettersAndLanguageContext' started at 2026-10-10 16:46:28.869
+Test Case 'WordCoverageTests.testSafeWrappersPreservePhysicalLettersAndLanguageContext' passed (0.101 seconds)
+Test Case 'WordCoverageTests.testWrappedCorrectionsKeepExactSourceAndSeparator' started at 2026-10-10 16:46:28.970
+Test Case 'WordCoverageTests.testWrappedCorrectionsKeepExactSourceAndSeparator' passed (0.001 seconds)
+Test Case 'WordCoverageTests.testWrappedUndoLearnsExactTokenAndCanBeDiscarded' started at 2026-10-10 16:46:28.971
+Test Case 'WordCoverageTests.testWrappedUndoLearnsExactTokenAndCanBeDiscarded' passed (0.0 seconds)
+Test Suite 'WordCoverageTests' passed at 2026-10-10 16:46:28.971
+	 Executed 10 tests, with 0 failures (0 unexpected) in 0.127 (0.127) seconds
+Test Suite 'debug.xctest' passed at 2026-10-10 16:46:28.972
+	 Executed 95 tests, with 0 failures (0 unexpected) in 0.66 (0.66) seconds
+Test Suite 'All tests' passed at 2026-10-10 16:46:28.972
+	 Executed 95 tests, with 0 failures (0 unexpected) in 0.66 (0.66) seconds
+◇ Test run started.
+↳ Testing Library Version: 6.0.3 (18c42c19cac3faf)
+✔ Test run with 0 tests passed after 0.001 seconds.

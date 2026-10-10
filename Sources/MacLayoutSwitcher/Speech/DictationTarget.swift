@@ -27,6 +27,32 @@ enum DictationAXChange: Hashable { case focus, selection, value }
 
 enum DictationInsertionResult: Equatable { case inserted, fallback(DictationInsertionFailure) }
 
+/// Preserve the actual AX reads across concurrent publication of write states.
+/// An already sampled foreign value/range must never be replaced by a reread.
+struct DictationFieldState: Equatable {
+    let value: String
+    let range: NSRange
+    init(_ value: String, _ range: CFRange) {
+        self.value = value
+        self.range = NSRange(location: range.location, length: range.length)
+    }
+}
+
+private struct DictationWriteStates {
+    let before: DictationFieldState?
+    let after: [DictationFieldState]
+    func contains(_ state: DictationFieldState) -> Bool {
+        before == state || after.contains(state)
+    }
+    func maySettle(_ state: DictationFieldState) -> Bool {
+        guard let before else { return false }
+        // Separate AX RPCs may expose combinations of this write's known
+        // value/range while it is pending. No other value/range is exempt.
+        return (state.value == before.value || after.contains { $0.value == state.value })
+            && (state.range == before.range || after.contains { $0.range == state.range })
+    }
+}
+
 /// Injectable at the AX system boundary so the exact production capture/write
 /// path can be exercised without accessing any user's editor or granting TCC.
 protocol DictationAccessibility {
@@ -42,6 +68,17 @@ protocol DictationAccessibility {
     func setSelection(_ range: CFRange, in element: AXUIElement) -> Bool
     func setSelectedText(_ text: String, in element: AXUIElement) -> AXError
     func observe(_ element: AXUIElement, pid: pid_t, changed: @escaping (DictationAXChange) -> Void) -> AnyObject?
+    func observe(_ element: AXUIElement, pid: pid_t, received: @escaping (DictationAXChange) -> Bool,
+                 changed: @escaping (DictationAXChange) -> Void) -> AnyObject?
+}
+
+extension DictationAccessibility {
+    func observe(_ element: AXUIElement, pid: pid_t, received: @escaping (DictationAXChange) -> Bool,
+                 changed: @escaping (DictationAXChange) -> Void) -> AnyObject? {
+        observe(element, pid: pid) { change in
+            if received(change) { changed(change) }
+        }
+    }
 }
 
 struct SystemDictationAccessibility: DictationAccessibility {
@@ -132,19 +169,37 @@ struct SystemDictationAccessibility: DictationAccessibility {
         AXUIElementSetAttributeValue(element, kAXSelectedTextAttribute as CFString, text as CFString)
     }
     func observe(_ element: AXUIElement, pid: pid_t, changed: @escaping (DictationAXChange) -> Void) -> AnyObject? {
-        DictationAXObservation(element: element, pid: pid, changed: changed)
+        DictationAXObservation(element: element, pid: pid, received: { _ in true }, changed: changed)
+    }
+    func observe(_ element: AXUIElement, pid: pid_t, received: @escaping (DictationAXChange) -> Bool,
+                 changed: @escaping (DictationAXChange) -> Void) -> AnyObject? {
+        DictationAXObservation(element: element, pid: pid, received: received, changed: changed)
     }
 }
 
 private final class DictationAXObservation {
     private final class Callback {
         let changed: (DictationAXChange) -> Void
-        init(_ changed: @escaping (DictationAXChange) -> Void) { self.changed = changed }
+        let received: (DictationAXChange) -> Bool
+        let queue = DispatchQueue(label: "mls.dictation.ax-notifications", qos: .userInitiated)
+        init(received: @escaping (DictationAXChange) -> Bool, changed: @escaping (DictationAXChange) -> Void) {
+            self.received = received; self.changed = changed
+        }
+        func deliver(_ kind: DictationAXChange) {
+            // Receipt before a write must cancel immediately, even if worker
+            // delivery happens after insertion has started.
+            guard received(kind) else { return }
+            // Focus cancellation needs no AX work. Value/selection validation
+            // reads bounded AX attributes away from the observer's main loop.
+            if kind == .focus { changed(kind) }
+            else { queue.async { self.changed(kind) } }
+        }
     }
     private let callback: Callback
     private var observer: AXObserver?
-    init?(element: AXUIElement, pid: pid_t, changed: @escaping (DictationAXChange) -> Void) {
-        callback = Callback(changed)
+    init?(element: AXUIElement, pid: pid_t, received: @escaping (DictationAXChange) -> Bool,
+          changed: @escaping (DictationAXChange) -> Void) {
+        callback = Callback(received: received, changed: changed)
         var created: AXObserver?
         guard AXObserverCreate(pid, { _, _, notification, context in
             guard let context else { return }
@@ -154,7 +209,7 @@ private final class DictationAXObservation {
             case kAXSelectedTextChangedNotification: kind = .selection
             default: kind = .value
             }
-            Unmanaged<Callback>.fromOpaque(context).takeUnretainedValue().changed(kind)
+            Unmanaged<Callback>.fromOpaque(context).takeUnretainedValue().deliver(kind)
         }, &created) == .success, let created else { return nil }
         observer = created
         let app = AXUIElementCreateApplication(pid)
@@ -225,7 +280,8 @@ struct DictationTarget {
                   (accessibility.selectedTextIsSettable(element) || accessibility.supportsUnicodeInsertion(element)) else {
                 return .unavailable(.unsupportedEditor)
             }
-            guard let observation = accessibility.observe(element, pid: pid, changed: { permit.observedChange($0) }) else {
+            guard let observation = accessibility.observe(element, pid: pid,
+                received: { permit.receiveChange($0) }, changed: { permit.observedChange($0) }) else {
                 return .unavailable(.monitoringUnavailable)
             }
             let target = DictationTarget(element: element, pid: pid, range: range, original: original,
@@ -252,20 +308,36 @@ struct DictationTarget {
         let direct = accessibility.selectedTextIsSettable(element) && !accessibility.prefersUnicodeInsertion(pid: pid)
         guard direct || unicode else { return .fallback(.unsupportedEditor) }
         guard permit.beginWriting(), isCurrent(), permit.isAllowed else { return .fallback(.changed) }
+        defer { permit.endWriting() }
+        // The validator owns only the system boundary and element, never the
+        // observation which owns the permit's callback.
+        let ax = accessibility, destination = element, destinationPID = pid
+        let readSnapshot: () -> DictationFieldState? = {
+            Self.fieldState(element: destination, pid: destinationPID, accessibility: ax)
+        }
         if direct {
             let expected = replacing(original, range: range, with: text)
             // A timeout can still have applied the mutation. Read back, never
             // retry or switch to synthetic typing after an attempted AX write.
-            guard permit.expectWrite() else { return .fallback(.changed) }
+            let end = range.location + text.utf16.count
+            let replacedSelection = CFRange(location: range.location, length: text.utf16.count)
+            let caret = CFRange(location: end, length: 0)
+            guard permit.expectWrite(before: DictationFieldState(original, range),
+                after: [DictationFieldState(expected, replacedSelection), DictationFieldState(expected, caret)],
+                readSnapshot: readSnapshot) else { return .fallback(.changed) }
+            guard permit.isAllowed, readSnapshot() == DictationFieldState(original, range), permit.isAllowed else {
+                permit.cancel(); return .fallback(.changed)
+            }
             _ = accessibility.setSelectedText(text, in: element)
             let confirmed = confirm(expected)
             guard confirmed else { return .fallback(.unconfirmed) }
-            let end = range.location + text.utf16.count
             if permit.isAllowed, isFocused(),
                let selected = Self.selection(element, accessibility),
                selected.location == range.location, selected.length == text.utf16.count {
                 _ = accessibility.setSelection(CFRange(location: end, length: 0), in: element)
             }
+            guard permit.isAllowed, isFocused(), confirm(expected, caret: end),
+                  permit.confirmWrite(DictationFieldState(expected, caret)) else { return .fallback(.unconfirmed) }
             return .inserted
         }
         // Editors may expose selection/value without an AXSelectedText setter. Send
@@ -279,10 +351,20 @@ struct DictationTarget {
                   Self.selection(element, accessibility).map({ $0.location == selected.location && $0.length == selected.length }) == true,
                   permit.isAllowed else { return .fallback(.unconfirmed) }
             let expected = replacing(value, range: selected, with: chunk)
-            guard permit.expectWrite(), accessibility.postUnicode(chunk, pid: pid) else { return .fallback(.unconfirmed) }
             let end = selected.location + chunk.utf16.count
+            let afterSelection = CFRange(location: end, length: 0)
+            guard permit.expectWrite(before: DictationFieldState(value, selected),
+                after: [DictationFieldState(expected, afterSelection)], readSnapshot: readSnapshot) else { return .fallback(.unconfirmed) }
+            // Publishing states may wait for an in-flight AX read at capacity.
+            // Its known own snapshot does not prove the field stayed unchanged
+            // during that wait. Revalidate immediately before the actual post.
+            guard permit.isAllowed, readSnapshot() == DictationFieldState(value, selected), permit.isAllowed else {
+                permit.cancel(); return .fallback(.unconfirmed)
+            }
+            guard accessibility.postUnicode(chunk, pid: pid) else { return .fallback(.unconfirmed) }
             let confirmed = confirm(expected, caret: end)
-            guard confirmed else { return .fallback(.unconfirmed) }
+            guard confirmed, permit.isAllowed, isFocused(),
+                  permit.confirmWrite(DictationFieldState(expected, afterSelection)) else { return .fallback(.unconfirmed) }
             value = expected
             selected = CFRange(location: end, length: 0)
         }
@@ -293,6 +375,15 @@ struct DictationTarget {
         guard !accessibility.isSecure, let focused = accessibility.focusedElement(pid: pid) else { return false }
         return CFEqual(element, focused)
             && accessibility.attribute(kAXSubroleAttribute, of: element) as? String != kAXSecureTextFieldSubrole
+    }
+    private static func fieldState(element: AXUIElement, pid: pid_t,
+                                   accessibility: any DictationAccessibility) -> DictationFieldState? {
+        guard !accessibility.isSecure,
+              accessibility.focusedElement(pid: pid).map({ CFEqual(element, $0) }) == true,
+              accessibility.attribute(kAXSubroleAttribute, of: element) as? String != kAXSecureTextFieldSubrole,
+              let value = accessibility.attribute(kAXValueAttribute, of: element) as? String,
+              let range = selection(element, accessibility) else { return nil }
+        return DictationFieldState(value, range)
     }
     private func confirm(_ expected: String, caret: Int? = nil) -> Bool {
         for attempt in 0..<6 {
@@ -334,44 +425,109 @@ struct DictationTarget {
 /// Created at the physical hold, not after recognition. Cancellation is sticky
 /// through capture, recording, transcription and the queued insertion.
 final class DictationInsertionPermit {
-    private let lock = NSLock()
+    private let lock = NSCondition()
     private var allowed = true
     private var insertionStarted = false
-    private var acknowledgments: [DictationAXChange: [TimeInterval]] = [:]
+    private var expectedStates: DictationWriteStates?
+    private var readSnapshot: (() -> DictationFieldState?)?
+    private var nextReadID = 0
+    private var activeReads: [Int: [DictationWriteStates]] = [:]
+    private let maximumReadStates = 16
     func beginWriting() -> Bool {
         lock.lock(); defer { lock.unlock() }
         guard allowed else { return false }
         insertionStarted = true
         return true
     }
-    func expectWrite() -> Bool {
+    func expectWrite(before: DictationFieldState, after: [DictationFieldState],
+                     readSnapshot: @escaping () -> DictationFieldState?) -> Bool {
         lock.lock(); defer { lock.unlock() }
         guard allowed else { return false }
-        // AX observer delivery is asynchronous on the main run loop. Keep
-        // bounded outstanding acknowledgments across adjacent chunks, even
-        // when read-back completes first. Never exempt a focus notification.
-        let deadline = ProcessInfo.processInfo.systemUptime + 0.15
-        for change in [DictationAXChange.selection, .value] {
-            acknowledgments[change, default: []].removeAll { $0 < deadline - 0.15 }
-            acknowledgments[change, default: []].append(deadline)
+        // Bound history to active AX reads, without discarding an intermediate
+        // own state while its immutable sample is still being read. At capacity
+        // only the insertion worker waits; condition.wait releases the lock so
+        // the observer or physical cancellation can finish immediately.
+        let deadline = Date(timeIntervalSinceNow: 0.6)
+        while allowed && activeReads.values.contains(where: { $0.count >= maximumReadStates }) {
+            if !lock.wait(until: deadline) {
+                invalidateLocked(); return false
+            }
         }
+        guard allowed else { return false }
+        // AX notifications describe state, not one acknowledgment per write.
+        // Accept duplicates/coalescing only while the exact original target,
+        // value and selection match the current write's known states.
+        let states = DictationWriteStates(before: before, after: after)
+        expectedStates = states
+        for id in Array(activeReads.keys) { activeReads[id]?.append(states) }
+        self.readSnapshot = readSnapshot
         return true
     }
     func observedChange(_ change: DictationAXChange) {
-        lock.lock(); defer { lock.unlock() }
-        let now = ProcessInfo.processInfo.systemUptime
-        acknowledgments[change, default: []].removeAll { $0 < now }
-        if change == .focus || acknowledgments[change, default: []].isEmpty {
-            allowed = false
-        } else {
-            acknowledgments[change]?.removeFirst()
+        if change == .focus { cancel(); return }
+        for attempt in 0..<6 {
+            lock.lock()
+            guard allowed, let statesAtRead = expectedStates, let readSnapshot else {
+                invalidateLocked(); lock.unlock(); return
+            }
+            let readID = nextReadID
+            nextReadID &+= 1
+            activeReads[readID] = [statesAtRead]
+            lock.unlock()
+            let sampled = readSnapshot()
+            lock.lock()
+            let knownStates = activeReads.removeValue(forKey: readID)
+            lock.broadcast()
+            guard allowed, let sampled, let knownStates, expectedStates != nil else {
+                invalidateLocked(); lock.unlock(); return
+            }
+            // A read may overlap several chunks. Keep all exact own states
+            // published DURING this read; release them as soon as it ends.
+            // A foreign sample never disappears through a later field reread.
+            if knownStates.contains(where: { $0.contains(sampled) }) {
+                lock.unlock(); return
+            }
+            guard knownStates.contains(where: { $0.maySettle(sampled) }) else {
+                invalidateLocked(); lock.unlock(); return
+            }
+            lock.unlock()
+            if attempt < 5 { Thread.sleep(forTimeInterval: 0.025) }
         }
+        cancel()
+    }
+    func receiveChange(_ change: DictationAXChange) -> Bool {
+        lock.lock(); defer { lock.unlock() }
+        if change == .focus || expectedStates == nil {
+            invalidateLocked()
+        }
+        return allowed
+    }
+    func confirmWrite(_ state: DictationFieldState) -> Bool {
+        // Drop the before/transition states as soon as exact readback succeeds.
+        lock.lock(); defer { lock.unlock() }
+        guard allowed, expectedStates != nil else { return false }
+        expectedStates = DictationWriteStates(before: nil, after: [state])
+        return true
+    }
+    func endWriting() {
+        lock.lock(); defer { lock.unlock() }
+        expectedStates = nil
+        readSnapshot = nil
+        activeReads.removeAll()
+        lock.broadcast()
     }
     func validateSnapshot(_ current: Bool) {
         lock.lock(); defer { lock.unlock() }
-        if !insertionStarted && !current { allowed = false }
+        if !insertionStarted && !current { invalidateLocked() }
     }
-    func cancel() { lock.lock(); allowed = false; lock.unlock() }
+    private func invalidateLocked() {
+        allowed = false
+        activeReads.removeAll()
+        lock.broadcast()
+    }
+    func cancel() {
+        lock.lock(); invalidateLocked(); lock.unlock()
+    }
     var isAllowed: Bool { lock.lock(); defer { lock.unlock() }; return allowed }
 }
 #endif

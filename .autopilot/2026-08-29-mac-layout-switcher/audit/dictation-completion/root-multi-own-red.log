@@ -1,0 +1,3 @@
+FAIL: legitimate own snapshot crossing multiple chunks cancels completion
+Captured intermediate legitimate own value/range at chunk2
+next-own / concurrent own-state publication: result=fallback(main.DictationInsertionFailure.unconfirmed) posts=4 allowed=false value="Давай проверим, работает ли вставка.Давай проверим, работает ли "

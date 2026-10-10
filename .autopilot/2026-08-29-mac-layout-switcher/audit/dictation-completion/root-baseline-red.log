@@ -1,0 +1,2 @@
+FAIL: full literal phrase completes once despite duplicate own AX notifications
+duplicate-own-notification: result=fallback(main.DictationInsertionFailure.unconfirmed) actual="Давай проверим, " posts=1 caret={16, 0}

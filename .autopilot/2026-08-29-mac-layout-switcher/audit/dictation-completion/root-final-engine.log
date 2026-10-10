@@ -1,0 +1,15 @@
+Engine regression scratch: /tmp/mls-keyboard-engine.x5onDT
+PASS: AX Space/Enter/Shift+Enter/Tab repeat after temporary selection, down/up, flags, own markers
+PASS: AX printable and Backspace repeats preserve text-edit order
+PASS: AX three queued repeats arrive exactly once
+PASS: AX original keyUp/repeated down-up/fast letter after queued Enter
+PASS: AX fast next word remains in original captured layout
+PASS: Unicode Space/Enter/Shift+Enter/Tab repeat after temporary selection, down/up, flags, own markers
+PASS: Unicode printable and Backspace repeats preserve text-edit order
+PASS: Unicode three queued repeats arrive exactly once
+PASS: Unicode original keyUp/repeated down-up/fast letter after queued Enter
+PASS: Unicode fast next word remains in original captured layout
+PASS: Left/Right/Home/End/Esc/F1/Cmd/Ctrl autorepeat and click preserve cancellation
+PASS: unconfirmed AX/Unicode keeps source, planned replacement, repeat Enter and keyUp without submission
+PASS: outside-busy printable/Backspace/Space/Enter/Tab repeats pass and reset correction candidates
+Production EventTap→KeyTranslator→Engine regression passed. Private AppKit receiver; native physical-post resolution injected; no hardware/WindowServer delivery proof.

@@ -8,11 +8,16 @@
 
 ## Текущее состояние — 2026-10-10
 
-G23/T26 active: пользователь на1.4.5 сообщил partialdictation. Полная
-«Давай проверим, работает ли вставка.» в recovery, prefix«Давай проверим,»
-в composer. First16UTF16 clue, не доказаннаяпричина. Fresh executor + два
-finalreviews, root толькоdocs/git/CUA. Не включатьmic/неавтоматизировать
-privatecomposer; ownfixtures and usermanualtest. См. dictation-completion-spec/qa.
+G23/T26: кандидат1.4.6 проверен и одобрен, публикация выполняется.
+Диктовка больше не отменяется из-за повторных/запоздавших собственных AX
+уведомлений; временная история ограничена активным чтением и16наборами,
+ожидание0.6s вне lock/main. Чужой снимок необратимо отменяет permit; после
+ожидания точные field/value/caret проверяются до следующей записи.
+LiteralbaselineREDfirst16 → finalfullphrase; foreign/multiOwn/capacity RED→GREEN.
+Root15nativegroups/Engine/delay/fullspeech/mountedDMG, Linux95exactreuse27files
+и оба finalreviews PASS. Фактическая диктовка в Codex ещё не принята; не
+включатьmic/privatecomposer tools. Canonical status .autopilot/state.js,
+dictation-completion-spec/qa и audit/dictation-completion.
 
 Версия v1.4.5, G22: исправлена задержка применения AXselection после ACK;
 новый boundedreadback/unconfirmedSelection удерживает очередь и recovery.

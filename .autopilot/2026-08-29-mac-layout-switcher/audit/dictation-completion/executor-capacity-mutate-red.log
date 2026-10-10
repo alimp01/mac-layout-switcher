@@ -1,0 +1,4 @@
+Sources snapshot: /tmp/mls-dictation-completion.AbmD2S
+FAIL: stale preflight after wait permitted another write
+Captured intermediate legitimate own value/range at chunk2
+mutate-value after capacity wait: result=fallback(main.DictationInsertionFailure.unconfirmed) posts=17 allowed=true value="й проверим, рабоFOREIGN"

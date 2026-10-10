@@ -1,0 +1,14 @@
+==> Готовлю staging /var/folders/s7/blf5jdcs7q7bfjjxbt621w500000gn/T//maclayoutswitcher-dmg.9TKpBn
+==> hdiutil create /tmp/mls-g23-release.09vo22il/dist/MacLayoutSwitcher.dmg
+created: /tmp/mls-g23-release.09vo22il/dist/MacLayoutSwitcher.dmg
+
+Готово: /tmp/mls-g23-release.09vo22il/dist/MacLayoutSwitcher.dmg
+
+Установка:
+  1. open "/tmp/mls-g23-release.09vo22il/dist/MacLayoutSwitcher.dmg"
+  2. Перетащить MacLayoutSwitcher.app на ярлык «Программы» (Applications).
+  3. Первый запуск: в «Программах» правый клик по MacLayoutSwitcher →
+     «Открыть» → подтвердить (ad-hoc подпись без нотаризации — Gatekeeper
+     спросит один раз).
+  4. Выдать разрешения: Системные настройки → Конфиденциальность и
+     безопасность → Универсальный доступ + Мониторинг ввода.

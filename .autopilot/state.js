@@ -11,8 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-10T16:32:38.436837+00:00",
-  "finishedAt": null,
+  "updatedAt": "2026-10-10T17:17:49.980263+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -47,24 +46,23 @@ window.STATE =
     },
     {
       "id": "build",
-      "status": "active",
+      "status": "done",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G23/T26 fresh audit then minimumfix for partialdictation",
-      "finishedAt": "2026-10-10T16:23:10.954219+00:00"
+      "note": "G23 frozen4 approved0findings byboth; root15groups/Engine/delay/nativefullspeech/mountedDMG and Linux95exactreuse PASS",
+      "finishedAt": "2026-10-10T17:17:49.980263+00:00"
     },
     {
       "id": "review",
-      "status": "pending",
+      "status": "done",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "G23 requires two fresh finalreviews after meaningfulfix",
-      "finishedAt": "2026-10-10T16:23:10.954219+00:00"
+      "note": "G23 frozen4 approved0findings byboth; root15groups/Engine/delay/nativefullspeech/mountedDMG and Linux95exactreuse PASS",
+      "finishedAt": "2026-10-10T17:17:49.980263+00:00"
     },
     {
       "id": "final",
-      "status": "pending",
+      "status": "active",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "1.4.5 keyboardpublished; G23 dictationactualfailure newtask",
-      "finishedAt": "2026-10-10T16:25:53.568774+00:00"
+      "note": "1.4.6 reviewed/packaged; commit/push/archive verification pending; actualspeech pending"
     }
   ],
   "requirements": {
@@ -713,7 +711,7 @@ window.STATE =
       "requirements": [
         "G23"
       ],
-      "status": "in-progress",
+      "status": "ready-for-release",
       "startedAt": "2026-10-10T16:32:38.436837+00:00",
       "blockedBy": [],
       "zone": [
@@ -721,7 +719,19 @@ window.STATE =
         "tools"
       ],
       "wave": 22,
-      "validation": "Actualuserpartialfirstchunk screenshot, causepending"
+      "validation": "LiteralbaselineRED16; concurrentforeign/multiOwn/capacitywait RED→GREEN; rootfinal15groups/Engine/delay/nativefullspeech/mountedDMG; exact27file Linux95reuse; actualspeech pending",
+      "repairs": 3,
+      "review": {
+        "spec": "approved",
+        "standards": "approved",
+        "sourceSHA256": "cf3d4d6e29672b1c9601e0cd4234c9253ee94d3214d45f428a65f9429d351c41",
+        "findings": 0
+      },
+      "tests": {
+        "passed": 95,
+        "failed": 0,
+        "nativeCompletionGroups": 15
+      }
     }
   ],
   "singlePass": null,
@@ -854,6 +864,11 @@ window.STATE =
       "spec": "review_live_selection_spec",
       "standards": "review_live_selection_standards",
       "result": "Both finalapproved0blockers; supplemental tools also rechecked bySpec+Standards"
+    },
+    "G23": {
+      "spec": "review_dictation_completion_spec",
+      "standards": "review_dictation_completion_standards",
+      "result": "Both frozen4 finalapproved0findings; all64hashes stable; actualspeech unproven"
     }
   },
   "blind": {
@@ -977,8 +992,26 @@ window.STATE =
   "dictationCompletionAudit": {
     "ticket": "26",
     "evidence": "User screenshot fullrecognizedphrase + visibleprefix actualCodexcomposer; unconfirmed recovery",
-    "cause": "pending; prefixaligns firstchunk but no directinternaltrace",
+    "cause": "Concrete production RED: one ACK per notification cancels after duplicate own selection after first16UTF16; actualCodex callback pattern unproven. Independent stale value/caret RED also covered.",
     "privacy": "No publishedscreenshot/privatecomposerautomation/microphone activation",
-    "qa": "dictation-completion-qa.md"
+    "qa": "dictation-completion-qa.md",
+    "baseline": "audit/dictation-completion/root-baseline-red.log",
+    "candidate": "Frozen4 finalapproved, nativeallgatesPASS; releasepending",
+    "initialFrozenSourceSHA": "506f8f646524805c7c09927a2354e1e7485ed09b4cc98b10d516ffe7c009e88a",
+    "sourceSHA256": "cf3d4d6e29672b1c9601e0cd4234c9253ee94d3214d45f428a65f9429d351c41",
+    "nativeCompletionGroups": 15,
+    "manualSpeech": "pending",
+    "linux95Reuse": "27identicalCore/Tests/Package hashes",
+    "durableAudit": "audit/dictation-completion"
+  },
+  "candidateRelease": {
+    "version": "1.4.6",
+    "artifact": "MacLayoutSwitcher-1.4.6.dmg",
+    "sha256": "0571ae808a108550662b10decc38600b9df0519e81b383b79be19abaaa40e326",
+    "bytes": 10966502,
+    "binarySHA256": "cff40179237f82900269144880096325e4f71bf5147b9bb0c6465b60d8ca655f",
+    "mountedVerification": "version/helper/deepstrict/Applications symlink/main binary exact PASS",
+    "speechAcceptance": "manual Codex pending",
+    "publication": "pending"
   }
 }

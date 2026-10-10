@@ -1,0 +1,4 @@
+Sources snapshot: /tmp/mls-dictation-completion.XLwDkX
+duplicate-own-notification: result=inserted actual="Давай проверим, работает ли вставка." posts=3 caret={36, 0}
+queued-recording-receipt: result=fallback(main.DictationInsertionFailure.changed) posts=0
+PASS: literal completion, chunks, Unicode paragraphs, selected replacement, duplicate/delayed/coalesced notifications, delayed value/caret, sticky external cancellation, no-op/partial/no retry, clipboard

@@ -1,0 +1,33 @@
+{
+  "files": {
+    "Package.resolved": "6f9c8d557a409edb647019c1af92b58603e8b0349b9b5a04176aa673b7882bad",
+    "Package.swift": "061cbc8ed9f8d7ae924885dba9619c02634e84bdd92bcd4310e61454e4d27870",
+    "Sources/SwitcherCore/Detector.swift": "6771603fc8db50211ae16b6c10ff0238619dba0cd6c75f8b78232c79b1aea9f1",
+    "Sources/SwitcherCore/DetectorBigrams.swift": "844f9aefaa8cc23c2f67c3958f8c5c0a408a6f0a141d4f01cc577b68541165a9",
+    "Sources/SwitcherCore/DictationSession.swift": "618e87f89fac5c2bd7867e6652f09f94212c46bd7b3fc18feeba2e088ae8af47",
+    "Sources/SwitcherCore/EngineCore.swift": "0f45078d92f5ff7af5924f7e074cb33e6b9fcb04983ef40e75e637391b31d514",
+    "Sources/SwitcherCore/Hotkey.swift": "70ac4c31684cc84f290df9e6b985842ce11e912425a22a42a32a73d4f59c84ce",
+    "Sources/SwitcherCore/InputReplayPolicy.swift": "ab91695f1873fe91e2f71d1e2b304c759e3fd4127a133c5c7bf6bf86aa9222ee",
+    "Sources/SwitcherCore/KeyMap.swift": "e136a278f56426e7e8f41d2de2f98bed7f2417d22e683bb88fbc13ad511c1114",
+    "Sources/SwitcherCore/Lang.swift": "e02b7c4ad469735b92531f5585c7f5c2ffb7e390a33fe7bde475850a6948fb26",
+    "Sources/SwitcherCore/ReplacementSource.swift": "69edae07bb47abd48dd923420e11616f714eead8d4c48fed55ca303b8eb47f5f",
+    "Sources/SwitcherCore/SemVer.swift": "26bd1ae36c2429505a80b14fe317d60c9c16cacd1bb5459f8586fd1330538e9e",
+    "Sources/SwitcherCore/ShortWords.swift": "570a7db73f487247bb147cc11efa055ea06d25f7740894d00536394c21675613",
+    "Sources/SwitcherCore/SnippetStore.swift": "24a71a8daf13cab3b776aa51a325295a3ef136f18a0f216274214a05d17d44b6",
+    "Sources/SwitcherCore/WordBuffer.swift": "b114b36c5c27a952e4eaeb903a54c578b559bc032b1a59e5826e843689cf8042",
+    "Tests/SwitcherCoreTests/DetectorTests.swift": "f1a618be0025cea8cea8279513a9385afa3fbdde4333bf71497fa5eb8c49e60d",
+    "Tests/SwitcherCoreTests/DictationTests.swift": "502f736e760220bad71e2595b89de13b5b21a4be8aadc9db769ced009599388a",
+    "Tests/SwitcherCoreTests/EngineCoreTests.swift": "74008ff1777ac85eb3762543b48f57f2ae93b9c9b0f79368c46f504721c3a263",
+    "Tests/SwitcherCoreTests/HotkeyEngineTests.swift": "3357c2ff41db29b27f5eac9316897519b43abee20fd4849f74b779370b819163",
+    "Tests/SwitcherCoreTests/HotkeyTests.swift": "be286a979e205f2784b6e6ae0d43c0308c1bda52463f2862a8aaf4d5bb5a7acf",
+    "Tests/SwitcherCoreTests/InputIntegrityTests.swift": "c4a06aa2a299dc6e8f1e41ed2be4e986d4c7371feb16fe34a7c6aa2c4b588070",
+    "Tests/SwitcherCoreTests/KeyMapTests.swift": "d0d2f991aa9dd204f016967030693eda37bbd6d3b4d67a0704db5798f139ed12",
+    "Tests/SwitcherCoreTests/SemVerTests.swift": "2143a27ce55b3f96877f10c28716a01f3dfa3fe37b94a482243d64b87e53cf6d",
+    "Tests/SwitcherCoreTests/ShortWordsTests.swift": "005c4c5a95db55e289ee764cb73612d57647ffb0cd945d6296307e9a363f880f",
+    "Tests/SwitcherCoreTests/SnippetStoreTests.swift": "1c9e5d6fa7f2cc17f43105112658a3c23a2a72afc70a53c7d2c95e1ba6c12797",
+    "Tests/SwitcherCoreTests/WordBufferTests.swift": "094215e72e6715176bb150bed705334056a76408a871d8e8af1942e9fb3ea039",
+    "Tests/SwitcherCoreTests/WordCoverageTests.swift": "dd5bbc7adc5a1e4ac5abb64cec99d08573cb41bcbfdf0a3092969e26aea42da4"
+  },
+  "result": "exact identical27 Linux95-tested files",
+  "log": "/tmp/mls-g23-root-linux.log"
+}

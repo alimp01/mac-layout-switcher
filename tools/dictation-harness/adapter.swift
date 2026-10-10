@@ -164,7 +164,12 @@ do {
 }
 do {
     let ax = FixtureAX(), permit = DictationInsertionPermit()
-    ax.direct = false; ax.afterPost = { ax.callback?(.selection) }
+    ax.direct = false; ax.afterPost = {
+        let ownCaret = ax.editor.selectedRange()
+        ax.editor.setSelectedRange(NSRange(location: 0, length: 0))
+        ax.callback?(.selection)
+        ax.editor.setSelectedRange(ownCaret)
+    }
     let destination = target(ax, permit)
     require(destination.insert(String(repeating: text, count: 5), permit: permit) == .fallback(.unconfirmed), "foreign selection callback after own notifications cancels")
     require(ax.posts == 1, "foreign selection blocks later chunks")

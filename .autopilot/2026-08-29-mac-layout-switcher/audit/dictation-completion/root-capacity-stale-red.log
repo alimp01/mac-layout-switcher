@@ -1,0 +1,3 @@
+Captured intermediate legitimate own value/range at chunk2
+BEFORE POST17 value=FOREIGN range=CFRange(location: 0, length: 0)
+CAPACITY STALE: result=fallback(main.DictationInsertionFailure.unconfirmed) posts=17 allowed=true value="й проверим, рабоFOREIGN"

@@ -1,0 +1,7 @@
+Selection-delay snapshot: /tmp/mls-keyboard-selection-delay.DJZ24m
+Space: actual="срфе"; result=unconfirmedSelection; writes=0; replayed=0; recovery="срфе"/"chat "/" x"
+Enter: actual="срфе"; result=unconfirmedSelection; writes=0; replayed=0; recovery="срфе"/"chat"/"⏎x"
+ShiftEnter: actual="срфе"; result=unconfirmedSelection; writes=0; replayed=0; recovery="срфе"/"chat"/"⏎x"
+Tab: actual="срфе"; result=unconfirmedSelection; writes=0; replayed=0; recovery="срфе"/"chat"/"⇥x"
+Preselected: actual="chatx"; result=Optional(main.InputFocusGuard.ReplacementResult.confirmed); pendingSelectionRequests=0
+PASS delayed selection/restoration ACK, native separators/flags, fast input, cancellation and complete recovery; no WindowServer claim

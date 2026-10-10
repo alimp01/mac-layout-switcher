@@ -1,0 +1,4 @@
+Observer actually sampled: UNRELATED FOREIGN VALUE
+After false foreign snapshot completes: permit will remain allowed
+Target result=inserted, posts=3, allowed=true, actual="Давай проверим, работает ли вставка."
+exit=1

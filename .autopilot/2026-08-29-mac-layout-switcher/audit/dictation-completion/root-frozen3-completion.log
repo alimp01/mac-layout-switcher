@@ -1,0 +1,36 @@
+Sources snapshot: /tmp/mls-dictation-completion.rIZRPr
+duplicate-own-notification: result=inserted actual="Давай проверим, работает ли вставка." posts=3 caret={36, 0}
+queued-recording-receipt: result=fallback(main.DictationInsertionFailure.changed) posts=0
+PASS: literal completion, chunks, Unicode paragraphs, selected replacement, duplicate/delayed/coalesced notifications, delayed value/caret, sticky external cancellation, no-op/partial/no retry, clipboard
+Sources snapshot: /tmp/mls-dictation-completion.3e2wRV
+foreign-value / concurrent own-state publication: result=fallback(main.DictationInsertionFailure.unconfirmed) posts=1 allowed=false value="Давай проверим, "
+PASS: sampled foreign AX state remains cancellation after confirmWrite advances
+Sources snapshot: /tmp/mls-dictation-completion.FmwYmW
+foreign-range / concurrent own-state publication: result=fallback(main.DictationInsertionFailure.unconfirmed) posts=1 allowed=false value="Давай проверим, "
+PASS: sampled foreign AX state remains cancellation after confirmWrite advances
+Sources snapshot: /tmp/mls-dictation-completion.CEjRV3
+previous-own / concurrent own-state publication: result=inserted posts=3 allowed=true value="Давай проверим, работает ли вставка."
+PASS: legitimate concurrent own snapshot completes once
+Sources snapshot: /tmp/mls-dictation-completion.Yu5lm7
+next-own / concurrent own-state publication: result=inserted posts=3 allowed=true value="Давай проверим, работает ли вставка."
+PASS: legitimate concurrent own snapshot completes once
+Sources snapshot: /tmp/mls-dictation-completion.LIAJK3
+Captured intermediate legitimate own value/range at chunk2
+four: next-own / concurrent own-state publication: result=inserted posts=7 allowed=true units=108
+PASS: legitimate concurrent own snapshot completes once
+Sources snapshot: /tmp/mls-dictation-completion.RUMgxD
+Captured intermediate legitimate own value/range at chunk2
+capacity: next-own / concurrent own-state publication: result=inserted posts=27 allowed=true units=432
+PASS: legitimate concurrent own snapshot completes once
+Sources snapshot: /tmp/mls-dictation-completion.diobmu
+Captured intermediate legitimate own value/range at chunk2
+PASS: stalled at capacity: posts=16 elapsed=0.6007730960845947, unconfirmed + sticky cancel + late-reader cleanup
+Sources snapshot: /tmp/mls-dictation-completion.wamns5
+Captured intermediate legitimate own value/range at chunk2
+PASS: cancel at capacity: posts=16 elapsed=0.055850982666015625, unconfirmed + sticky cancel + late-reader cleanup
+Sources snapshot: /tmp/mls-dictation-completion.lkFvCk
+Captured intermediate legitimate own value/range at chunk2
+PASS: focus at capacity: posts=16 elapsed=0.05091094970703125, unconfirmed + sticky cancel + late-reader cleanup
+Sources snapshot: /tmp/mls-dictation-completion.h4QXn7
+Captured intermediate legitimate own value/range at chunk2
+PASS: completed read's own history cannot exempt later foreign restoration
