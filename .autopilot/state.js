@@ -833,7 +833,7 @@ window.STATE =
   "blind": {
     "run": "95Linux; keyboard/Typist/recovery panel; G19 adapter/panel; fullspeech release; mounted DMG PASS",
     "verdict": "G21 concreteautorepeat fix complete/reviewed; v1.4.4 released",
-    "note": "Installed1.4.3 confirmed10.10; prior live automaticPASS withdrawn due missing pre-separator source; Mac currently locked.",
+    "note": "Installed1.4.4 deletion reproduced by user recording; native/mock passes do not establish live delivery. Mac currently locked.",
     "drift": []
   },
   "manualAcceptance": {
@@ -898,9 +898,9 @@ window.STATE =
     "transport": "Unchanged productionpostToPid; realCG/NSEvent harness injects finalpost, notWindowServerproof",
     "recovery": "Original+completeplannedreplacement+heldinput preserveduntilClose",
     "review": "Both fresh reviewers final approved, no blockers",
-    "release": "1.4.4 published; DMG and public rawVERSION/archive verified. Installed1.4.3 unchanged; physicaluser acceptance pending",
+    "release": "1.4.4 published and installed; recording reproduces deletion; G22/T25 continues investigation",
     "currentExecutor": "implement_deletion_system",
-    "manualFixture": "Option test canceled by automatic Space/Enter clarification; owned /tmp/MLS-Option-Test.rtf open, Mac locked",
+    "manualFixture": "Owned TextEdit /tmp/MLS-Option-Test.rtf saved and closed; auto replacement not triggered by CUA, inconclusive; Mac now locked",
     "engineIntegration": {
       "snapshot": "/tmp/mls-g21-engine.wvh4ck3e",
       "result": "Executor+root independentPASS directAX+productionCGlocalUnicode Enginehandle/selection/undo/cancellation",
@@ -919,7 +919,11 @@ window.STATE =
   "liveInsertionAudit": {
     "recording": "/Users/ilyaalimpiev/Desktop/Запись экрана 2026-10-10 в 17.57.37.mov",
     "evidence": "srfe→empty twice at4.6/9.6secs, nochat; installed1.4.4 freshsingleprocess",
-    "cause": "unproved; autorepeat notobservable onvideo",
-    "ticket": "25"
+    "cause": "unproved; empty snippet excluded for срфе; own untrusted post received no events, not production failure proof",
+    "ticket": "25",
+    "liveProbe": "V2 prepared/opened through CUA; source translator plus receiver/front PID logging; no permission request",
+    "blocker": "Mac locked; next live CUA key/foreground/tap discriminator needs manual unlock",
+    "productChange": "none; VERSION stays 1.4.4",
+    "qa": ".autopilot/2026-08-29-mac-layout-switcher/live-insertion-qa.md"
   }
 }

@@ -48,7 +48,14 @@ keyboard/CG/notice/G19 PASS; rootLinux95/fullspeechPASS. Reviews обаapproved.
 На записи реальная замена1.4.4 FAILED, аппаратная причина ещё не установлена. Прежние
 TextEdit/Chrome livePASS отозваны: не было preseparator source, RUужеактивна.
 Optionfixture отменён, повторно спрашивать триггер не нужно. Собственный
-/tmp/MLS-Option-Test.rtf ещё открыт; Maclocked, CUA не может закрыть его.
+/tmp/MLS-Option-Test.rtf сохранён и закрыт. Новые CUA C/H/A/T дали срфе до
+Space, но автозамена не запустилась: не PASS. Foreground/EventTap при CUA
+доставке нужно доказать отдельно. Доступы Input Monitoring/Accessibility
+у установленного MLS включены; autoSwitch=true; пустого snippet срфе нет.
+Собственный untrusted CG probe не получил событий: не причина production.
+V2 /tmp/mls-t25-own-key-events/TransportProbe.app открыт для следующей
+проверки receiver/frontPID/KeyTranslator. Mac вновь locked, CUA не может
+продолжить; нужна ручная разблокировка. Код/VERSION не менялись.
 После обновления проверить обычный Space/Enter/ShiftEnter и быстрый набор.
 
 G20/T23 завершён для1.4.3, код d7b003d. Keyboard Target использует
