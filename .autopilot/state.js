@@ -11,8 +11,8 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-10T16:25:53.568774+00:00",
-  "finishedAt": "2026-10-10T16:25:53.568774+00:00",
+  "updatedAt": "2026-10-10T16:32:38.436837+00:00",
+  "finishedAt": null,
   "stages": [
     {
       "id": "preflight",
@@ -47,30 +47,30 @@ window.STATE =
     },
     {
       "id": "build",
-      "status": "done",
+      "status": "active",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G22 concrete delayedselectionACK minimumfix + hardwareSpaceGREEN bothownCodexfields + native/Linux95 checks",
+      "note": "G23/T26 fresh audit then minimumfix for partialdictation",
       "finishedAt": "2026-10-10T16:23:10.954219+00:00"
     },
     {
       "id": "review",
-      "status": "done",
+      "status": "pending",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "G22 both finalSpec+Standards approve0blockers; frozenSources and finaltools",
+      "note": "G23 requires two fresh finalreviews after meaningfulfix",
       "finishedAt": "2026-10-10T16:23:10.954219+00:00"
     },
     {
       "id": "final",
-      "status": "done",
+      "status": "pending",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "1.4.5 installed/pushed/publicarchiveverified; physicalSpaceGREEN bothownCodexfields; supplementalmanualscope documented",
+      "note": "1.4.5 keyboardpublished; G23 dictationactualfailure newtask",
       "finishedAt": "2026-10-10T16:25:53.568774+00:00"
     }
   ],
   "requirements": {
-    "total": 29,
+    "total": 30,
     "done": 28,
-    "inTicket": 0,
+    "inTicket": 1,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -706,6 +706,22 @@ window.STATE =
       "reviews": "Both finalapproved0blockers",
       "finishedAt": "2026-10-10T16:23:10.954219+00:00",
       "commit": "2163e0a3e7fa7f388ba551ef97b69d9a6f0a3126"
+    },
+    {
+      "id": "26",
+      "title": "Полная вставка диктовки после1.4.5",
+      "requirements": [
+        "G23"
+      ],
+      "status": "in-progress",
+      "startedAt": "2026-10-10T16:32:38.436837+00:00",
+      "blockedBy": [],
+      "zone": [
+        "Sources/MacLayoutSwitcher/Speech",
+        "tools"
+      ],
+      "wave": 22,
+      "validation": "Actualuserpartialfirstchunk screenshot, causepending"
     }
   ],
   "singlePass": null,
@@ -803,7 +819,8 @@ window.STATE =
     "T08 HotkeyTests/HotkeyEngineTests — @testable import избыточен; условие: обычный import",
     "2026-09-16: baseline swift build успешен на macOS15.6.1 arm64; swift test на Mac blocked: CLT без XCTest. Тесты выполнять на доступном claudebot-server (Swift6.0.3). v1.2.0 ручная приёмка ещё не выполнена.",
     "G21 historical:1.4.4 actualuserdeletion FAILED; ownTextEdit fixture closed; continuedG22.",
-    "G22:1.4.5 actualownedCodexSpaceGREEN bothfields, matching concrete delayedACK fix; privatecomposer/allapps/manualEnterShift untested, not universal compatibilityclaim."
+    "G22:1.4.5 actualownedCodexSpaceGREEN bothfields, matching concrete delayedACK fix; privatecomposer/allapps/manualEnterShift untested, not universal compatibilityclaim.",
+    "G23:1.4.5 actualdictation partialprefix with fullrecognized recovery; first16UTF16 clue only, previousadapter checks insufficient foractualCodexdelivery."
   ],
   "reviewers": {
     "manifestSpec": "a3373fd28e916b546",
@@ -956,5 +973,12 @@ window.STATE =
     "physicalSpace": "Sourceсрфе caret4 → selected0/4 → nativeUnicode datachatspace → finalchatspace caret5 in bothownedCodexfields; user confirmed chat",
     "permissions": "User repliedready after panels/restart; actual candidate auto insertion works. No root grantTCC.",
     "physicalScope": "Owned CodexIAB contenteditable+textarea physicalSpaceGREEN; mainprivatecomposer/allapps/manualEnterShift notdeclaredpassed"
+  },
+  "dictationCompletionAudit": {
+    "ticket": "26",
+    "evidence": "User screenshot fullrecognizedphrase + visibleprefix actualCodexcomposer; unconfirmed recovery",
+    "cause": "pending; prefixaligns firstchunk but no directinternaltrace",
+    "privacy": "No publishedscreenshot/privatecomposerautomation/microphone activation",
+    "qa": "dictation-completion-qa.md"
   }
 }

@@ -8,6 +8,12 @@
 
 ## Текущее состояние — 2026-10-10
 
+G23/T26 active: пользователь на1.4.5 сообщил partialdictation. Полная
+«Давай проверим, работает ли вставка.» в recovery, prefix«Давай проверим,»
+в composer. First16UTF16 clue, не доказаннаяпричина. Fresh executor + два
+finalreviews, root толькоdocs/git/CUA. Не включатьmic/неавтоматизировать
+privatecomposer; ownfixtures and usermanualtest. См. dictation-completion-spec/qa.
+
 Версия v1.4.5, G22: исправлена задержка применения AXselection после ACK;
 новый boundedreadback/unconfirmedSelection удерживает очередь и recovery.
 На Mac установлен exactreviewedbinary; физический срфе+Space→chatspace
