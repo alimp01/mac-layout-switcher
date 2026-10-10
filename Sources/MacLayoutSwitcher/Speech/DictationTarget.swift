@@ -45,6 +45,12 @@ protocol DictationAccessibility {
 }
 
 struct SystemDictationAccessibility: DictationAccessibility {
+    private let postEvent: (CGEvent, pid_t) -> Void
+    /// The injectable boundary is the actual process post, after event creation.
+    /// Native harnesses inspect serialized CGEvents without touching other apps.
+    init(postEvent: @escaping (CGEvent, pid_t) -> Void = { $0.postToPid($1) }) {
+        self.postEvent = postEvent
+    }
     var isTrusted: Bool { AXIsProcessTrusted() }
     var isSecure: Bool { SecureInput.isActive }
     func attribute(_ name: String, of element: AXUIElement) -> CFTypeRef? {
@@ -113,8 +119,8 @@ struct SystemDictationAccessibility: DictationAccessibility {
             event.flags = []
             event.setIntegerValueField(.eventSourceUserData, value: EventTap.syntheticMarker)
         }
-        down.postToPid(pid)
-        up.postToPid(pid) // Always finish an already posted pair.
+        postEvent(down, pid)
+        postEvent(up, pid) // Always finish an already posted pair.
         return true
     }
     func setSelection(_ range: CFRange, in element: AXUIElement) -> Bool {
@@ -189,6 +195,11 @@ struct DictationTarget {
     private let observation: AnyObject
 
     enum Capture { case target(DictationTarget), unavailable(DictationInsertionFailure) }
+    /// Captured source segment only, for recovery after an unconfirmed attempt.
+    /// Never read a changed field to reconstruct the text which was replaced.
+    var selectedOriginalText: String {
+        (original as NSString).substring(with: NSRange(location: range.location, length: range.length))
+    }
     static func capture(expectedPID: pid_t, permit: DictationInsertionPermit,
                         accessibility: any DictationAccessibility = SystemDictationAccessibility()) -> Capture {
         guard accessibility.isTrusted else { return .unavailable(.accessibilityDenied) }

@@ -111,6 +111,9 @@ public final class Engine {
             self?.queuedNavigation = false
         }
         typist.onWithheldInput = { [weak self] text in self?.conversionNotice.appendWithheldInput(text) }
+        typist.onUnconfirmedReplacement = { [weak self] original, replacement in
+            self?.conversionNotice.retainReplacement(original: original, replacement: replacement)
+        }
         inputFocus.shouldSample = { [weak self] in self?.typist.isBusy == false }
         typist.onIdle = { [weak self] in
             guard let self, !self.typist.isBusy else { return }
@@ -465,7 +468,7 @@ public final class Engine {
         selectionConverter.replace(selection, permit: permit, typist: typist, replayRoute: ticket.replayRoute) { [weak self] result, language in
             guard let self else { return }
             self.selectionConverter.finish(permit)
-            if result == .uncertain { self.conversionNotice.showUncertain(); return }
+            if result == .uncertain { return }
             guard permit.isAllowed else { return }
             _ = self.core.handle(.reset)
             if result == .confirmed {
@@ -613,8 +616,7 @@ public final class Engine {
             guard result == .confirmed else {
                 let rejected = self.inputFocus.reject(ticket)
                 self.core.discardReplacement(outcome, resetContext: conversionPermit?.isAllowed != false && rejected)
-                if result == .uncertain { self.conversionNotice.showUncertain() }
-                else if conversionPermit?.isAllowed == true { self.conversionNotice.show() }
+                if result != .uncertain, conversionPermit?.isAllowed == true { self.conversionNotice.show() }
                 return
             }
             if ticket.permit.isAllowed, conversionPermit?.isAllowed != false, let lang = switchTo {

@@ -66,7 +66,10 @@ final class SelectionConverter {
                 expected: selection.text, with: converted.text, originalSelection: selection.originalSelection, requiresWordBoundary: selection.isWord,
                 allowed: { permit.isAllowed })
             if completed == .uncertain { replayRoute.didBecomeUncertain() }
-            DispatchQueue.main.async { completion(completed, converted.language) }
+            DispatchQueue.main.async {
+                if completed == .uncertain { typist.onUnconfirmedReplacement?(selection.text, converted.text) }
+                completion(completed, converted.language)
+            }
         }
     }
 }

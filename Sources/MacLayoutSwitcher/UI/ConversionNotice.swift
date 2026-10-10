@@ -7,6 +7,7 @@ final class ConversionNotice: NSObject {
     private let presentsWindow: Bool
     private let label = NSTextField(wrappingLabelWithString: "")
     private var withheldInput = ""
+    private var replacements: [(original: String, planned: String)] = []
     private let recoveryScroll = NSScrollView()
     private let recoveryText = NSTextView()
 
@@ -62,17 +63,33 @@ final class ConversionNotice: NSObject {
     }
     func appendWithheldInput(_ text: String) {
         withheldInput += text
-        recoveryText.string = withheldInput
+        updateRecoveryText()
         recoveryScroll.isHidden = false
-        show(message: "Не удалось подтвердить замену. Проверьте слово. Удержанный ввод ниже можно выделить и скопировать. ⏎ — Enter, ⇥ — Tab, ⌫ — Backspace; эти клавиши не отправлены.")
+        showRecovery()
+    }
+    func retainReplacement(original: String, replacement: String) {
+        replacements.append((original, replacement))
+        updateRecoveryText()
+        recoveryScroll.isHidden = false
+        showRecovery()
+    }
+    private func updateRecoveryText() {
+        let entries = replacements.map { "Исходный текст:\n\($0.original)\n\nТекст для замены:\n\($0.planned)" }
+        recoveryText.string = entries.isEmpty ? withheldInput : entries.joined(separator: "\n\n────────\n\n") + "\n\nУдержанный ввод:\n" + withheldInput
+    }
+    private func showRecovery() {
+        let saved = replacements.isEmpty
+            ? "Неотправленный ввод сохранён ниже: его можно выделить и скопировать."
+            : "Исходный текст, текст для замены и неотправленный ввод сохранены ниже: их можно выделить и скопировать."
+        show(message: "Не удалось подтвердить замену: текст мог быть удалён или изменён частично. Проверьте поле перед ручным восстановлением. \(saved) ⏎ — Enter, ⇥ — Tab, ⌫ — Backspace; эти клавиши не отправлены.")
     }
     func showUncertain() {
         if !withheldInput.isEmpty {
             appendWithheldInput("\n")
-        } else {
+        } else if replacements.isEmpty {
             recoveryScroll.isHidden = true
             show(message: "Не удалось подтвердить замену. Текст мог измениться частично. Отправка Enter/Tab остановлена. Проверьте слово перед продолжением; повторной замены не было.")
-        }
+        } else { showRecovery() }
     }
     func show(message: String = "Текст не изменён: поле, курсор или выделение изменились либо редактор не поддерживает проверяемую замену. Повторите Option в нужном поле.") {
         label.stringValue = message
@@ -83,11 +100,12 @@ final class ConversionNotice: NSObject {
         if presentsWindow { panel.orderFrontRegardless() }
     }
     /// A later successful conversion must not erase unrecovered physical input.
-    func hide() { if withheldInput.isEmpty { panel.orderOut(nil) } }
+    func hide() { if withheldInput.isEmpty && replacements.isEmpty { panel.orderOut(nil) } }
     @objc func dismiss() {
         panel.orderOut(nil)
         recoveryScroll.isHidden = true
         withheldInput = ""
+        replacements = []
         recoveryText.string = ""
     }
 }

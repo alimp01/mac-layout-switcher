@@ -32,6 +32,9 @@ public final class Typist {
     /// неё (Engine его переигрывает через `send`), а не посреди.
     var onIdle: (() -> Void)?
     var onWithheldInput: ((String) -> Void)?
+    /// Exact source and planned text survive an attempted, unconfirmed write.
+    /// Delivered on main, including automatic corrections and selected text.
+    var onUnconfirmedReplacement: ((String, String) -> Void)?
     private var pending = 0
     private let pendingLock = NSLock()
 
@@ -79,6 +82,7 @@ public final class Typist {
                 withheld = separator.recoveryText
             }
             DispatchQueue.main.async { [weak self] in
+                if result == .uncertain { self?.onUnconfirmedReplacement?(expected, text + (inlineSpace ? " " : "")) }
                 completion(result)
                 if let withheld { self?.onWithheldInput?(withheld) }
             }
@@ -113,7 +117,12 @@ public final class Typist {
                          completion: @escaping (DictationInsertionResult) -> Void) {
         enqueue {
             let result = target.insert(text, permit: permit)
-            DispatchQueue.main.async { completion(result) }
+            DispatchQueue.main.async { [weak self] in
+                if result == .fallback(.unconfirmed), !target.selectedOriginalText.isEmpty {
+                    self?.onUnconfirmedReplacement?(target.selectedOriginalText, text)
+                }
+                completion(result)
+            }
         }
     }
 

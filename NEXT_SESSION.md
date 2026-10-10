@@ -5,6 +5,30 @@ GitHub: https://github.com/alimp01/mac-layout-switcher
 
 Сначала прочитай `CLAUDE.md`, `.autopilot/state.js`, затем manifest и актуальные тикеты в `.autopilot/2026-08-29-mac-layout-switcher/`. Они определяют состояние ревью и релиза; VERSION сам по себе не доказывает публикацию.
 
+## Незавершённая защита G21 (10.10.2026, VERSION остаётся 1.4.3)
+
+- Пользователь сообщает удаление слова без вставки. Причина пока не доказана;
+  не выпускать защиту восстановления как исправление доставки. Root проверил
+  установленную 1.4.3 на собственном TextEdit и официальном textarea MDN в Chrome:
+  прогретая замена доставила «привет». Нужен конкретный пользовательский редактор
+  и способ вызова, чтобы воспроизвести deletion-only в реальном transport.
+- Typist и SelectionConverter передают точный исходник и полный планируемый текст
+  в persistent/selectable recovery panel при uncertain. Диктовка также сохраняет
+  выделенный исходник при unconfirmed; весь результат распознавания остаётся
+  в прежней панели диктовки. Enter/Tab очереди удерживаются, retry/restore в поле нет.
+- SystemDictationAccessibility получает seam только на финальном post(CGEvent,pid).
+  Настоящее создание событий, CGEvent.data roundtrip, NSEvent и NSTextView.keyDown
+  теперь входят в tools/test-keyboard-adapter.sh. Ошибки/no-op/partial/deletion-only
+  проверяются через production Target/Typist/SelectionConverter и recovery UI.
+  Это локальная AppKit-интерпретация, а не WindowServer cross-process delivery.
+- Реальный postToPid в собственный непоказанный command process не доставил
+  событий без AX trust. Никаких разрешений или TCC не меняли. CFData roundtrip
+  на Mac15.6.1 не сохраняет eventSourceUserData; AppKit может переинтерпретировать
+  characters keyUp по vk0. Эти наблюдения не доказывают причину удаления и не
+  оправдывают спекулятивную смену keycode/post path. Production transport не менялся.
+- VERSION не повышен; git/reviews/release ведёт root. Защита требует двух ревью,
+  а полный G21 остаётся pending до доказанной причины и проверки исправления.
+
 ## Изменения для 1.4.3 (G20, 08.10.2026)
 
 - Keyboard Target переиспользует DictationAccessibility: bounded lazy AX bootstrap, проверяемый direct/Unicode путь, точное исходное значение/граница слова и каретка. Результат confirmed/untouched/uncertain; попытка записи не повторяется. Setter success и CGEvent.post не являются подтверждением.

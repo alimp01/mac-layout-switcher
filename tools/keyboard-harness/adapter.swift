@@ -29,8 +29,10 @@ final class FixtureAX: DictationAccessibility {
     var refuseRestoration = false
     var values: [String] = []
     var partialWrite = false
+    var deletionOnly = false
     var callback: ((DictationAXChange) -> Void)?
     var afterPost: (() -> Void)?
+    var realUnicodeEvents = 0
     init() { editor.string = "До старый после"; editor.setSelectedRange(NSRange(location: 3, length: 6)) }
     func focusedElement(pid: pid_t) -> AXUIElement? { focused && !lazyTree ? element : nil }
     func enableAccessibility(pid: pid_t) { lazyTree = false }
@@ -55,7 +57,7 @@ final class FixtureAX: DictationAccessibility {
         writes += 1
         if !ignoreWrite {
             let start = editor.selectedRange().location
-            editor.setAccessibilitySelectedText(partialWrite ? String(text.prefix(3)) : text)
+            editor.setAccessibilitySelectedText(deletionOnly ? "" : (partialWrite ? String(text.prefix(3)) : text))
             if partialWrite { editor.setSelectedRange(NSRange(location: start, length: 3)) }
         }
         callback?(.selection)
@@ -67,9 +69,22 @@ final class FixtureAX: DictationAccessibility {
         // main run loop. Deliver them after the next write has been scheduled.
         if pendingNotifications { callback?(.selection); callback?(.value); pendingNotifications = false }
         if !ignoreWrite {
-            let selected = editor.selectedRange()
-            editor.setAccessibilitySelectedText(partialWrite ? String(text.prefix(3)) : text)
-            editor.setSelectedRange(NSRange(location: selected.location + (partialWrite ? 3 : text.utf16.count), length: 0))
+            // Keep the production event construction, CG serialization and
+            // AppKit text-input interpretation. Only delivery to the process
+            // is replaced; successful insertion is never assigned directly.
+            let transport = SystemDictationAccessibility(postEvent: { event, actualPID in
+                require(actualPID == pid, "Unicode pair targets captured process")
+                guard let data = event.data,
+                      let received = CGEvent(withDataAllocator: nil, data: data),
+                      let native = NSEvent(cgEvent: received) else { fatalError("event serialization") }
+                self.realUnicodeEvents += 1
+                if received.type == .keyDown {
+                    if self.deletionOnly { self.editor.insertText("", replacementRange: self.editor.selectedRange()) }
+                    else if self.partialWrite { self.editor.insertText(String(text.prefix(3)), replacementRange: self.editor.selectedRange()) }
+                    else { self.editor.keyDown(with: native) }
+                } else { self.editor.keyUp(with: native) }
+            })
+            require(transport.postUnicode(text, pid: pid), "production Unicode event construction succeeds")
         }
         if delayedNotifications { pendingNotifications = true }
         else { callback?(.selection); callback?(.value) }
@@ -115,6 +130,7 @@ let (unicode, unicodeTarget) = fixture()
 unicode.direct = false
 require(replace(unicodeTarget) == .confirmed, "missing setter uses verified Unicode")
 require(unicode.editor.string == "before привет after" && unicode.editor.selectedRange() == NSRange(location: 13, length: 0), "exact replacement and collapsed caret")
+require(unicode.realUnicodeEvents == 2, "real production down/up pair interpreted by AppKit")
 print("PASS: verified Unicode without setter")
 let (direct, directTarget) = fixture()
 require(replace(directTarget) == .confirmed, "native selected text replacement")
@@ -225,6 +241,60 @@ partialTypist.send(Typist.makeUnicodePress("x")!, ticket: partialTicket)
 drain(partialTypist, done: { partialDone })
 require(partialSent == 0 && partialRecovery == "x", "typing over partial selected mutation retained, never overwrites source")
 print("PASS: partial selected write retains queued text")
+
+let (deleted, deletedTarget) = fixture()
+deleted.deletionOnly = true
+let deletedTicket = ticket(deletedTarget)
+var deletedDone = false; var deletedSent = 0
+var savedOriginal = ""; var savedReplacement = ""; var savedKeys = ""
+let deletedTypist = Typist(postEvent: { _ in deletedSent += 1 })
+deletedTypist.onUnconfirmedReplacement = { savedOriginal = $0; savedReplacement = $1 }
+deletedTypist.onWithheldInput = { savedKeys += $0 }
+deletedTypist.replaceLastWord(expected: "ghbdtn", with: "привет", ticket: deletedTicket,
+ separator: enter, separatorCharacter: "\n", navigates: true) { result in
+    require(result == .uncertain, "deletion without replacement is uncertain"); deletedDone = true
+}
+drain(deletedTypist, done: { deletedDone })
+require(deleted.editor.string == "before  after" && deleted.writes == 1, "deletion failure never blindly restores or retries")
+require(savedOriginal == "ghbdtn" && savedReplacement == "привет", "deletion retains exact original and planned replacement")
+require(deletedSent == 0 && savedKeys == "⏎", "deletion never submits queued Enter")
+print("PASS: deletion-only keeps original, planned replacement and withheld Enter")
+
+let (deletedUnicode, deletedUnicodeTarget) = fixture()
+deletedUnicode.direct = false; deletedUnicode.deletionOnly = true
+require(replace(deletedUnicodeTarget) == .uncertain && deletedUnicode.posts == 1 && deletedUnicode.realUnicodeEvents == 2,
+        "editor consuming production Unicode pair without insertion is uncertain and never retried")
+require(deletedUnicode.editor.string == "before  after", "no blind restoration after consumed Unicode pair")
+print("PASS: deletion-only after real production Unicode pair remains uncertain")
+
+let (deletedSelection, deletedSelectionTarget) = fixture()
+deletedSelection.deletionOnly = true
+deletedSelection.editor.setSelectedRange(NSRange(location: 7, length: 6))
+var selectionDone = false; var selectionOriginal = ""; var selectionPlanned = ""
+let selectionTypist = Typist(postEvent: { _ in fatalError("selection must never send a key") })
+selectionTypist.onUnconfirmedReplacement = { selectionOriginal = $0; selectionPlanned = $1 }
+SelectionConverter().replace(.init(target: deletedSelectionTarget, range: CFRange(location: 7, length: 6),
+ text: "ghbdtn", originalSelection: CFRange(location: 7, length: 6)), permit: .init(), typist: selectionTypist,
+ replayRoute: .init(target: deletedSelectionTarget)) { result, _ in
+    require(result == .uncertain, "selected-text deletion uncertain"); selectionDone = true
+}
+drain(selectionTypist, done: { selectionDone })
+require(selectionOriginal == "ghbdtn" && selectionPlanned == "привет", "explicit Option selection retains both full texts")
+print("PASS: production SelectionConverter retains source and converted text")
+
+let dictationDeletion = FixtureAX()
+dictationDeletion.deletionOnly = true
+let speechPermit = DictationInsertionPermit()
+guard case .target(let dictationDestination) = dictationDeletion.capture(speechPermit) else { fatalError("speech capture") }
+var speechDone = false; var speechOriginal = ""; var speechPlanned = ""
+let speechTypist = Typist(postEvent: { _ in fatalError("speech queue must not replay a key") })
+speechTypist.onUnconfirmedReplacement = { speechOriginal = $0; speechPlanned = $1 }
+speechTypist.insertDictation("новый текст", target: dictationDestination, permit: speechPermit) { result in
+    require(result == .fallback(.unconfirmed), "dictation replacing selection with deletion falls back"); speechDone = true
+}
+drain(speechTypist, done: { speechDone })
+require(speechOriginal == "старый" && speechPlanned == "новый текст", "dictation deletion retains selected original and complete recognition")
+print("PASS: shared dictation queue retains selected source after unconfirmed write")
 
 let focus = InputFocusGuard()
 let core = EngineCore(detector: Detector(), snippets: SnippetStore())
