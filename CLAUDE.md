@@ -34,9 +34,11 @@ unconfirmedSelection удерживают всю текущую очередь, 
 сохранены. Sources frozen, Spec+Standards approve0blockers; finaltoolsSpec
 also approved. RootLinux95/fullspeech/codesign, Engine и delayedfixturePASS.
 CandidateDMG mountedversion/deepstrict/helper/symlinkPASS; durableaudit live-insertion.
-Публичная1.4.4; кандидат НЕ установлен/выпущен до hardwareGREEN. Mac unlocked,
-но CUA nativeMLS menu timeout. UseraskedQuitoldapp; PID45401 покаrunning.
-Backup сохранён, installedнеизменён; не обходитьUI черезshell.
+Публичная1.4.4; кандидат1.4.5 установлен после user«закрыл»; PID49664,
+exactbuiltbinary/deepstrictPASS. ActualmacOSalert снова требует Accessibility+
+InputMonitoring; userhandedoff panels/restart. OwnIABtab2 очищен/handoff.
+До physicalcandidateGREEN нетpush/archive/release. Backup1.4.4 сохранён;
+не обходитьUI/TCC черезshell.
 Scratch /tmp path через qa/state (TMPDIRvarfolders).
 
 Полный Linux XCTest95/95; native panel/adapter/debug/release passed;

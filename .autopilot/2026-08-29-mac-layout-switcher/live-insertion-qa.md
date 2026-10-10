@@ -163,3 +163,16 @@ mainbinary точный; candidate deepstrict повторноPASS. Installed.ap
 После подтверждённого отсутствия oldPID разрешена замена reviewedcandidate
 по текущему user-ready workflow, запуск толькоCUA; затем физический ownCodex
 срфе+Space с before-source/readback. Tab2 повторноhandoff.
+
+## Reviewed candidate installed after «закрыл»
+
+OldPID45401 confirmedabsent. Root filesystemcopy/deepstrict candidate stage,
+preserved oldinstalled.app in scratch/replaced-installed-1.4.4.app thenrename
+reviewedcandidate into /Applications/MacLayoutSwitcher.app. Deepstrict and
+exactbinarySHA c0d8f234… PASS; Info.plist1.4.5. CUAgetApp fullpath launched
+newPID49664 at19:09:02 and displayed actual permissionsalert: Accessibility +
+InputMonitoring. Binding assignmentfailed, later nativegetApp timedout again;
+no shellUI launch/permissionsforce. Useraskedrestore twoapppermissions and
+menu«Я выдал разрешения». No mic/clipboard/privatefield use.
+OwnedIABtab2 cleanreload, bothfields/log empty, markedhandoff for nextphysical
+candidatecheck. Public1.4.4 unchanged; candidate1.4.5 not yet hardwareGREEN.
