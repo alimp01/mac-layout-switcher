@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-10T15:58:25.015129+00:00",
+  "updatedAt": "2026-10-10T16:05:15.488236+00:00",
   "finishedAt": null,
   "stages": [
     {
@@ -929,7 +929,7 @@ window.STATE =
     "cause": "ACK-before-apply selection readback returns stale caret; old untouched replays separator against late source selection. Contract baselineRED plus matching actualownedCodexevent trace.",
     "ticket": "25",
     "liveProbe": "Native human srfe→chat PASS; ownedCodexIAB physical srfe→space deletionRED, valid V2log27events",
-    "blocker": "Mac relocked; manualunlock requested for candidate1.4.5 install and hardwareGREEN",
+    "blocker": "User unlockedMac; nativeCUA getApp installedMLS twice/SystemUIServer timeout; DOMownedIAB available. UseraskedQuit old1.4.4 via menu; PID45401 stillrunning. Candidate install awaits explicitmanualQuit, no replacementperformed.",
     "productChange": "Candidate1.4.5 bounded selectionconfirmation + unconfirmedSelection queue hold/recovery; public remains1.4.4",
     "qa": ".autopilot/2026-08-29-mac-layout-switcher/live-insertion-qa.md",
     "candidateScratch": "/var/folders/s7/blf5jdcs7q7bfjjxbt621w500000gn/T/mls-g22-candidate.zaw8onaw",
@@ -944,6 +944,7 @@ window.STATE =
     },
     "durableAudit": "audit/live-insertion",
     "candidateCodeCommit": "2163e0a3e7fa7f388ba551ef97b69d9a6f0a3126",
-    "publication": "not-pushed; public remains1.4.4 until candidatehardwareGREEN"
+    "publication": "not-pushed; public remains1.4.4 until candidatehardwareGREEN",
+    "installedBackup": "/var/folders/s7/blf5jdcs7q7bfjjxbt621w500000gn/T/mls-g22-candidate.zaw8onaw/installed-1.4.4-backup.app"
   }
 }

@@ -151,3 +151,15 @@ Durable Sourcesmanifest, ownhardwareRED excerpt, rootGREEN logs and approvals
 
 Reviewed candidate locally committed2163e0a3e7fa7f388ba551ef97b69d9a6f0a3126.
 No push/archive; installed/public1.4.4 unchanged. Hardware gate blocks release.
+
+## Продолжение после «готово»
+
+Mac разблокирован. CUA getApp `/Applications/MacLayoutSwitcher.app` дважды
+возвращает timeout; SystemUIServer тоже timeout. Inventory и ownedIAB DOM
+доступны. Не обходить UI через shell/CG/osascript. Read-only PID45401 всё ещё
+старый1.4.4; пользователь попросен выбрать менюMLS→Выйти и ответить «закрыл».
+Backup старой.app сохранён в candidate scratch/installed-1.4.4-backup.app,
+mainbinary точный; candidate deepstrict повторноPASS. Installed.app не менялась.
+После подтверждённого отсутствия oldPID разрешена замена reviewedcandidate
+по текущему user-ready workflow, запуск толькоCUA; затем физический ownCodex
+срфе+Space с before-source/readback. Tab2 повторноhandoff.

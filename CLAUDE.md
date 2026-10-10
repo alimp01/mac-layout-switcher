@@ -34,8 +34,10 @@ unconfirmedSelection удерживают всю текущую очередь, 
 сохранены. Sources frozen, Spec+Standards approve0blockers; finaltoolsSpec
 also approved. RootLinux95/fullspeech/codesign, Engine и delayedfixturePASS.
 CandidateDMG mountedversion/deepstrict/helper/symlinkPASS; durableaudit live-insertion.
-Публичная1.4.4; кандидат НЕ установлен/выпущен до hardwareGREEN. Mac relocked,
-разблокировка запрошена. Scratch /tmp path через qa/state (TMPDIRvarfolders).
+Публичная1.4.4; кандидат НЕ установлен/выпущен до hardwareGREEN. Mac unlocked,
+но CUA nativeMLS menu timeout. UseraskedQuitoldapp; PID45401 покаrunning.
+Backup сохранён, installedнеизменён; не обходитьUI черезshell.
+Scratch /tmp path через qa/state (TMPDIRvarfolders).
 
 Полный Linux XCTest95/95; native panel/adapter/debug/release passed;
 mounted DMG1.4.3 version/codesign/helper проверены;
