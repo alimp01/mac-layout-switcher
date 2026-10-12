@@ -8,7 +8,7 @@
 
 ## Текущее состояние — 2026-10-12
 
-G24/T27: кандидат1.4.7 установлен, публикация готовится. Реальный systemWebKit
+G24/T27: версия1.4.7 установлена и опубликована (code4297eef). Реальный systemWebKit
 воспроизводит settable AXSelectedText no-op; Safari заранее использует существующий
 проверяемый Unicode путь. Baseline RED/final GREEN, оба fresh reviews approved0,
 rootLinux95/nativefullspeech/mountedDMG PASS. Установлен1.4.7; macOS снова запросила

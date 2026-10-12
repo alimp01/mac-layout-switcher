@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-12T07:25:26.092099+00:00",
+  "updatedAt": "2026-10-12T07:32:11.531484+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -60,7 +60,7 @@ window.STATE =
       "id": "final",
       "status": "active",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "G24 publication and physical Safari acceptance pending"
+      "note": "G24 1.4.7 installed/published; GitHub/archive80hashes PASS. Awaiting permissions and physical Safari acceptance."
     }
   ],
   "requirements": {
@@ -744,7 +744,8 @@ window.STATE =
       "blockedBy": [],
       "wave": 23,
       "repairs": 0,
-      "note": "Minimal Safari routing; 2reviews/native/Linux95/DMG PASS. Installed1.4.7; user permissions and live acceptance pending."
+      "note": "1.4.7 installed/published. 2reviews/native/Linux95/DMG/public80hashes PASS. User permissions and physical Safari pending.",
+      "commit": "4297eef1bb3dcce48604e7ff789c462aec64acfd"
     }
   ],
   "singlePass": null,

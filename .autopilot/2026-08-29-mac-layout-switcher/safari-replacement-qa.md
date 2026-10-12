@@ -24,3 +24,10 @@ Installed1.4.7 with backup1.4.6 in /tmp/mls-t27-installed-backup. macOS requests
 renewed Accessibility/Input Monitoring; user handoff pending. Own Safari page
 http://127.0.0.1:18723 opened. Physical input/Space/Enter/Option acceptance pending.
 No private form edited/submitted; no user recordings published. See audit folder.
+
+## Publication
+Code4297eef1bb3dcce48604e7ff789c462aec64acfd pushed to GitHub main; VERSION1.4.7
+and public archive verified over HTTPS. PAX commit and all80 approved source/tool/doc
+hashes match; download/server SHA256 d99150463ca18be37800ec09dc532a251f24e3b010a072d53f606dd5a2f9dd1b.
+Metadata follow-up does not change app bytes. ActualSafari acceptance still pending;
+release availability is not acceptance. Latest publication receipt in task outputs.

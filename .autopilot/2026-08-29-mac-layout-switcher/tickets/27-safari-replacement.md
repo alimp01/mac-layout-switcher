@@ -17,4 +17,4 @@ Fresh executor uses /implement + /tdd; root owns .autopilot/CLAUDE/git/release/C
 Executor scope necessary keyboard/platformsharedadapter, meaningful tests/tools,
 README/NEXT; do not write project docs/rootstate or commit/push/version yet.
 
-Candidate1.4.7 installed; 2reviews+native/Linux/DMG PASS. Live Safari permission handoff and publication pending. Local WebKit evidence is not physical Safari acceptance.
+Candidate1.4.7 installed; 2reviews+native/Linux/DMG PASS. Published code4297eef, HTTPS archive80hashes verified. Live Safari permission handoff and hardware acceptance pending. Local WebKit evidence is not physical Safari acceptance.
