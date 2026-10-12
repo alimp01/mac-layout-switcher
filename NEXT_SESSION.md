@@ -5,6 +5,32 @@ GitHub: https://github.com/alimp01/mac-layout-switcher
 
 Сначала прочитай `CLAUDE.md`, `.autopilot/state.js`, затем manifest и актуальные тикеты в `.autopilot/2026-08-29-mac-layout-switcher/`. Они определяют состояние ревью и релиза; VERSION сам по себе не доказывает публикацию.
 
+## G24: замена в Safari, кандидат исправления (12.10.2026)
+
+- Пользовательская запись установленной 1.4.6: Safari Full name сохраняет
+  `шднф`, панель предлагает `ilya`; ранее аналогично `пфьуищн` → `gameboy`.
+  Запись не устанавливает точную клавишу или внутренний этап отказа.
+- Собственный невидимый системный WebView воспроизводит конкретный дефект:
+  AXSelectedText и AXSelectedTextRange объявлены settable, range применяется,
+  setter текста оставляет источник. Native Unicode → NSEvent в том же
+  WebHTMLView даёт полный результат и правильную каретку. Это не приватный
+  Safari AX и не WindowServer; TCC/clipboard/микрофон не используются.
+- Минимальное изменение в SystemDictationAccessibility выбирает существующий
+  проверяемый Unicode-маршрут для точных bundle ID Safari/Technology Preview
+  до любой записи. Source/range/value/focus/permit проверки, bounded readback,
+  no-retry и recovery остаются прежними. Словари не менялись.
+- `tools/test-keyboard-webkit.sh` сохраняет исходники, compiled seam, SHA256
+  и лог. `MLS_WEBKIT_BASE_REF=ef8be979 bash tools/test-keyboard-webkit.sh`
+  оставляет `шднф` (RED); кандидат даёт `ilya ` один раз (GREEN).
+  Дополнительно Option word/selection, emoji/tail, rapid input, gameboy перед
+  Enter/ShiftEnter/Tab, readonly, отмена, чужой prefix/focus, partial/no-op
+  recovery и общий путь диктовки. Используется реальный deprecated WebView
+  для доступа к WebCore в своём процессе; WKWebView/Safari remote AX и
+  аппаратная доставка этим тестом не подтверждаются.
+- Root ведёт фактическую Safari-приёмку, оба финальных ревью, native/Linux,
+  VERSION/DMG/публикацию в `.autopilot/state.js` и `safari-replacement-qa.md`.
+  Этот раздел не подтверждает завершение релиза или пользовательскую приёмку.
+
 ## G23 / 1.4.6: исправление диктовки, финальный код одобрен (10.10.2026)
 
 - На установленной 1.4.5 пользователь получил только `Давай проверим,` при

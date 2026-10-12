@@ -128,6 +128,11 @@ struct SystemDictationAccessibility: DictationAccessibility {
         // action is unimplemented. Select verified Unicode before any mutation;
         // never discover this by attempting text and then retrying it.
         guard let bundle = NSRunningApplication(processIdentifier: pid)?.bundleURL else { return false }
+        // Safari's WebKit text controls likewise advertise AXSelectedText, but
+        // the WebCore setter is a no-op. Choose the existing verified native
+        // input route before selection/text mutation, never as a write retry.
+        if let identifier = Bundle(url: bundle)?.bundleIdentifier,
+           ["com.apple.Safari", "com.apple.SafariTechnologyPreview"].contains(identifier) { return true }
         let frameworks = bundle.appendingPathComponent("Contents/Frameworks")
         let names = (try? FileManager.default.contentsOfDirectory(atPath: frameworks.path)) ?? []
         return names.contains { name in

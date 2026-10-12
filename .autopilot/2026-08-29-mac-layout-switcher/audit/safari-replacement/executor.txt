@@ -1,0 +1,35 @@
+T27 executor handoff — 2026-10-12
+Baseline HEAD ef8be979577ace045ac3bf51d6d813c2dbc05a12. No commits, VERSION, root state/docs, dictionary, release or installed-app changes by executor.
+
+Concrete diagnosis: actual in-process system WebKit WebCore AX text input wrapper reports AXSelectedText and selected range settable. Range mutation is real and asynchronously confirmed. Selected text setter leaves source unchanged; direct production Target result uncertain, zero DOM input events, one direct attempt and no retry. Production Unicode CGEvent serialization interpreted locally by actual WebHTMLView produces full ilya-space with caret5 and exactly one input event. System WebKit build20621.3.11.11.3. Current upstream AccessibilityObject.h default setSelectedText override is empty; AccessibilityRenderObject overrides range, not text. The reproducer does not inspect Safari AX, use TCC, clipboard contents, microphone, global CG events or user fields.
+
+Minimal production change: five added lines choose existing verified Unicode route for exact com.apple.Safari / com.apple.SafariTechnologyPreview bundle identifiers before any text mutation. Guards, chunking, selection confirmation, permits, transport and recovery unchanged. Same adapter choice serves Option/auto/dictation. No diagnostics added because actual platform no-op is concretely reproduced; generic user notice alone was not treated as cause evidence.
+
+Meaningful baseline RED: /tmp/mls-keyboard-webkit.cHJOXi/run.log, actual шднф / uncertain.
+Final GREEN: /tmp/mls-keyboard-webkit.vRg8fG/run.log, actual ilya-space / confirmed.
+Identical harness SHA256 8cc4678f099694e0b3a44e5a13ae183b6641a1b879d1b307e8b174709ed9e836 in both. Sources differ only by five routing lines. Each snapshot retains original and compiled sources plus exact bundle lookup seam and hashes.
+Coverage: real advertised no-op; Space once; gameboy before Enter/ShiftEnter/Tab with retained keycode/flags/pair; Option word/selection preserving emoji/context with queued input; cancellation after selection dispatch; wrong prefix/focus; no-op/partial native delivery retains complete original/planned/Enter with no retry; readonly refusal; shared full chunked dictation replacement.
+
+Other executor checks PASS:
+- /tmp/mls-t27-keyboard-adapter.log (Target/Typist/SelectionConverter, notice, actual serialized Unicode/AppKit)
+- /tmp/mls-t27-selection-delay.log (prior ACK-before-apply regression)
+- /tmp/mls-t27-dictation-adapter.log
+- /tmp/mls-t27-engine.log; snapshot /tmp/mls-keyboard-engine.IowRmq (production EventTap/KeyTranslator/Engine both AX and Unicode)
+- /tmp/mls-t27-completion-frozen.log, all15 existing groups, exit0. First original-checkout attempt stopped after successful literal group because macOS FileProvider cp failed on existing notification-race.swift; byte-for-byte frozen rerun passed entire suite.
+- bash -n tools/test-keyboard-webkit.sh; git diff --check explicit modified tracked paths.
+
+Frozen tree: /var/folders/s7/blf5jdcs7q7bfjjxbt621w500000gn/T/mls-t27-frozen-0ny5adou
+80 Sources/Tests/tools/build metadata/doc files; SHA256.json. Final core/native/fullspeech/DMG and both independent reviews belong to root. Native harnesses compile changed platform source successfully. No claim of physical Safari, WindowServer, user private Fullname form or all-app acceptance. Own deprecated WebView accesses real WebCore in-process; PID bundle/focus/security/observer-registration and final receiver boundaries remain injected. Enter/Tab post boundary checked after DOM verification; not real Safari navigation.
+
+Changed file immutable SHA256:
+53b024544d8533af007cb1edbacfe9b1ce931552890edc3a189f0724898d07a3  Sources/MacLayoutSwitcher/Speech/DictationTarget.swift
+3ccf24f8da54309162cd29aca96b69398c416c4cefe7fde096192abf977f70d1  tools/test-keyboard-webkit.sh
+8cc4678f099694e0b3a44e5a13ae183b6641a1b879d1b307e8b174709ed9e836  tools/keyboard-harness/webkit.swift
+75a87a24ba7c07eedcdcceec29a6ce99198fef5647eb506ac3234989411ccb65  tools/keyboard-harness/README.md
+ad00e21381bc561de25bb194ba472aec7ae6d3317b403b78ee9679a6a7e4133d  README.md
+0f08e90a6e2066efdbafb3a71260f89bc2ec7608dc405235f561fccd8d2d9bdf  NEXT_SESSION.md
+
+Primary WebKit source references (current upstream, supporting evidence; local actual system WebKit test is independent):
+https://github.com/WebKit/WebKit/blob/main/Source/WebCore/accessibility/AccessibilityObject.h
+https://github.com/WebKit/WebKit/blob/main/Source/WebCore/accessibility/AccessibilityRenderObject.h
+https://github.com/WebKit/WebKit/blob/main/Source/WebCore/accessibility/mac/WebAccessibilityObjectWrapperMac.mm

@@ -6,7 +6,15 @@
 исправление, автозапуск, индикатор RU/EN и утка, самообновление, локальная
 диктовка GigaAM v3. Дневника набора нет.
 
-## Текущее состояние — 2026-10-10
+## Текущее состояние — 2026-10-12
+
+G24/T27: кандидат1.4.7 установлен, публикация готовится. Реальный systemWebKit
+воспроизводит settable AXSelectedText no-op; Safari заранее использует существующий
+проверяемый Unicode путь. Baseline RED/final GREEN, оба fresh reviews approved0,
+rootLinux95/nativefullspeech/mountedDMG PASS. Установлен1.4.7; macOS снова запросила
+разрешения, пользовательский handoff pending. ActualSafari/WindowServer/physical
+acceptance НЕ подтверждена. См. safari-replacement-qa и audit/safari-replacement.
+Словари не менялись (пользователь отменил расширение).
 
 Версия1.4.6 опубликована и проверена; G23/T26 scopedcomplete.
 Диктовка больше не отменяется из-за повторных/запоздавших собственных AX

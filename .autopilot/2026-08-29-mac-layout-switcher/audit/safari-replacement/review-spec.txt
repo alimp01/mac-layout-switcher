@@ -1,0 +1,11 @@
+Spec review — T27 frozen candidate, 2026-10-12
+
+APPROVE implementation: 0 blocking findings; no identified scope creep or incorrect production behavior.
+
+The five-line change in Sources/MacLayoutSwitcher/Speech/DictationTarget.swift:131–135 selects the existing verified Unicode path for exact Safari/Technology Preview bundle identifiers before mutation. It preserves the Target/Typist/Engine interfaces, source/range/focus/permit guards, bounded confirmation and no-retry recovery, satisfying safari-replacement-spec.md:11–23 and :28–33. The shared dictation effect is necessary coverage of the existing adapter, not an unrelated speech change.
+
+Independent evidence: all 80 frozen SHA256.json entries match. A fresh tools/test-keyboard-webkit.sh run passed every group; evidence is /tmp/mls-keyboard-webkit.WGJhI6/run.log. It exercises the actual system WebCore wrapper advertising but not performing selected-text mutation (webkit.swift:132–146), then production routing and serialized Unicode into an actual WebHTMLView receiver (98–114, 148–158). The retained baseline executable independently failed with unchanged шднф/uncertain. Its harness and every unchanged production source are byte-identical to the final fixture; DictationTarget differs only by the five routing lines. A fresh selection-delay suite also passed (/tmp/mls-keyboard-selection-delay.7dThjf/run.log); shell syntax passed.
+
+Remaining acceptance, not a code-review blocker: spec:24–25 requires native/full-speech/DMG/release and explicitly distinguishes actual Safari/user-physical acceptance. These remain root-owned. The WebKit fixture injects bundle lookup, focus/security, observer registration and final delivery; Enter/ShiftEnter/Tab are checked at the post boundary, not executed as real Safari navigation (webkit.swift:67–68, 98–118, 160–179). Therefore this establishes a concrete WebKit setter defect and local repair, not proof of the original Safari incident's exact failure stage or WindowServer delivery. README/NEXT_SESSION describe that limitation accurately.
+
+Repository git diff could not complete because macOS reported mmap Operation canceled; reviewed the immutable candidate and retained baseline source comparison instead. No repository edits, commits, UI actions or credentials handled.

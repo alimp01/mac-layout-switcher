@@ -1,0 +1,13 @@
+STANDARDS — APPROVE, 0 blockers.
+
+Scope: baseline ef8be979577ace045ac3bf51d6d813c2dbc05a12 to frozen T27 candidate, including both new WebKit fixture files. Read CLAUDE.md, G24 safari-replacement-spec.md, and code-review SKILL.md. All 80 SHA256.json entries match.
+
+Hard findings: none. DictationTarget.swift:131–135 chooses the existing Unicode path by exact Safari identifiers before mutation, consistent with CLAUDE.md’s verified-range/readback/no-retry rules. It does not alter source matching, cancellation, selection confirmation, transport, or recovery. Existing Target guards still reject unsupported/readonly controls and retain uncertain results without a second write attempt.
+
+Test honesty: tools/keyboard-harness/webkit.swift:18–128 exercises the real in-process WebCore wrapper and production event construction while explicitly injecting process identity, focus/security, observation registration, and final delivery. Literal DOM assertions, one-input-event assertions, cancellation, surrounding emoji/text, partial/no-op recovery, and shared dictation checks support the bounded claims. Enter/Tab assertions check ordering and original event pairs, not actual navigation. README.md:63–69,127–134 and tools/keyboard-harness/README.md:67–89 retain that distinction.
+
+Heuristic findings: none warrant action. Applied all twelve requested smell heuristics with repository rules taking precedence; the small centralized route choice does not justify additional abstraction.
+
+Independent checks: frozen WebKit runner compiled and passed all cases (exit 0), /tmp/mls-t27-review-standards-webkit.log, snapshot /tmp/mls-keyboard-webkit.jhRykp. Re-executed retained baseline binary: expected RED (exit 1), source remains шднф / uncertain; /tmp/mls-t27-review-standards-baseline.log. Baseline/final harness bytes match SHA256 8cc4678f099694e0b3a44e5a13ae183b6641a1b879d1b307e8b174709ed9e836; copied production sources differ only by the five routing lines. Shell syntax passes.
+
+Physical Safari/WindowServer and user acceptance remain pending; this approval establishes code/fixture standards only. Full native/core/release validation belongs to the parent workflow.

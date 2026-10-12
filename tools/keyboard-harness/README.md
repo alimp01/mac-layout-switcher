@@ -63,3 +63,26 @@ receiver does; no WindowServer or external posting is involved. Each printed
 scratch directory preserves source copies, `SOURCE-SHA256SUMS` and `run.log`.
 Baseline: `MLS_SELECTION_BASE_REF=c0be78e bash tools/test-keyboard-selection-delay.sh`.
 To isolate preselected conversion, add `MLS_SELECTION_CASE=preselected`.
+
+Run `bash tools/test-keyboard-webkit.sh` for the Safari routing regression.
+The baseline command is `MLS_WEBKIT_BASE_REF=ef8be979 bash
+tools/test-keyboard-webkit.sh`; it changes only DictationTarget.swift from that
+commit. The same real system WebKit input advertises a selected-text setter,
+applies AX selection, but the text setter leaves the source unchanged. With the
+Safari route selected before mutation, the literal `шднф` becomes `ilya ` once
+and the caret reaches 5. This reflects WebCore's empty `setSelectedText`
+implementation, unlike its implemented range setter.
+
+This runner uses deprecated in-process WebView deliberately: its actual
+WebCore accessibility wrapper is accessible without TCC. WKWebView's remote
+AX tree is not accessed. Process bundle lookup is replaced by a private fixture
+bundle identifying Safari; input focus/security and observer registration are
+injected. Native Unicode construction/serialization is unchanged, but the final
+receiver is the fixture's WebHTMLView, with no global or cross-process post.
+Enter/ShiftEnter/Tab are inspected at the final post boundary after DOM readback;
+ordinary rapid input is interpreted by WebKit. Tests also cover Option word and
+selected text, emoji/context, source/focus/cancellation, readonly controls,
+partial/no-op recovery, and the shared chunked dictation route. The printed
+scratch directory retains original/compiled sources, exact seam description,
+SHA256 manifest and run.log. These are local WebKit tests, not live Safari or
+physical WindowServer acceptance.

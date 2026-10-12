@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-10T17:27:38.248052+00:00",
+  "updatedAt": "2026-10-12T07:25:26.092099+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -48,28 +48,25 @@ window.STATE =
       "id": "build",
       "status": "done",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G23 frozen4 approved0findings byboth; root15groups/Engine/delay/nativefullspeech/mountedDMG and Linux95exactreuse PASS",
-      "finishedAt": "2026-10-10T17:17:49.980263+00:00"
+      "note": "G24 candidate1.4.7 nativefullspeech/DMG/Linux95 PASS; installed, permissions pending"
     },
     {
       "id": "review",
       "status": "done",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "G23 frozen4 approved0findings byboth; root15groups/Engine/delay/nativefullspeech/mountedDMG and Linux95exactreuse PASS",
-      "finishedAt": "2026-10-10T17:17:49.980263+00:00"
+      "note": "G24 two independent final reviews approved0 blockers; actual Safari pending"
     },
     {
       "id": "final",
-      "status": "done",
+      "status": "active",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "1.4.6 codecommit/rawVERSION/publicarchiveSHA/PAX64frozenfiles verified; actualspeech manualhandoff pending",
-      "finishedAt": "2026-10-10T17:27:38.248052+00:00"
+      "note": "G24 publication and physical Safari acceptance pending"
     }
   ],
   "requirements": {
-    "total": 30,
+    "total": 31,
     "done": 29,
-    "inTicket": 0,
+    "inTicket": 1,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -735,6 +732,19 @@ window.STATE =
       },
       "commit": "f96f920104b538201d12c51bf7d8d8018eaf5b71",
       "finishedAt": "2026-10-10T17:27:38.248052+00:00"
+    },
+    {
+      "id": "27",
+      "title": "Исправить замену в Safari",
+      "requirements": [
+        "G24"
+      ],
+      "status": "in-progress",
+      "startedAt": "2026-10-11T18:02:46.082222+00:00",
+      "blockedBy": [],
+      "wave": 23,
+      "repairs": 0,
+      "note": "Minimal Safari routing; 2reviews/native/Linux95/DMG PASS. Installed1.4.7; user permissions and live acceptance pending."
     }
   ],
   "singlePass": null,
@@ -1016,7 +1026,6 @@ window.STATE =
     "codeCommit": "f96f920104b538201d12c51bf7d8d8018eaf5b71",
     "publication": "GitHub VERSION1.4.6 / HTTPSarchiveSHA / PAXcommit / all64approved files exact"
   },
-  "finishedAt": "2026-10-10T17:27:38.248052+00:00",
   "previousRelease": {
     "version": "1.4.5",
     "codeCommit": "2163e0a3e7fa7f388ba551ef97b69d9a6f0a3126",
@@ -1028,5 +1037,12 @@ window.STATE =
     "verifiedAt": "2026-10-10T16:25:53.568774+00:00",
     "verifiedPublicationHead": "5f6606fd1972229067d17be8c74e2726b1f97261",
     "publicArchiveSHA256": "cfc49ec37a0b1558a805431cfd9205d44c8c030139b2d493b7419e0b83ae0aa2"
+  },
+  "safariReplacementAudit": {
+    "ticket": "27",
+    "installedVersion": "1.4.6",
+    "actual": "Uservideo Safari source remains/recovery; exact failedstage unknown",
+    "manualAcceptance": "pending",
+    "dictionary": "cancelled expansion remains out of scope"
   }
-}
+};
