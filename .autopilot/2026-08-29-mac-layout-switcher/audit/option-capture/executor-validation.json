@@ -1,0 +1,58 @@
+{
+  "candidate": "/tmp/mls-t28-final-8llydrlf",
+  "source_manifest_sha256": "b6f1a97d2375936bf8753c401b7a0badf49d21dfa6b4447ada7ae40f77939ccd",
+  "baseline_sources": "/tmp/mls-t28-baseline-5ct6541m",
+  "baseline_red": "/tmp/mls-keyboard-engine.7On4Ed/run.log",
+  "tests": [
+    {
+      "suite": "engine",
+      "exit_code": 0,
+      "log": "/tmp/mls-t28-final-engine.log",
+      "sha256": "3fef28a877b1dc777ccef670b92518472830134646fbb3035711c296874073b7",
+      "pass_groups": 20
+    },
+    {
+      "suite": "adapter",
+      "exit_code": 0,
+      "log": "/tmp/mls-t28-final-adapter.log",
+      "sha256": "0aba44c2c739b26cd25b258844b4c779800cf422677a12a2bcde4bc8f37feb12",
+      "pass_groups": 20
+    },
+    {
+      "suite": "delay",
+      "exit_code": 0,
+      "log": "/tmp/mls-t28-final-delay.log",
+      "sha256": "75490cbea89165350ce73fdd110ac542a1e39e189ba57a4456ab32767f85877e",
+      "pass_groups": 1
+    },
+    {
+      "suite": "webkit",
+      "exit_code": 0,
+      "log": "/tmp/mls-t28-final-webkit.log",
+      "sha256": "23fc6b6879e3b27289f14dd8d8a6a06d2d075f55a1a0588c30c884ce80eb3207",
+      "pass_groups": 8
+    },
+    {
+      "suite": "dictation",
+      "exit_code": 0,
+      "log": "/tmp/mls-t28-final-dictation.log",
+      "sha256": "6da2d7f375b27d7cb3a77a1c5b7ef742ff5e7ada6369aca64dd41c7b60424a5c",
+      "pass_groups": 15
+    },
+    {
+      "suite": "dictation-adapter",
+      "exit_code": 0,
+      "log": "/tmp/mls-t28-final-dictation-adapter.log",
+      "sha256": "3ae836cbd0e4195039998e6d59b4669f5336f99a63ebc769619f47a53b137133",
+      "pass_groups": 1
+    },
+    {
+      "suite": "panel",
+      "exit_code": 0,
+      "log": "/tmp/mls-t28-final-panel.log",
+      "sha256": "6e1cef0b969d040f74daebaaddcc9a683c5e796a924fa2102484f2cde16f6089",
+      "pass_groups": 1
+    }
+  ],
+  "acceptance": "Local injected-system AppKit/WebKit fixtures only; actual user all-app Option issue unconfirmed."
+}

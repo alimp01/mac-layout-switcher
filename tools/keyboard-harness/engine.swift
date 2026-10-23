@@ -9,26 +9,59 @@ func mainValue<T>(_ block: () -> T) -> T {
  return DispatchQueue.main.sync(execute: block)
 }
 final class FixtureAX: DictationAccessibility {
- let editor = NSTextView()
- let element = AXUIElementCreateApplication(harnessPID)
+ let editors = [NSTextView(), NSTextView()]
+ let elements = [AXUIElementCreateApplication(harnessPID), AXUIElementCreateApplication(harnessPID + 1)]
+ var activeField = 0
+ var editor: NSTextView { editors[activeField] }
+ var element: AXUIElement { elements[activeField] }
+ func view(for element: AXUIElement) -> NSTextView {
+  editors[CFEqual(element, elements[0]) ? 0 : 1]
+ }
  let unicode: Bool
- var isTrusted: Bool { true }
- var isSecure: Bool { false }
+ var isTrusted = true
+ var isSecure = false
+ var unavailableField = false
+ var unavailableSelection = false
+ var unavailableText = false
+ var secureField = false
+ var needsBootstrap = false
+ var bootstrapWrapper = false
+ let wrapper = AXUIElementCreateApplication(harnessPID + 2)
+ var selectionReadHook: (() -> Void)?
+ var valueReadsBeforeHook = 0
+ var valueReadHook: (() -> Void)?
+ var bootstrapHook: (() -> Void)?
  var selectionHook: (() -> Void)?
  var ignoreWrites = false
  var suppressedUpsValid = true
  var syntheticFilter: ((CGEvent) -> TapDecision)?
  var posted: [(CGEventType, UInt16, CGEventFlags)] = []
  init(unicode: Bool) { self.unicode = unicode }
- func focusedElement(pid: pid_t) -> AXUIElement? { pid == harnessPID ? element : nil }
- func enableAccessibility(pid: pid_t) {}
+ func focusedElement(pid: pid_t) -> AXUIElement? {
+  mainValue {
+   guard pid == harnessPID && harnessFrontPID == pid && !unavailableField else { return nil }
+   return needsBootstrap ? (bootstrapWrapper ? wrapper : nil) : element
+  }
+ }
+ func enableAccessibility(pid: pid_t) { mainValue { needsBootstrap=false; if let hook=bootstrapHook { bootstrapHook=nil; hook() } } }
  func attribute(_ name: String, of element: AXUIElement) -> CFTypeRef? {
   mainValue {
+   if CFEqual(element,wrapper) { return name == kAXRoleAttribute ? kAXGroupRole as CFString : nil }
    switch name {
-   case kAXValueAttribute: return editor.string as CFString
+   case kAXValueAttribute:
+    if unavailableText { return nil }
+    let value=view(for: element).string as CFString
+    if let hook=valueReadHook {
+     if valueReadsBeforeHook > 0 { valueReadsBeforeHook -= 1 }
+     else { valueReadHook=nil; hook() }
+    }
+    return value
    case kAXSelectedTextRangeAttribute:
-    let ns=editor.selectedRange(); var range=CFRange(location:ns.location,length:ns.length)
+    if unavailableSelection { return nil }
+    let ns=view(for: element).selectedRange(); var range=CFRange(location:ns.location,length:ns.length)
+    if let hook=selectionReadHook { selectionReadHook=nil; hook() }
     return AXValueCreate(.cfRange,&range)
+   case kAXSubroleAttribute: return secureField ? kAXSecureTextFieldSubrole as CFString : nil
    case kAXRoleAttribute: return kAXTextAreaRole as CFString
    default: return nil
    }
@@ -38,14 +71,14 @@ final class FixtureAX: DictationAccessibility {
  func supportsUnicodeInsertion(_ element: AXUIElement) -> Bool { true }
  func prefersUnicodeInsertion(pid: pid_t) -> Bool { unicode }
  func setSelectedText(_ text: String, in element: AXUIElement) -> AXError {
-  if !ignoreWrites { mainValue { editor.setAccessibilitySelectedText(text) } }; return .success
+  if !ignoreWrites { mainValue { view(for: element).setAccessibilitySelectedText(text) } }; return .success
  }
  func postUnicode(_ text: String, pid: pid_t) -> Bool {
   SystemDictationAccessibility(postEvent: { event, _ in if !self.ignoreWrites { self.receive(event) } }).postUnicode(text,pid:pid)
  }
  func setSelection(_ range: CFRange, in element: AXUIElement) -> Bool {
   mainValue {
-   editor.setSelectedRange(NSRange(location:range.location,length:range.length))
+   view(for: element).setSelectedRange(NSRange(location:range.location,length:range.length))
    if range.length > 0, let hook=selectionHook { selectionHook=nil; hook() }
   }; return true
  }
@@ -84,6 +117,7 @@ let app=NSApplication.shared
 app.setActivationPolicy(.prohibited)
 func drain(_ duration: Double = 0.35) { RunLoop.current.run(until:Date().addingTimeInterval(duration)) }
 func fixture(unicode:Bool) -> Engine {
+ harnessFrontPID=harnessPID
  currentFixture=FixtureAX(unicode:unicode)
  currentFixture.editor.string=""; currentFixture.editor.setSelectedRange(NSRange(location:0,length:0))
  let directory=URL(fileURLWithPath:NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
@@ -139,6 +173,165 @@ func postedKeys(_ codes:[UInt16],flags:CGEventFlags=[]) {
   require(events[i*2].2==flags && events[i*2+1].2==flags,"posted original modifier flags")
  }
 }
+// Option's target may change programmatically between 100ms focus samples.
+// The old field has a real buffered word, so stale core state must not win.
+func option(_ engine: Engine) {
+ for flags in [CGEventFlags.maskAlternate, CGEventFlags()] {
+  let event=CGEvent(keyboardEventSource:CGEventSource(stateID:.privateState),virtualKey:58,keyDown:false)!
+  event.type = .flagsChanged; event.flags=flags
+  _=engine.probeEvent(event)
+ }
+}
+for unicode in [false,true] {
+ let engine=fixture(unicode:unicode); typeSource(engine)
+ let oldEditor=currentFixture.editor
+ currentFixture.activeField=1
+ currentFixture.editor.string="context ghbdtn"
+ currentFixture.editor.setSelectedRange(NSRange(location:14,length:0))
+ option(engine); drain(0.65)
+ require(oldEditor.string==original,"Option preserves previously sampled field")
+ require(currentFixture.editor.string=="context привет","Option converts fresh field last word with caret at end before next sample: expected=context привет, actual=\(currentFixture.editor.string.debugDescription)")
+ require(currentFixture.editor.selectedRange()==NSRange(location:14,length:0),"Option keeps caret after new-field word")
+ engine.stop(); drain()
+}
+print("PASS: Option accepts fresh field before sampler and discards stale buffered word")
+func labels(_ view: NSView) -> [String] {
+ (view as? NSTextField).map { [$0.stringValue] } ?? view.subviews.flatMap(labels)
+}
+let denied=fixture(unicode:false)
+currentFixture.editor.string="ghbdtn"; currentFixture.editor.setSelectedRange(NSRange(location:6,length:0))
+let deniedWindows=Set(NSApplication.shared.windows.map(ObjectIdentifier.init))
+currentFixture.isTrusted=false
+option(denied); drain(0.4)
+let deniedNotice=NSApplication.shared.windows.filter { !deniedWindows.contains(ObjectIdentifier($0)) }.flatMap { $0.contentView.map(labels) ?? [] }.joined(separator:"\n")
+require(deniedNotice.contains("У Mac Layout Switcher нет разрешения «Универсальный доступ»"),"Option reports actual process trust denial separately from unavailable editor")
+require(currentFixture.editor.string=="ghbdtn","trust denial preserves source")
+denied.stop(); drain()
+print("PASS: Option distinguishes actual process trust denial")
+let changedContext=fixture(unicode:false)
+currentFixture.editor.string="context ghbdtn"; currentFixture.editor.setSelectedRange(NSRange(location:14,length:0))
+currentFixture.valueReadHook={ currentFixture.editor.string="changed ghbdtn"; currentFixture.editor.setSelectedRange(NSRange(location:14,length:0)) }
+option(changedContext); drain(0.5)
+require(currentFixture.editor.string=="changed ghbdtn","Option cancels when field text changes during capture even outside source word")
+changedContext.stop(); drain()
+print("PASS: Option cancels changed context during capture")
+for unicode in [false,true] {
+ let buffered=fixture(unicode:unicode); typeSource(buffered)
+ option(buffered); drain(0.4)
+ require(currentFixture.editor.string==converted,"same-field Option converts buffered word")
+ option(buffered); drain(0.4)
+ require(currentFixture.editor.string==original,"second Option restores buffered conversion")
+ buffered.stop(); drain()
+ let undo=fixture(unicode:unicode); typeSource(undo)
+ require(physical(undo,code:49) == .suppress,"auto correction before Option undo")
+ drain(0.4); require(currentFixture.editor.string==converted+" ","verified auto correction before undo")
+ option(undo); drain(0.4)
+ require(currentFixture.editor.string==original+" ","Option undoes recent automatic conversion")
+ undo.stop(); drain()
+ let selected=fixture(unicode:unicode); typeSource(selected)
+ currentFixture.editor.string="🙂 ghbdtn хвост"; currentFixture.editor.setSelectedRange(NSRange(location:3,length:6))
+ option(selected); drain(0.4)
+ require(currentFixture.editor.string=="🙂 привет хвост","selected Option takes priority over stale buffered word and preserves emoji/context")
+ selected.stop(); drain()
+ let word=fixture(unicode:unicode)
+ currentFixture.editor.string="context ghbdtn  "; currentFixture.editor.setSelectedRange(NSRange(location:16,length:0))
+ option(word); drain(0.4)
+ require(currentFixture.editor.string=="context привет  ","same-field Option recovers preexisting word and trailing spaces")
+ word.stop(); drain()
+}
+let empty=fixture(unicode:false); LayoutSwitcher.language = .en
+option(empty); drain(0.4)
+require(currentFixture.editor.string.isEmpty && LayoutSwitcher.language == .ru,"empty field Option switches layout")
+empty.stop(); drain()
+print("PASS: Option same-field buffered/fallback/selection/undo/empty behavior on AX and Unicode")
+for mode in ["field", "pid", "key", "click", "caret"] {
+ let engine=fixture(unicode:false)
+ currentFixture.editor.string="context ghbdtn"; currentFixture.editor.setSelectedRange(NSRange(location:14,length:0))
+ currentFixture.editors[1].string="another ghbdtn"; currentFixture.editors[1].setSelectedRange(NSRange(location:14,length:0))
+ let typed=KeyTranslator.characters(keyCode:5,flags:[])
+ currentFixture.valueReadHook={
+  switch mode {
+  case "field": currentFixture.activeField=1
+  case "pid": harnessFrontPID=harnessPID+1
+  case "key": _=physical(engine,code:5)
+  case "click":
+   let click=CGEvent(mouseEventSource:CGEventSource(stateID:.privateState),mouseType:.leftMouseDown,mouseCursorPosition:.zero,mouseButton:.left)!
+   _=engine.probeEvent(click)
+  default: currentFixture.editor.setSelectedRange(NSRange(location:7,length:0))
+  }
+ }
+ option(engine); drain(0.5)
+ require(currentFixture.editors[0].string=="context ghbdtn"+(mode == "key" ? typed : ""),"Option cancels during capture on \(mode)")
+ require(currentFixture.editors[1].string=="another ghbdtn","Option never follows changed field")
+ engine.stop(); drain()
+}
+print("PASS: Option field/PID/caret/key/click changes during capture cancel without writing")
+for (mode,expected) in [("secure","Включён защищённый ввод"),("protected","Включён защищённый ввод"),
+ ("field","Редактор не предоставил доступное поле ввода"),("range","Редактор не сообщил положение курсора"),
+ ("text","Редактор не предоставил текст для проверки замены")] {
+ let engine=fixture(unicode:false)
+ currentFixture.editor.string="ghbdtn"; currentFixture.editor.setSelectedRange(NSRange(location:6,length:0))
+ let windows=Set(NSApplication.shared.windows.map(ObjectIdentifier.init))
+ switch mode {
+ case "secure": currentFixture.isSecure=true
+ case "protected": currentFixture.secureField=true
+ case "field": currentFixture.unavailableField=true
+ case "range": currentFixture.unavailableSelection=true
+ default: currentFixture.unavailableText=true
+ }
+ option(engine); drain(0.5)
+ let message=NSApplication.shared.windows.filter { !windows.contains(ObjectIdentifier($0)) }.flatMap { $0.contentView.map(labels) ?? [] }.joined(separator:"\n")
+ require(message.contains(expected),"Option gives distinct \(mode) capture reason")
+ require(!message.contains("нет разрешения"),"Option does not blame permissions when process is trusted")
+ require(currentFixture.editor.string=="ghbdtn","capture refusal keeps source")
+ engine.stop(); drain()
+}
+let lazy=fixture(unicode:true)
+currentFixture.editor.string="ghbdtn"; currentFixture.editor.setSelectedRange(NSRange(location:6,length:0)); currentFixture.needsBootstrap=true
+option(lazy); drain(0.5)
+require(currentFixture.editor.string=="привет","Option bounded bootstrap captures lazily exposed field")
+lazy.stop(); drain()
+let wrapped=fixture(unicode:true)
+currentFixture.editor.string="ghbdtn"; currentFixture.editor.setSelectedRange(NSRange(location:6,length:0))
+currentFixture.needsBootstrap=true; currentFixture.bootstrapWrapper=true
+option(wrapped); drain(0.5)
+require(currentFixture.editor.string=="привет","Option bootstrap may replace non-editable AX wrapper with actual text field")
+wrapped.stop(); drain()
+print("PASS: Option distinct secure/field/range/text reasons and bounded bootstrap")
+let bootstrapChanged=fixture(unicode:false)
+currentFixture.editor.string="ghbdtn"; currentFixture.editor.setSelectedRange(NSRange(location:6,length:0))
+currentFixture.editors[1].string="ghbdtn"; currentFixture.editors[1].setSelectedRange(NSRange(location:6,length:0))
+currentFixture.unavailableSelection=true
+currentFixture.bootstrapHook={ currentFixture.activeField=1; currentFixture.unavailableSelection=false }
+option(bootstrapChanged); drain(0.5)
+require(currentFixture.editors.allSatisfy { $0.string=="ghbdtn" },"bootstrap must not follow an already observed editable field to another field")
+bootstrapChanged.stop(); drain()
+for mode in ["fallback", "buffered", "selected"] {
+ let engine=fixture(unicode:false)
+ if mode == "buffered" { typeSource(engine) }
+ let source = mode == "buffered" ? original : "ghbdtn"
+ currentFixture.editor.string="context "+source
+ currentFixture.editor.setSelectedRange(NSRange(location:mode == "selected" ? 8 : 8+source.utf16.count,length:mode == "selected" ? source.utf16.count : 0))
+ // The last capture read returns its prior snapshot while external text
+ // changes. The later write must still validate the original captured value.
+ currentFixture.valueReadsBeforeHook=1
+ currentFixture.valueReadHook={
+  currentFixture.editor.string="changed "+source
+  currentFixture.editor.setSelectedRange(NSRange(location:mode == "selected" ? 8 : 8+source.utf16.count,length:mode == "selected" ? source.utf16.count : 0))
+ }
+ option(engine); drain(0.5)
+ require(currentFixture.editor.string=="changed "+source,"Option validates full captured value before \(mode) write")
+ engine.stop(); drain()
+}
+let beforeCapture=fixture(unicode:false)
+currentFixture.editor.string="ghbdtn"; currentFixture.editor.setSelectedRange(NSRange(location:6,length:0))
+option(beforeCapture); _=physical(beforeCapture,code:5)
+let beforeCaptureText=currentFixture.editor.string
+drain(0.4)
+require(currentFixture.editor.string==beforeCaptureText,"physical input before deferred Option begins cancels input sequence")
+beforeCapture.stop(); drain()
+print("PASS: Option keeps editable-field bootstrap identity, validates full capture before every write route, and cancels before dispatch")
+if ProcessInfo.processInfo.environment["MLS_OPTION_ONLY"] == "1" { exit(0) }
 for unicode in [false,true] {
  let route=unicode ? "Unicode" : "AX"
  for (code,flags,separator) in [(UInt16(49),CGEventFlags()," "),(UInt16(36),CGEventFlags(),"\n"),(UInt16(36),CGEventFlags.maskShift,"\n"),(UInt16(48),CGEventFlags(),"\t")] {

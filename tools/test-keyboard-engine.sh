@@ -28,14 +28,14 @@ for name in files:
     before = path.read_text()
     source = before
     if name == 'Engine.swift':
-        source = exact(source, 'NSWorkspace.shared.frontmostApplication?.processIdentifier', 'Optional(harnessPID)', 2)
+        source = exact(source, 'NSWorkspace.shared.frontmostApplication?.processIdentifier', 'Optional(harnessFrontPID)', 2)
         source = exact(source, 'tap.start {', 'tap.installProbeHandler {')
         source = exact(source, 'ConversionNotice()', 'ConversionNotice(presentsWindow: false)')
         source = exact(source, '    private func isExcludedApp() -> Bool {',
           '    func probeEvent(_ event: CGEvent) -> TapDecision { tap.process(type: event.type, event: event) }\n\n    private func isExcludedApp() -> Bool {')
     elif name == 'System/InputFocusGuard.swift':
         source = exact(source, 'SystemDictationAccessibility()', 'harnessAccessibility', 2)
-        source = exact(source, 'NSWorkspace.shared.frontmostApplication?.processIdentifier', 'Optional(harnessPID)', 2)
+        source = exact(source, 'NSWorkspace.shared.frontmostApplication?.processIdentifier', 'Optional(harnessFrontPID)', 2)
     elif name == 'System/Typist.swift':
         # Preserve production Self.post marker and delay; replace only final post.
         source = exact(source, 'event.post(tap: .cghidEventTap)', 'harnessPost(event)')

@@ -20,6 +20,23 @@ final class InputFocusGuard {
         var isUncertain: Bool { self == .uncertain || self == .unconfirmedSelection }
     }
 
+    enum CaptureFailure {
+        case accessibilityDenied, protectedField, unavailableField, unavailableSelection
+        case unavailableText, selectionTooLarge, changed
+        var message: String {
+            switch self {
+            case .accessibilityDenied:
+                return "У Mac Layout Switcher нет разрешения «Универсальный доступ». Проверьте его в настройках macOS; после обновления может потребоваться повторное включение."
+            case .protectedField: return "Включён защищённый ввод или выбрано защищённое поле."
+            case .unavailableField: return "Редактор не предоставил доступное поле ввода."
+            case .unavailableSelection: return "Редактор не сообщил положение курсора или выделение."
+            case .unavailableText: return "Редактор не предоставил текст для проверки замены."
+            case .selectionTooLarge: return "Выделение слишком большое. Выберите меньший фрагмент текста."
+            case .changed: return "Во время захвата изменилось поле, текст или положение курсора. Повторите Option в нужном поле."
+            }
+        }
+    }
+
     struct Target {
         let element: AXUIElement
         let pid: pid_t
@@ -28,20 +45,35 @@ final class InputFocusGuard {
         /// Runs on a worker. Reuse the speech adapter's bounded AX bootstrap and
         /// process routing; querying the current element itself never bootstraps.
         static func capture(expectedPID: pid_t? = NSWorkspace.shared.frontmostApplication?.processIdentifier,
-                            accessibility: any DictationAccessibility = SystemDictationAccessibility()) -> Target? {
-            guard let pid = expectedPID, accessibility.isTrusted, !accessibility.isSecure else { return nil }
+                            accessibility: any DictationAccessibility = SystemDictationAccessibility(),
+                            failure: (CaptureFailure) -> Void = { _ in }) -> Target? {
+            func failed(_ reason: CaptureFailure) -> Target? { failure(reason); return nil }
+            guard accessibility.isTrusted else { return failed(.accessibilityDenied) }
+            guard !accessibility.isSecure else { return failed(.protectedField) }
+            guard let pid = expectedPID else { return failed(.unavailableField) }
+            var firstElement: AXUIElement?
+            var reason = CaptureFailure.unavailableField
             for attempt in 0..<3 {
                 if attempt > 0 {
                     if attempt == 1 { accessibility.enableAccessibility(pid: pid) }
                     Thread.sleep(forTimeInterval: 0.08)
                 }
-                guard !accessibility.isSecure else { return nil }
-                guard let element = accessibility.focusedElement(pid: pid),
-                      accessibility.attribute(kAXSubroleAttribute, of: element) as? String != kAXSecureTextFieldSubrole else { continue }
+                guard accessibility.isTrusted else { return failed(.accessibilityDenied) }
+                guard !accessibility.isSecure else { return failed(.protectedField) }
+                guard let element = accessibility.focusedElement(pid: pid) else { continue }
+                guard accessibility.attribute(kAXSubroleAttribute, of: element) as? String != kAXSecureTextFieldSubrole
+                    else { return failed(.protectedField) }
+                if let firstElement, !CFEqual(firstElement, element) { return failed(.changed) }
+                // AX bootstrap can replace a non-editable wrapper with its
+                // real text field. Once a text field was observed, keep its
+                // identity even when its range is temporarily unavailable.
+                let role = accessibility.attribute(kAXRoleAttribute, of: element) as? String
+                if role == kAXTextFieldRole || role == kAXTextAreaRole { firstElement = element }
                 let target = Target(element: element, pid: pid, accessibility: accessibility)
                 if target.selection() != nil { return target }
+                reason = .unavailableSelection
             }
-            return nil
+            return failed(reason)
         }
 
         func matches(_ other: Target) -> Bool { pid == other.pid && CFEqual(element, other.element) }
@@ -58,7 +90,7 @@ final class InputFocusGuard {
                   range.location >= 0, range.length >= 0 else { return nil }
             return range
         }
-        private func value() -> String? { accessibility.attribute(kAXValueAttribute, of: element) as? String }
+        func value() -> String? { accessibility.attribute(kAXValueAttribute, of: element) as? String }
         func text(in range: CFRange) -> String? {
             guard range.location >= 0, range.length >= 0, let text = value(),
                   range.location <= text.utf16.count, range.length <= text.utf16.count - range.location else { return nil }
@@ -78,8 +110,8 @@ final class InputFocusGuard {
 
         /// Explicit Option can recover a word which predates event-tap binding.
         /// Capture this on the selection worker, never by reading AX in the tap.
-        func wordBeforeCaret(_ caret: CFRange) -> (range: CFRange, text: String)? {
-            guard caret.length == 0, isCurrent(), let original = value(), caret.location <= original.utf16.count,
+        func wordBeforeCaret(_ caret: CFRange, in snapshot: String? = nil) -> (range: CFRange, text: String)? {
+            guard caret.length == 0, isCurrent(), let original = snapshot ?? value(), caret.location <= original.utf16.count,
                   selection().map({ $0.location == caret.location && $0.length == 0 }) == true else { return nil }
             let prefix = (original as NSString).substring(to: caret.location)
             var tail = ""
@@ -103,11 +135,12 @@ final class InputFocusGuard {
         /// Only exact readback plus a collapsed caret can confirm it. Select the
         /// Unicode route BEFORE mutation for bridges with missing/no-op setters.
         func replace(range: CFRange, expected: String, with replacement: String,
-                     originalSelection: CFRange, requiresWordBoundary: Bool = false, allowed: () -> Bool) -> ReplacementResult {
+                     originalSelection: CFRange, requiresWordBoundary: Bool = false, capturedValue: String? = nil, allowed: () -> Bool) -> ReplacementResult {
             func selected(_ expected: CFRange) -> Bool {
                 selection().map { $0.location == expected.location && $0.length == expected.length } == true
             }
             guard allowed(), isCurrent(), selected(originalSelection), let original = value(),
+                  capturedValue.map({ $0 == original }) != false,
                   range.location >= 0, range.length >= 0, range.location <= original.utf16.count,
                   range.length <= original.utf16.count - range.location,
                   (original as NSString).substring(with: NSRange(location: range.location, length: range.length)) == expected else { return .untouched }
@@ -285,9 +318,18 @@ final class InputFocusGuard {
     /// Main-thread handoff from an explicit off-tap capture. A cancelled focus
     /// generation is never revived by a late result.
     var generation: Permit { permit }
-    func bind(_ captured: Target, generation: Permit) -> Ticket? {
+    func bind(_ captured: Target, generation: Permit, replacingCachedTarget: Bool = false) -> Ticket? {
         guard permit === generation, generation.isAllowed else { return nil }
-        if let target, !target.matches(captured) { invalidate(); return nil }
+        if let target, !target.matches(captured) {
+            guard replacingCachedTarget else { invalidate(); return nil }
+            // Explicit capture owns a fresh target. Retire cached work without
+            // cancelling the separate conversion request that captured it.
+            permit.cancel()
+            replacementPermit.cancel()
+            permit = Permit()
+            replacementPermit = Permit()
+            replayRoute = nil
+        }
         target = captured
         if replayRoute == nil { replayRoute = ReplayRoute(target: captured) }
         return ticket

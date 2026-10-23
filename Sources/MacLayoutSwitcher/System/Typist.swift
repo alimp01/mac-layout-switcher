@@ -54,7 +54,7 @@ public final class Typist {
     func replaceLastWord(expected: String, with text: String,
                          ticket: InputFocusGuard.Ticket, separator: KeyPress?,
                          separatorCharacter: Character?, navigates: Bool,
-                         conversionPermit: InputFocusGuard.Permit? = nil, conversionSelection: CFRange? = nil,
+                         conversionPermit: InputFocusGuard.Permit? = nil, conversionSelection: CFRange? = nil, conversionValue: String? = nil,
                          completion: @escaping (InputFocusGuard.ReplacementResult) -> Void) {
         enqueue {
             let inlineSpace = separatorCharacter == " "
@@ -66,7 +66,7 @@ public final class Typist {
             if allowed(), selectionMatches, let range = ticket.target.sourceRange(expected) {
                 result = ticket.target.replace(range: range, expected: expected,
                     with: text + (inlineSpace ? " " : ""),
-                    originalSelection: CFRange(location: range.location + range.length, length: 0), requiresWordBoundary: true, allowed: allowed)
+                    originalSelection: CFRange(location: range.location + range.length, length: 0), requiresWordBoundary: true, capturedValue: conversionValue, allowed: allowed)
             } else { result = .untouched }
             if result != .confirmed { ticket.replacementPermit.cancel() }
             if result.isUncertain { ticket.replayRoute.didBecomeUncertain(holdingAllInput: result == .unconfirmedSelection) }

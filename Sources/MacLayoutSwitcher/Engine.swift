@@ -114,7 +114,7 @@ public final class Engine {
         typist.onUnconfirmedReplacement = { [weak self] original, replacement in
             self?.conversionNotice.retainReplacement(original: original, replacement: replacement)
         }
-        inputFocus.shouldSample = { [weak self] in self?.typist.isBusy == false }
+        inputFocus.shouldSample = { [weak self] in self?.typist.isBusy == false && self?.selectionConverter.isPending == false }
         typist.onIdle = { [weak self] in
             guard let self, !self.typist.isBusy else { return }
             if self.queuedNavigation { self.inputFocus.invalidate() }
@@ -455,21 +455,22 @@ public final class Engine {
         let generation = inputFocus.generation
         let expected = inputFocus.ticket?.target
         let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier
-        selectionConverter.capture(expected: expected, expectedPID: pid) { [weak self] captured, permit in
+        selectionConverter.capture(expectedPID: pid) { [weak self] captured, permit in
             guard let self, permit.isAllowed, generation.isAllowed else { return }
             self.conversionNotice.hide()
             switch captured {
-            case .unavailable:
+            case .unavailable(let reason):
                 self.selectionConverter.finish(permit)
                 _ = self.core.handle(.reset)
                 self.toggleLayout()
-                self.conversionNotice.show(message: "Текст не изменён: редактор не предоставил доступ к полю или выделению. Проверьте разрешение «Универсальный доступ» для Mac Layout Switcher.")
-            case .empty(let target, let range, let word):
-                guard let ticket = self.inputFocus.bind(target, generation: generation), !self.typist.isBusy else {
+                self.conversionNotice.show(message: "Текст не изменён: \(reason.message)")
+            case .empty(let target, let range, let word, let value):
+                guard let ticket = self.inputFocus.bind(target, generation: generation, replacingCachedTarget: true), !self.typist.isBusy else {
                     self.selectionConverter.finish(permit)
                     _ = self.core.handle(.reset)
                     return
                 }
+                if expected.map({ $0.matches(target) }) != true { _ = self.core.handle(.reset) }
                 let outcome = self.core.handle(.hotkey(.convert))
                 if outcome.command == .none {
                     if let word, KeyMap.selectionConversion(word.text).text != word.text {
@@ -478,9 +479,9 @@ public final class Engine {
                         self.selectionConverter.finish(permit)
                         self.toggleLayout()
                     }
-                } else { self.execute(outcome, conversionPermit: permit, conversionSelection: range) }
+                } else { self.execute(outcome, conversionPermit: permit, conversionSelection: range, conversionValue: value) }
             case .selected(let selection):
-                guard let ticket = self.inputFocus.bind(selection.target, generation: generation) else {
+                guard let ticket = self.inputFocus.bind(selection.target, generation: generation, replacingCachedTarget: true) else {
                     self.selectionConverter.finish(permit)
                     return
                 }
@@ -611,7 +612,7 @@ public final class Engine {
     @discardableResult
     private func execute(
         _ outcome: EngineOutcome, stroke: KeyStroke? = nil, prepared: Typist.KeyPress? = nil,
-        conversionPermit: InputFocusGuard.Permit? = nil, conversionSelection: CFRange? = nil
+        conversionPermit: InputFocusGuard.Permit? = nil, conversionSelection: CFRange? = nil, conversionValue: String? = nil
     ) -> TapDecision {
         guard case .replaceLast(_, let text, let switchTo) = outcome.command else {
             if let conversionPermit { selectionConverter.finish(conversionPermit) }
@@ -637,7 +638,7 @@ public final class Engine {
         typist.replaceLastWord(expected: expected, with: text, ticket: ticket, separator: separator,
                                separatorCharacter: outcome.reinjectSeparator,
                                navigates: outcome.reinjectSeparator.map { $0 != " " } ?? false,
-                               conversionPermit: conversionPermit, conversionSelection: conversionSelection) { [weak self] result in
+                               conversionPermit: conversionPermit, conversionSelection: conversionSelection, conversionValue: conversionValue) { [weak self] result in
             guard let self else { return }
             if let conversionPermit { self.selectionConverter.finish(conversionPermit) }
             guard result == .confirmed else {

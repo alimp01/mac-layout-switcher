@@ -1,0 +1,20 @@
+{
+  "version": "1.4.8",
+  "reviewedManifest": "b6f1a97d2375936bf8753c401b7a0badf49d21dfa6b4447ada7ae40f77939ccd",
+  "releaseManifest": "654926a01dc8b12dd5c4929a439c409fd40ea299fc7d261de5bc0db2e5e9d895",
+  "nativeFullspeech": "PASS",
+  "linuxTests": 95,
+  "independentReviews": {
+    "spec": "approved",
+    "standards": "approved"
+  },
+  "installed": "1.4.8 signed bundle exact candidate; backup1.4.7 preserved",
+  "launch": "open returned0; running process not confirmed; CUA app access not approved, no alternate UI inspection",
+  "actualUserAcceptance": "pending",
+  "publication": "pending",
+  "artifacts": {
+    "Contents/MacOS/MacLayoutSwitcher": "f9104e4df9032ef13c2c3ab80e98378461fe38de1ca846683d5b5075ddeb9e71",
+    "Contents/Helpers/SpeechRecognizer": "3dc7a65125e1210eab4b26a68515a2b4c1fe73f2ad1ce3122c41091dfaf60981",
+    "DMG": "f29f1d0fc5b689da5ab34226cc76e46bb4daf2589abfa5c14f687821dcb78cfb"
+  }
+}

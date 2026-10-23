@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-12T07:32:11.531484+00:00",
+  "updatedAt": "2026-10-23T17:38:48.851180+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -46,27 +46,27 @@ window.STATE =
     },
     {
       "id": "build",
-      "status": "done",
+      "status": "active",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G24 candidate1.4.7 nativefullspeech/DMG/Linux95 PASS; installed, permissions pending"
+      "note": "G25 Option capture failure in Codex; concrete diagnosis required; G24 physical Safari still pending"
     },
     {
       "id": "review",
-      "status": "done",
+      "status": "pending",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "G24 two independent final reviews approved0 blockers; actual Safari pending"
+      "note": "G25 Option capture failure in Codex; concrete diagnosis required; G24 physical Safari still pending"
     },
     {
       "id": "final",
-      "status": "active",
+      "status": "pending",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "G24 1.4.7 installed/published; GitHub/archive80hashes PASS. Awaiting permissions and physical Safari acceptance."
+      "note": "G25 Option capture failure in Codex; concrete diagnosis required; G24 physical Safari still pending"
     }
   ],
   "requirements": {
-    "total": 31,
+    "total": 32,
     "done": 29,
-    "inTicket": 1,
+    "inTicket": 2,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -746,6 +746,34 @@ window.STATE =
       "repairs": 0,
       "note": "1.4.7 installed/published. 2reviews/native/Linux95/DMG/public80hashes PASS. User permissions and physical Safari pending.",
       "commit": "4297eef1bb3dcce48604e7ff789c462aec64acfd"
+    },
+    {
+      "id": "28",
+      "title": "Конвертация по Option: отказ захвата в Codex",
+      "requirements": [
+        "G25"
+      ],
+      "blockedBy": [],
+      "wave": 24,
+      "zone": [
+        "Engine",
+        "SelectionConverter",
+        "InputFocusGuard",
+        "platform adapter",
+        "native harness"
+      ],
+      "status": "in-progress",
+      "startedAt": "2026-10-23T08:03:24.375733+00:00",
+      "review": {
+        "spec": "approved",
+        "standards": "approved"
+      },
+      "tests": {
+        "passed": 95,
+        "failed": 0
+      },
+      "validation": "baseline RED/final native7 suites GREEN; two reviews approved0; Linux95/fullspeech/mountedDMG/installed1.4.8 exact PASS; launch/user acceptance pending",
+      "version": "1.4.8"
     }
   ],
   "singlePass": null,

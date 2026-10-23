@@ -5,6 +5,31 @@ GitHub: https://github.com/alimp01/mac-layout-switcher
 
 Сначала прочитай `CLAUDE.md`, `.autopilot/state.js`, затем manifest и актуальные тикеты в `.autopilot/2026-08-29-mac-layout-switcher/`. Они определяют состояние ревью и релиза; VERSION сам по себе не доказывает публикацию.
 
+## G25: Option, кандидат исправления (23.10.2026)
+
+- Пользователь: курсор в конце без выделения, Option не меняет слово и
+  показывает общий unavailable notice; проблема есть и в других приложениях.
+  Разрешения в настройках включены, но собственный AX trust процесса этим
+  не доказан. Реальная причина постоянного отказа пока не установлена.
+- Production EventTap → KeyTranslator → Engine → SelectionConverter/Target
+  на собственных невидимых NSTextView воспроизвёл отказ свежего поля при
+  устаревшем кеше предыдущего. Снимок текущего поля теперь принимается с
+  отменой старых permits/undo; sampler не перезаписывает ожидающий захват.
+  Ввод, клик, смена поля/PID/каретки по-прежнему отменяют операцию.
+- Второй RED: изменение контекста перед словом во время AX-чтения не отменяло
+  Option. Полный снимок теперь проверяется до записи для fallback, выделения
+  и штатного буферного слова/undo. Уведомление различает trust/secure/field/
+  range/text/changed без текстового лога. Bootstrap допускает замену
+  не редактируемого wrapper на поле, но не переход между двумя полями.
+- `MLS_OPTION_ONLY=1 bash tools/test-keyboard-engine.sh` запускает Option
+  случаи; обычный runner также запускает прежние autorepeat/recovery случаи.
+  `MLS_ENGINE_SOURCE_ROOT=/path/to/baseline` подставляет всю production-базу.
+  Sandbox: задавать CLANG_MODULE_CACHE_PATH и SWIFT_MODULECACHE_PATH в /tmp.
+- Это локальные AppKit/system-boundary проверки, не физическая приёмка
+  Codex/всех приложений. CUA запретил com.openai.codex; обход через AX, shell,
+  CDP или другой инструмент запрещён. Проверка реального редактора — вручную
+  пользователем. Root ведёт финальные ревью, release и статус в G25 spec/QA.
+
 ## G24: замена в Safari, кандидат исправления (12.10.2026)
 
 - Пользовательская запись установленной 1.4.6: Safari Full name сохраняет

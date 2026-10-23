@@ -1,0 +1,13 @@
+{
+  "version": "1.4.8",
+  "release_snapshot": "/tmp/mls-t28-release-1.4.8-y6pa949m",
+  "reviewed_snapshot": "/tmp/mls-t28-final-8llydrlf",
+  "reviewed_manifest_sha256": "b6f1a97d2375936bf8753c401b7a0badf49d21dfa6b4447ada7ae40f77939ccd",
+  "release_manifest_sha256": "654926a01dc8b12dd5c4929a439c409fd40ea299fc7d261de5bc0db2e5e9d895",
+  "files": 91,
+  "version_sha256": "7df3598542760c06a06a832d7cbc12bd20b3fd1beae5c8c0399e9642f7073717",
+  "repo_files_changed_this_step": [
+    "VERSION"
+  ],
+  "product_sources_identical_to_reviewed": true
+}

@@ -1,0 +1,15 @@
+Standards — PASS (0 actionable blockers).
+
+Reviewed the frozen candidate /tmp/mls-t28-final-8llydrlf against /tmp/mls-t28-baseline-5ct6541m, using CLAUDE.md and the code-review smell baseline. Verified all 80 SOURCE-SHA256SUMS entries, manifest SHA256 b6f1a97d2375936bf8753c401b7a0badf49d21dfa6b4447ada7ae40f77939ccd, and all seven validation.json log hashes. Production changes are limited to the four declared files.
+
+The fresh explicit capture retires stale cached permits without reviving cancelled generations (InputFocusGuard.swift:321–336; Engine.swift:458–488). Main-thread sampler suppression covers pending capture; context/input cancellation still flows through existing permits. The captured full value reaches buffered, fallback-word and selected-text replacement paths, and is checked before any selection or text write (InputFocusGuard.swift:142–154). Existing verified AX/Unicode routing, bounded readback, no-retry behavior and uncertain-result recovery remain intact. Failure messages distinguish actual AX trust denial from protected/unavailable/changed context without recording user text. No clipboard, backspace or whole-field mutation fallback was introduced.
+
+No actionable documented-standard violation or baseline smell found: the change reuses the established Engine/SelectionConverter/Target/Typist boundaries, and the extra snapshot is needed to validate context rather than speculative abstraction.
+
+Independent checks, using /tmp/mls-t28-standards-cache:
+• Baseline Option-only regression: expected RED, exit 1; fresh field remained “context ghbdtn” instead of “context привет” (/tmp/mls-t28-standards-baseline.log).
+• Final production Engine/EventTap/KeyTranslator suite: PASS, 20 groups (/tmp/mls-t28-standards-engine.log).
+• Final keyboard adapter/transport suite: PASS, 20 groups (/tmp/mls-t28-standards-adapter.log).
+• Final delayed selection/restoration regression: PASS (/tmp/mls-t28-standards-delay.log).
+
+These are private AppKit fixtures with injected system boundaries, not live cross-app or WindowServer verification. The persistent user's all-app Option root cause and real-app acceptance remain unproven. Full SwiftPM/Linux/fullspeech/release gates were not rerun in this review and remain separate requirements.

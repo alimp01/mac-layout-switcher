@@ -1,0 +1,14 @@
+Spec review — APPROVE, 0 blocking findings (0 actionable spec defects).
+
+Reviewed frozen /tmp/mls-t28-final-8llydrlf against full baseline 99a536c236f18a42e0a8a4bc1291bd74eacd3562. SOURCE-SHA256SUMS SHA-256 b6f1a97d2375936bf8753c401b7a0badf49d21dfa6b4447ada7ae40f77939ccd and every manifest entry verified.
+
+Spec references: .autopilot/2026-08-29-mac-layout-switcher/option-capture-spec.md:16–23, 26–40, 47–50. Engine.swift:451–488 accepts a fresh Option target and resets stale core decisions; InputFocusGuard.swift:321–335 retires cached permits without reviving cancelled generations. SelectionConverter.swift:38–67 obtains a consistent full-value/range snapshot, and InputFocusGuard.swift:137–151 validates it before writing. Bootstrap preserves an already observed editable identity while permitting a noneditable wrapper to expose its field. No dictionary, clipboard, blind whole-field rewrite, retry, or persistent text logging was introduced.
+
+Independent validation:
+• Same Option-only runner, complete baseline: RED, literal fresh-field “context ghbdtn” remains unchanged (/tmp/mls-keyboard-engine.LvnYBK/run.log).
+• Frozen final Option suite: GREEN, covering new-field last word, selection/undo/empty, cancellation, reason distinctions, bootstrap identity, and full-value protection across all conversion routes (/tmp/mls-keyboard-engine.v3NILy/run.log).
+• Reviewer-authored private fixture cases: GREEN for selected text in a newly focused field on AX and Unicode, preservation of the previous field, retirement of both old ticket permits, rejection of late generations, and irreversible external cancellation (/tmp/mls-t28-spec-independent/run.log; main.swift retains test source).
+
+The harness compiles production capture/Engine/Typist decisions and substitutes documented system boundaries; expected text is literal rather than produced by the conversion implementation. AppKit emitted sandbox service diagnostics, but tests completed with the stated exit statuses.
+
+Acceptance limitation, not a code blocker: the specific installed-user failure remains UNKNOWN. This proves the stale-cache defect and its repair, not live Codex/other-app acceptance. Spec:40,47–50 requires that distinction. Full regressions, native fullspeech, release ritual, and actual user acceptance remain the parent workflow’s gates. No UI, alternative AX probing, TCC changes, global CG posting, network, VERSION changes, or commits were performed.

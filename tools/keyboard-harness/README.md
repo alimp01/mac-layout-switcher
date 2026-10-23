@@ -86,3 +86,24 @@ partial/no-op recovery, and the shared chunked dictation route. The printed
 scratch directory retains original/compiled sources, exact seam description,
 SHA256 manifest and run.log. These are local WebKit tests, not live Safari or
 physical WindowServer acceptance.
+
+For Option capture regressions, run `MLS_OPTION_ONLY=1 bash
+tools/test-keyboard-engine.sh`. The full runner also includes these cases.
+The test changes focus between private NSTextViews before the next sampler
+turn, verifying literal `context ghbdtn` → `context привет` and unchanged
+previous-field content. It covers same-field buffered and preexisting words,
+selection precedence, recent undo, empty layout switching, lazy AX bootstrap,
+process trust/secure/field/range/text refusal, and field/PID/caret/key/click
+cancellation during capture. An external context change during the last AX
+read must also cancel before any of the three write routes starts. Bootstrap
+may replace a non-editable wrapper, but cannot follow a different text field.
+
+The production base for the fresh-field failure is 99a536c236f18a42e0a8a4bc1291bd74eacd3562.
+Use `MLS_ENGINE_SOURCE_ROOT=/absolute/baseline MLS_OPTION_ONLY=1 bash
+tools/test-keyboard-engine.sh` with all baseline Sources materialized there;
+`MLS_ENGINE_BASE_REF` alone changes only Engine and is insufficient here.
+The first Option test fails with unchanged `context ghbdtn` on that base.
+Set `CLANG_MODULE_CACHE_PATH=/tmp/mls-swift-module-cache` and
+`SWIFT_MODULECACHE_PATH=/tmp/mls-swift-module-cache` in restricted workspaces.
+No real cross-process AX trust, live Codex, or general application acceptance
+is established by these injected system-boundary tests.

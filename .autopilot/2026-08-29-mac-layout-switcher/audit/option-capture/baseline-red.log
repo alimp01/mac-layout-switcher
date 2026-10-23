@@ -1,0 +1,4 @@
+2026-10-23 18:43:21.510 test-engine[97986:2410232] Connection Invalid error for service com.apple.hiservices-xpcservice.
+2026-10-23 18:43:21.510 test-engine[97986:2410196] Error received in message reply handler: Connection invalid
+2026-10-23 18:43:21.618 test-engine[97986:2410196] Failure on line 687 in function id scheduleApplicationNotification(LSNotificationCode, NSWorkspaceNotificationCenter *): noErr == _LSModifyNotification(notificationID, 1, &code, 0, NULL, NULL, NULL)
+FAIL: Option converts fresh field last word with caret at end before next sample: expected=context привет, actual="context ghbdtn"

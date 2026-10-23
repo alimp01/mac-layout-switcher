@@ -1,0 +1,16 @@
+Fetching binary artifact https://github.com/ekhodzitsky/gigastt/releases/download/v2.17.0/GigasttFFI.xcframework.zip from cache
+Fetched https://github.com/ekhodzitsky/gigastt/releases/download/v2.17.0/GigasttFFI.xcframework.zip from cache (2.44s)
+Building for production...
+[0/10] Write sources
+[1/10] Copying libgigastt_ffi.a
+[3/10] Write sources
+[5/10] Write swift-version--1AB21518FC5DEDBE.txt
+[7/12] Compiling GigaSTT GigaSTT.swift
+[8/13] Compiling SpeechRecognizer main.swift
+[8/13] Write Objects.LinkFileList
+[10/13] Compiling SwitcherCore Detector.swift
+[10/14] Linking SpeechRecognizer
+[12/14] Compiling MacLayoutSwitcher Config.swift
+[12/14] Write Objects.LinkFileList
+[13/14] Linking MacLayoutSwitcher
+Build complete! (41.70s)

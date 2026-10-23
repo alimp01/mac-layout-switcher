@@ -6,7 +6,18 @@
 исправление, автозапуск, индикатор RU/EN и утка, самообновление, локальная
 диктовка GigaAM v3. Дневника набора нет.
 
-## Текущее состояние — 2026-10-12
+## Текущее состояние — 2026-10-23
+
+G25/T28: кандидат1.4.8 одобрен двумя independent reviews0 blockers и установлен.
+Доказаны stale cached field и changed full-value context RED→GREEN; исправлены
+свежий Option capture и full snapshot guard. No-selection lastword/selected/undo/
+empty/cancellation/bootstrap проходят. Native7suites, Linux95, fullspeech release,
+mountedDMG и installed hashes PASS. Пользовательский all-app отказ точно ещё не
+диагностирован: actual acceptance pending. open вернул0, но runningprocess не
+подтверждён; CUA отказал и для MLS — не обходить UI запрет. Пользователю задан
+тест ghbdtn+Option без выделения, если нет значка — открыть приложение.
+Предыдущая1.4.7 сохранена в outputs backupzip. Sourcecode заморожен; root ведёт
+commit/push/publicarchive. См. option-capture-qa и audit/option-capture.
 
 G24/T27: версия1.4.7 установлена и опубликована (code4297eef). Реальный systemWebKit
 воспроизводит settable AXSelectedText no-op; Safari заранее использует существующий

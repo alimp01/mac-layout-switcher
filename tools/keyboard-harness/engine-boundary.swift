@@ -13,6 +13,7 @@ public enum LayoutSwitcher {
     }
 }
 let harnessPID: pid_t = 12345
+var harnessFrontPID: pid_t = harnessPID
 var currentFixture: FixtureAX!
 var harnessAccessibility: any DictationAccessibility { currentFixture! }
 // Typist's real Self.post already applied its marker and delay. Only the final
