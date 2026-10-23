@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-23T17:38:48.851180+00:00",
+  "updatedAt": "2026-10-23T17:44:17.813361+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -48,19 +48,19 @@ window.STATE =
       "id": "build",
       "status": "active",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G25 Option capture failure in Codex; concrete diagnosis required; G24 physical Safari still pending"
+      "note": "G25 code1.4.8 reviewed, tested, installed and published; actual user acceptance pending. G24 physical Safari still pending."
     },
     {
       "id": "review",
       "status": "pending",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "G25 Option capture failure in Codex; concrete diagnosis required; G24 physical Safari still pending"
+      "note": "G25 code1.4.8 reviewed, tested, installed and published; actual user acceptance pending. G24 physical Safari still pending."
     },
     {
       "id": "final",
       "status": "pending",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "G25 Option capture failure in Codex; concrete diagnosis required; G24 physical Safari still pending"
+      "note": "G25 code1.4.8 reviewed, tested, installed and published; actual user acceptance pending. G24 physical Safari still pending."
     }
   ],
   "requirements": {
@@ -772,8 +772,10 @@ window.STATE =
         "passed": 95,
         "failed": 0
       },
-      "validation": "baseline RED/final native7 suites GREEN; two reviews approved0; Linux95/fullspeech/mountedDMG/installed1.4.8 exact PASS; launch/user acceptance pending",
-      "version": "1.4.8"
+      "validation": "two reviews approved0; native7/Linux95/fullspeech/mountedDMG/installed1.4.8 exact/publicarchive91hashes PASS; user launch/Option acceptance pending",
+      "version": "1.4.8",
+      "commit": "3f4f8166971c2ee1468b209f234351deea6b801a",
+      "publication": "1.4.8 verified; code3f4f816; metadata receipt follows"
     }
   ],
   "singlePass": null,

@@ -61,3 +61,15 @@ confirmed. CUA declined access to Mac Layout Switcher; no alternative UI probes.
 User asked to launch app if needed and physically test ghbdtn + Option with no
 selection. Actual acceptance pending; G25/T28 remains in progress for this gate.
 Publication follows codecommit; external final receipt avoids self-reference.
+
+## Publication verified
+Code commit3f4f8166971c2ee1468b209f234351deea6b801a pushed; server archive
+replaced atomically after push. HTTPSdownload SHA256
+fa4711bd0e11832a0506d9ef365cbaedc1965b6ff811398e03b0fe0294a7cba2 matches server;
+embedded commit, GitHubVERSION1.4.8 and all91 approved release file hashes PASS.
+Metadata-only final commit follows; final public receipt is saved externally in
+workspace outputs/MacLayoutSwitcher-1.4.8-publication.json.
+Local Git FileProvider mmap operations stalled; exact approved index and normal
+Git objects/commit-tree were used, without altering product bytes. Baseline
+index was clean; symlink .autopilot/index.html was preserved as a symlink.
+User actual acceptance remains pending, not inferred from publication.

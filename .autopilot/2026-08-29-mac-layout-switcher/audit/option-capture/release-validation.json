@@ -11,7 +11,13 @@
   "installed": "1.4.8 signed bundle exact candidate; backup1.4.7 preserved",
   "launch": "open returned0; running process not confirmed; CUA app access not approved, no alternate UI inspection",
   "actualUserAcceptance": "pending",
-  "publication": "pending",
+  "publication": {
+    "codeCommit": "3f4f8166971c2ee1468b209f234351deea6b801a",
+    "codeArchiveSha256": "fa4711bd0e11832a0506d9ef365cbaedc1965b6ff811398e03b0fe0294a7cba2",
+    "publicVersion": "1.4.8",
+    "approvedReleaseHashes": 91,
+    "verified": "PASS; final metadata commit/archive follows, external outputs receipt authoritative"
+  },
   "artifacts": {
     "Contents/MacOS/MacLayoutSwitcher": "f9104e4df9032ef13c2c3ab80e98378461fe38de1ca846683d5b5075ddeb9e71",
     "Contents/Helpers/SpeechRecognizer": "3dc7a65125e1210eab4b26a68515a2b4c1fe73f2ad1ce3122c41091dfaf60981",

@@ -16,8 +16,8 @@ mountedDMG и installed hashes PASS. Пользовательский all-app о
 диагностирован: actual acceptance pending. open вернул0, но runningprocess не
 подтверждён; CUA отказал и для MLS — не обходить UI запрет. Пользователю задан
 тест ghbdtn+Option без выделения, если нет значка — открыть приложение.
-Предыдущая1.4.7 сохранена в outputs backupzip. Sourcecode заморожен; root ведёт
-commit/push/publicarchive. См. option-capture-qa и audit/option-capture.
+Предыдущая1.4.7 сохранена в outputs backupzip. Code3f4f816 опубликован: GitHubVERSION1.4.8, publicarchive91hashes/PAX/SHA
+проверены; metadata sync follows, final receipt в outputs. См. option-capture-qa и audit/option-capture.
 
 G24/T27: версия1.4.7 установлена и опубликована (code4297eef). Реальный systemWebKit
 воспроизводит settable AXSelectedText no-op; Safari заранее использует существующий
