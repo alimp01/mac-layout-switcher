@@ -8,11 +8,13 @@ import Foundation
 enum DictationInsertionFailure: Equatable {
     case accessibilityDenied, unavailableField, unavailableSelection, unsupportedEditor
     case monitoringUnavailable, changed, protectedField, unconfirmed
+    case systemFocus(DictationFocusFailure)
 
     var message: String {
         switch self {
         case .accessibilityDenied: return "Нет разрешения «Универсальный доступ» для Mac Layout Switcher."
         case .unavailableField: return "Редактор не предоставил доступное поле ввода."
+        case .systemFocus(let failure): return failure.message
         case .unavailableSelection: return "Редактор не сообщил положение курсора или выделение."
         case .unsupportedEditor: return "Редактор не поддерживает проверяемую вставку через Универсальный доступ."
         case .monitoringUnavailable: return "Редактор не позволяет отслеживать изменения поля для безопасной вставки."
@@ -20,6 +22,40 @@ enum DictationInsertionFailure: Equatable {
         case .protectedField: return "Автовставка недоступна в защищённом поле."
         case .unconfirmed: return "Не удалось подтвердить вставку. Часть или весь текст уже может быть в поле. Проверьте его перед копированием; повторной вставки не было."
         }
+    }
+}
+
+/// Only fixed stage names and AX result codes; no editor text or persistent log.
+struct DictationFocusFailure: Equatable {
+    enum Status: Equatable {
+        case notRead, success, noValue, invalidType, notFrontmost, foreignOwner
+        case error(Int32), ownerError(Int32)
+        var code: String {
+            switch self {
+            case .notRead: return "not-read"
+            case .success: return "ok"
+            case .noValue: return "no-value"
+            case .invalidType: return "invalid-type"
+            case .notFrontmost: return "false"
+            case .foreignOwner: return "foreign-owner"
+            case .error(let code): return String(code)
+            case .ownerError(let code): return "owner:\(code)"
+            }
+        }
+    }
+    let frontmost: Status
+    let system: Status
+    let application: Status
+    var message: String {
+        let reason: String
+        if frontmost == .notFrontmost || system == .foreignOwner || application == .foreignOwner {
+            reason = "Активное приложение изменилось. Выберите нужное поле и повторите действие."
+        } else if [frontmost, system, application].contains(.error(AXError.apiDisabled.rawValue)) {
+            reason = "macOS отклонила доступ к полю. Проверьте разрешение «Универсальный доступ» для Mac Layout Switcher."
+        } else {
+            reason = "Не удалось получить поле ввода через Универсальный доступ."
+        }
+        return "\(reason) Диагностика: AXFrontmost=\(frontmost.code); SystemFocus=\(system.code); AppFocus=\(application.code)."
     }
 }
 
@@ -59,6 +95,7 @@ protocol DictationAccessibility {
     var isTrusted: Bool { get }
     var isSecure: Bool { get }
     func focusedElement(pid: pid_t) -> AXUIElement?
+    func focusedElement(pid: pid_t, failure: (DictationFocusFailure) -> Void) -> AXUIElement?
     func enableAccessibility(pid: pid_t)
     func attribute(_ name: String, of element: AXUIElement) -> CFTypeRef?
     func selectedTextIsSettable(_ element: AXUIElement) -> Bool
@@ -73,6 +110,9 @@ protocol DictationAccessibility {
 }
 
 extension DictationAccessibility {
+    func focusedElement(pid: pid_t, failure: (DictationFocusFailure) -> Void) -> AXUIElement? {
+        focusedElement(pid: pid)
+    }
     func observe(_ element: AXUIElement, pid: pid_t, received: @escaping (DictationAXChange) -> Bool,
                  changed: @escaping (DictationAXChange) -> Void) -> AnyObject? {
         observe(element, pid: pid) { change in
@@ -100,17 +140,50 @@ struct SystemDictationAccessibility: DictationAccessibility {
         return element
     }
     func focusedElement(pid: pid_t) -> AXUIElement? {
+        focusedElement(pid: pid, failure: { _ in })
+    }
+    func focusedElement(pid: pid_t, failure: (DictationFocusFailure) -> Void) -> AXUIElement? {
+        typealias Status = DictationFocusFailure.Status
+        func read(_ name: String, from element: AXUIElement) -> (CFTypeRef?, Status) {
+            var value: CFTypeRef?
+            let result = AXUIElementCopyAttributeValue(element, name as CFString, &value)
+            guard result == .success else { return (nil, .error(result.rawValue)) }
+            return (value, value == nil ? .noValue : .success)
+        }
         let app = bounded(AXUIElementCreateApplication(pid))
-        guard attribute(kAXFrontmostAttribute, of: app) as? Bool == true else { return nil }
+        var (frontmostValue, frontmostStatus) = read(kAXFrontmostAttribute, from: app)
+        var systemStatus = Status.notRead
+        var appStatus = Status.notRead
+        func failed() -> AXUIElement? {
+            failure(.init(frontmost: frontmostStatus, system: systemStatus, application: appStatus))
+            return nil
+        }
+        let frontmost = frontmostValue as? Bool
+        if frontmostValue != nil && frontmost == nil { frontmostStatus = .invalidType }
+        if frontmost == false { frontmostStatus = .notFrontmost; return failed() }
         let system = bounded(AXUIElementCreateSystemWide())
-        for owner in [system, app] {
-            guard let value = attribute(kAXFocusedUIElementAttribute, of: owner),
-                  CFGetTypeID(value) == AXUIElementGetTypeID() else { continue }
+        func ownedElement(_ value: CFTypeRef, status: inout Status) -> AXUIElement? {
+            guard CFGetTypeID(value) == AXUIElementGetTypeID() else { status = .invalidType; return nil }
             let element = bounded(unsafeBitCast(value, to: AXUIElement.self))
             var actualPID: pid_t = 0
-            if AXUIElementGetPid(element, &actualPID) == .success, actualPID == pid { return element }
+            let result = AXUIElementGetPid(element, &actualPID)
+            guard result == .success else { status = .ownerError(result.rawValue); return nil }
+            guard actualPID == pid else { status = .foreignOwner; return nil }
+            return element
         }
-        return nil
+        // A positively identified system focus is authoritative: a different
+        // owner must never fall through to an application's stale focused field.
+        // A missing AXFrontmost response alone cannot veto an exact system focus.
+        let systemRead = read(kAXFocusedUIElementAttribute, from: system)
+        systemStatus = systemRead.1
+        if let value = systemRead.0 {
+            return ownedElement(value, status: &systemStatus) ?? failed()
+        }
+        guard frontmost == true else { return failed() }
+        let appRead = read(kAXFocusedUIElementAttribute, from: app)
+        appStatus = appRead.1
+        guard let value = appRead.0 else { return failed() }
+        return ownedElement(value, status: &appStatus) ?? failed()
     }
     func enableAccessibility(pid: pid_t) {
         // Electron's documented opt-in lazily creates the Chromium AX tree.
@@ -273,7 +346,7 @@ struct DictationTarget {
                 Thread.sleep(forTimeInterval: 0.08)
             }
             guard !accessibility.isSecure else { return .unavailable(.protectedField) }
-            guard let element = accessibility.focusedElement(pid: expectedPID) else { continue }
+            guard let element = accessibility.focusedElement(pid: expectedPID, failure: { lastFailure = .systemFocus($0) }) else { continue }
             var pid: pid_t = 0
             guard AXUIElementGetPid(element, &pid) == .success, pid == expectedPID else { continue }
             if accessibility.attribute(kAXSubroleAttribute, of: element) as? String == kAXSecureTextFieldSubrole {

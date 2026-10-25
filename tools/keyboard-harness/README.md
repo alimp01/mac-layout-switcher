@@ -107,3 +107,59 @@ Set `CLANG_MODULE_CACHE_PATH=/tmp/mls-swift-module-cache` and
 `SWIFT_MODULECACHE_PATH=/tmp/mls-swift-module-cache` in restricted workspaces.
 No real cross-process AX trust, live Codex, or general application acceptance
 is established by these injected system-boundary tests.
+
+For physical-input integrity, run `MLS_PHYSICAL_ONLY=1 bash
+tools/test-keyboard-engine.sh`. Add `MLS_PHYSICAL_GROUP=navigation` or
+`MLS_PHYSICAL_GROUP=interruption` to isolate a group. The full runner includes
+both; `MLS_OPTION_ONLY=1` retains the separate Option-only scope.
+
+Navigation covers ordinary and repeated Left/Right/Up/Down/Home/End/Escape,
+F1/F12 and Forward Delete during auto correction, pending Option capture,
+Option replacement and idle, on both AX and Unicode routes. Events must pass,
+the literal source must remain unchanged, no synthetic control text may be
+posted, and the next ordinary Space must pass after the stale candidate resets.
+The application-specific navigation action is deliberately not delivered to the
+private editor; these tests establish cancellation and native pass decisions.
+
+Timeout and user-input tap interruptions omit shortcut key-up, then require a
+fresh ordinary key pair to pass. Convert, toggle, modifier-only Option,
+dictation hold and pending replacement are covered. The dictation coordinator
+is paused in that case, so its real gesture/cancellation path cannot start a
+microphone or model preparation. Counterexamples retain held shortcut repeats
+and key-up across ordinary clicks, and verify recorder transitions do not
+dispatch stale modifier gestures. Key-up checks include passed pairs as well
+as suppressed pairs.
+
+The T30 baseline requires the pre-fix `Engine.swift`, `EventTap.swift`,
+`KeyStroke.swift` and `KeyTranslator.swift` together under an
+`MLS_ENGINE_SOURCE_ROOT`; overriding only Engine is insufficient after the new
+tap-interruption event kind. The unchanged regression sources then fail on
+ordinary Left suppression and consumed-shortcut ownership respectively.
+
+
+Run `bash tools/test-system-focus.sh` for the shared system focus resolver.
+Unlike the earlier fixtures, this compiles the production
+`SystemDictationAccessibility.focusedElement` unchanged. Only raw AX C calls
+(read/write/capability/owner/timeout/trust) and SecureInput are intercepted;
+opaque synthetic AX references cannot reach another process. Editor text and
+selection use an owned, unshown NSTextView. The runner freezes originals,
+compiled copies, the complete seam diff, source hashes and output under /tmp,
+and gives Swift an explicit module-cache directory there.
+
+The first regression is a valid system-focused field while the application
+AXFrontmost RPC fails. The second is a positive foreign system focus while the
+application still reports its old focused field. The former must permit the
+literal `before ghbdtn after` → `before привет after`; the latter must refuse
+without a text write. Explicit AXFrontmost=false, malformed focus values and
+unknown field owners remain fail-closed. The harness also checks raw errors,
+missing PID, bounded bootstrap, Option word/selection/empty capture, automatic
+separators, source/caret preservation, readonly/secure targets, cancellation,
+and matching keyboard/dictation error details without user text.
+
+Use `MLS_FOCUS_BASE_REF=01ec68262fb1f4c663a9ae6560410223a116cb00 bash
+tools/test-system-focus.sh` for the pre-fix baseline; it freezes all relevant
+production files at that revision and keeps the same final fixture. Baseline
+fails the two focus rules and the new diagnostic assertions. These injected
+raw-RPC faults demonstrate resolver behavior, not that either fault occurred
+in the user's installed app. They do not establish live AX/WindowServer or
+user acceptance; the precise remaining real-app cause is still unknown.

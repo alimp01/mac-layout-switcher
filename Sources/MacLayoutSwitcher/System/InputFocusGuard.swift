@@ -22,13 +22,16 @@ final class InputFocusGuard {
 
     enum CaptureFailure {
         case accessibilityDenied, protectedField, unavailableField, unavailableSelection
-        case unavailableText, selectionTooLarge, changed
+        case unavailableText, selectionTooLarge, changed, unavailableApplication
+        case systemFocus(DictationFocusFailure)
         var message: String {
             switch self {
             case .accessibilityDenied:
                 return "У Mac Layout Switcher нет разрешения «Универсальный доступ». Проверьте его в настройках macOS; после обновления может потребоваться повторное включение."
             case .protectedField: return "Включён защищённый ввод или выбрано защищённое поле."
             case .unavailableField: return "Редактор не предоставил доступное поле ввода."
+            case .unavailableApplication: return "macOS не сообщила активное приложение. Выберите нужное поле и повторите действие."
+            case .systemFocus(let failure): return failure.message
             case .unavailableSelection: return "Редактор не сообщил положение курсора или выделение."
             case .unavailableText: return "Редактор не предоставил текст для проверки замены."
             case .selectionTooLarge: return "Выделение слишком большое. Выберите меньший фрагмент текста."
@@ -50,7 +53,7 @@ final class InputFocusGuard {
             func failed(_ reason: CaptureFailure) -> Target? { failure(reason); return nil }
             guard accessibility.isTrusted else { return failed(.accessibilityDenied) }
             guard !accessibility.isSecure else { return failed(.protectedField) }
-            guard let pid = expectedPID else { return failed(.unavailableField) }
+            guard let pid = expectedPID else { return failed(.unavailableApplication) }
             var firstElement: AXUIElement?
             var reason = CaptureFailure.unavailableField
             for attempt in 0..<3 {
@@ -60,7 +63,7 @@ final class InputFocusGuard {
                 }
                 guard accessibility.isTrusted else { return failed(.accessibilityDenied) }
                 guard !accessibility.isSecure else { return failed(.protectedField) }
-                guard let element = accessibility.focusedElement(pid: pid) else { continue }
+                guard let element = accessibility.focusedElement(pid: pid, failure: { reason = .systemFocus($0) }) else { continue }
                 guard accessibility.attribute(kAXSubroleAttribute, of: element) as? String != kAXSecureTextFieldSubrole
                     else { return failed(.protectedField) }
                 if let firstElement, !CFEqual(firstElement, element) { return failed(.changed) }
