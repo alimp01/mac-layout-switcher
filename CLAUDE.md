@@ -19,7 +19,7 @@ Two fresh finalreviews0findings, exact99sourcehashes; Linux95/nativefullEngine/
 focus50/nav160/update15/dictation15/fullspeech/deepstrict/mountedDMG PASS.
 Installedbinary58dfa3bd6042acb4a7e11f011699ec05f8dc46d218f0443942f83df2e1d90636,
 one newPID14682 after old1462 stopped. Backup1.4.8 in outputs zip and
-/Applications/.MacLayoutSwitcher-G26-z0_lj6ol/previous.app. Publication pending.
+/Applications/.MacLayoutSwitcher-G26-z0_lj6ol/previous.app. Code45d6221 опубликован: GitHubVERSION1.4.9, publicarchiveSHA/PAX и99файлов проверены; финальный metadatareceipt в outputs.
 User asked physical ghbdtn+Space and separate ghbdtn+Option afterpermissions.
 Do not ask old app/trigger/selection questions again. No deniedCodex/MLS CUA
 bypass; own TextEdit CUA-generatedkeys inconclusive, bareOption unsupported.

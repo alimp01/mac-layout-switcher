@@ -42,10 +42,18 @@ RED→GREEN and full dictation15groups PASS. Integrated Engine final27groups PAS
 Spec and Standards independent final approved0findings; both verify exact99 hashes.
 Exact99 reviewed inputs frozen in audit/reliability/reviewed-files.json.
 Installed1.4.8 backed up to outputs/MacLayoutSwitcher-1.4.8-before-G26-backup.zip
-without modifying currentinstallation. Installed exact1.4.9 binary and helper; codesign deepstrictPASS, oldPID1462 stopped, newPID14682 confirmed. Publication pending.
+without modifying currentinstallation. Installed exact1.4.9 binary and helper; codesign deepstrictPASS, oldPID1462 stopped, newPID14682 confirmed. Code45d6221 published and verified (GitHubVERSION/publicSHA/PAX/exact99files).
 
 Actual user acceptance remains pending. Root asked only a new physical1.4.9
 ghbdtn+Space and separate ghbdtn+Option check after permissions if prompted.
 This cannot be replaced by CUA modifier-only input (unsupported), and denied
 app access was not bypassed. Resolved controlled defects are not claimed as
 the installed user's proven root cause.
+
+## Publication
+Code commit 45d622165d10699b7f058c1ae7d9b289dc20b711 pushed to main. Server checkout clean, atomic
+archive publication verified through public HTTPS; code archive SHA
+41633beb886e93941473e5be56ccc248780ec3566762265f8f6c9f159bee5516. Raw GitHub VERSION1.4.9,
+PAX commit and99frozen files exact. Metadata-only receipt commit follows;
+final public-archive receipt is kept outside the repo in outputs to avoid self-reference.
+Physical acceptance remains pending; no user reply yet.

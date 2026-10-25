@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-25T05:44:42.326070+00:00",
+  "updatedAt": "2026-10-25T05:47:58.908556+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -48,19 +48,19 @@ window.STATE =
       "id": "build",
       "status": "active",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G26 codechecked/reviewed/installed1.4.9; physical acceptance and publication pending."
+      "note": "G26 code/reviews/tests/release1.4.9 complete; actual physical acceptance still pending."
     },
     {
       "id": "review",
       "status": "pending",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "G26 codechecked/reviewed/installed1.4.9; physical acceptance and publication pending."
+      "note": "G26 code/reviews/tests/release1.4.9 complete; actual physical acceptance still pending."
     },
     {
       "id": "final",
       "status": "pending",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "G26 codechecked/reviewed/installed1.4.9; physical acceptance and publication pending."
+      "note": "G26 code/reviews/tests/release1.4.9 complete; actual physical acceptance still pending."
     }
   ],
   "requirements": {
@@ -796,7 +796,9 @@ window.STATE =
       },
       "version": "1.4.9",
       "validation": "Final integrated suites and exact99hashes reviewed; see audit/reliability",
-      "actualAcceptance": "pending separate physical keyboard check"
+      "actualAcceptance": "pending separate physical keyboard check",
+      "commit": "b7759822fc16796ee3fc8b05dfa9bae967322b3a",
+      "publication": "1.4.9 code45d6221 public archive verified"
     },
     {
       "id": "30",
@@ -815,7 +817,9 @@ window.STATE =
       },
       "version": "1.4.9",
       "validation": "Final integrated suites and exact99hashes reviewed; see audit/reliability",
-      "actualAcceptance": "pending separate physical keyboard check"
+      "actualAcceptance": "pending separate physical keyboard check",
+      "commit": "1519f6001f60017bd0272abf98f0cf9e8d2bfb70",
+      "publication": "1.4.9 code45d6221 public archive verified"
     },
     {
       "id": "31",
@@ -834,7 +838,9 @@ window.STATE =
       },
       "version": "1.4.9",
       "validation": "Final integrated suites and exact99hashes reviewed; see audit/reliability",
-      "actualAcceptance": "pending separate physical keyboard check"
+      "actualAcceptance": "pending separate physical keyboard check",
+      "commit": "45d622165d10699b7f058c1ae7d9b289dc20b711",
+      "publication": "1.4.9 code45d6221 public archive verified"
     }
   ],
   "singlePass": null,
@@ -996,10 +1002,15 @@ window.STATE =
     "sha256": "dad44e98b9e1833821502af02364e037e13403cac21ffd18563fda8fe80de093",
     "bytes": 10978284,
     "binarySHA256": "58dfa3bd6042acb4a7e11f011699ec05f8dc46d218f0443942f83df2e1d90636",
-    "publication": "pending",
+    "publication": "verified code commit; metadata-only sync follows",
     "physicalAcceptance": "pending",
     "installedPID": 14682,
-    "installedBackup": "outputs/MacLayoutSwitcher-1.4.8-before-G26-backup.zip"
+    "installedBackup": "outputs/MacLayoutSwitcher-1.4.8-before-G26-backup.zip",
+    "codeCommit": "45d622165d10699b7f058c1ae7d9b289dc20b711",
+    "publicCodeArchiveSHA256": "41633beb886e93941473e5be56ccc248780ec3566762265f8f6c9f159bee5516",
+    "frozenProductFilesVerified": 99,
+    "verifiedAt": "2026-10-25T05:47:22.188162+00:00",
+    "verification": "rawGitHubVERSION/publicHTTPSsha/PAX/all99files exact"
   },
   "wordCoverageAudit": {
     "independentRU": 459,
@@ -1135,6 +1146,6 @@ window.STATE =
     "reviews": "two independent finalapproved0findings, exact99hashes",
     "manualAcceptance": "UNKNOWN; CUA TextEdit generated inputs not physicalproof; Option unsupported; no denied-app bypass",
     "evidence": "audit/reliability",
-    "release": "1.4.9 exactsigned installed; newPID14682; publication pending"
+    "release": "1.4.9 exactsigned installed singlePID14682; code45d6221 pushed/archive verified99files; physicalpending"
   }
 };
