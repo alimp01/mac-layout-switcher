@@ -116,12 +116,12 @@ final class FixtureAX: DictationAccessibility {
 let app=NSApplication.shared
 app.setActivationPolicy(.prohibited)
 func drain(_ duration: Double = 0.35) { RunLoop.current.run(until:Date().addingTimeInterval(duration)) }
-func fixture(unicode:Bool) -> Engine {
+func fixture(unicode:Bool, configure: (inout AppConfig) -> Void = { _ in }) -> Engine {
  harnessFrontPID=harnessPID
  currentFixture=FixtureAX(unicode:unicode)
  currentFixture.editor.string=""; currentFixture.editor.setSelectedRange(NSRange(location:0,length:0))
  let directory=URL(fileURLWithPath:NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
- let config=Config(directory:directory); config.update { $0.excludedApps=[]; $0.sounds=false }
+ let config=Config(directory:directory); config.update { $0.excludedApps=[]; $0.sounds=false; configure(&$0) }
  let engine=Engine(config:config); require(engine.start(),"inert registration starts")
  currentFixture.syntheticFilter = { [weak engine] in engine?.probeEvent($0) ?? .pass }
  let event=CGEvent(keyboardEventSource:CGEventSource(stateID:.privateState),virtualKey:58,keyDown:false)!
@@ -139,6 +139,7 @@ func physical(_ engine:Engine, code:UInt16, autorepeat:Bool=false, flags:CGEvent
  let up=CGEvent(keyboardEventSource:source,virtualKey:CGKeyCode(code),keyDown:false)!
  up.flags=flags; let upDecision=engine.probeEvent(up)
  if decision == .suppress && upDecision != .suppress { currentFixture.suppressedUpsValid = false }
+ if decision == .pass { require(upDecision == .pass,"passed physical key must not lose its key-up to stale ownership") }
  if upDecision == .pass && deliver { currentFixture.receive(up) }
  return decision
 }
@@ -182,6 +183,8 @@ func option(_ engine: Engine) {
   _=engine.probeEvent(event)
  }
 }
+if ProcessInfo.processInfo.environment["MLS_OPTION_ONLY"] != "1" { testPhysicalInputIntegrity() }
+if ProcessInfo.processInfo.environment["MLS_PHYSICAL_ONLY"] == "1" { exit(0) }
 for unicode in [false,true] {
  let engine=fixture(unicode:unicode); typeSource(engine)
  let oldEditor=currentFixture.editor

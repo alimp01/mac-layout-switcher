@@ -14,8 +14,10 @@ public struct KeyStroke {
         /// Нажатие клавиши (`CGEventType.keyDown`).
         case keyDown
         case keyUp
-        /// Click, drag or interrupted tap: current text ownership ended.
+        /// Click or drag: current text ownership ended, physical keys remain held.
         case contextChanged
+        /// Tap suspension can hide key-up events; physical ownership is unknown.
+        case tapInterrupted
         /// Изменение модификаторов (`CGEventType.flagsChanged`) — нужно
         /// Engine'у, чтобы ловить одиночный тап Option.
         case flagsChanged
@@ -26,8 +28,8 @@ public struct KeyStroke {
     /// Виртуальный код клавиши (`CGEventField.keyboardEventKeycode`).
     public let keyCode: UInt16
     /// Символ(ы), которые это нажатие даёт в текущей раскладке
-    /// (UCKeyTranslate). Пустая строка для `flagsChanged` и клавиш без
-    /// печатного символа (стрелки, F-ряд и т.п.).
+    /// (UCKeyTranslate), включая управляющие символы для навигации/F-клавиш.
+    /// Пустая строка для `flagsChanged` и недоступного перевода.
     public let characters: String
     /// Флаги модификаторов на момент события (`CGEvent.flags`).
     public let flags: CGEventFlags

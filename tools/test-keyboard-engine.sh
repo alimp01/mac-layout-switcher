@@ -59,6 +59,7 @@ for path in sorted((root/'Sources/SwitcherCore').glob('*.swift')):
     records.append({'source': str(path), 'source_sha256': digest, 'compiled_sha256': digest, 'transformed': False})
 shutil.copy(Path.cwd()/'tools/keyboard-harness/engine.swift', dest/'main.swift')
 shutil.copy(Path.cwd()/'tools/keyboard-harness/engine-boundary.swift', dest/'boundary.swift')
+shutil.copy(Path.cwd()/'tools/keyboard-harness/physical-input.swift', dest/'physical-input.swift')
 (dest/'source-provenance.json').write_text(json.dumps(records, indent=2)+'\n')
 (dest/'seams.patch').write_text(''.join(patch))
 PY

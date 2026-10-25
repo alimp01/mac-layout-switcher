@@ -14,9 +14,9 @@ import Carbon.HIToolbox
 enum KeyTranslator {
 
     /// Символ(ы) для кода клавиши с данными модификаторами по текущей
-    /// раскладке. Пустая строка, если клавиша не даёт печатного символа
-    /// или данные раскладки недоступны (например, у IME-источников
-    /// `kTISPropertyUnicodeKeyLayoutData` равен NULL).
+    /// раскладке, включая управляющие символы для навигации/F-клавиш.
+    /// Пустая строка, если перевод или данные раскладки недоступны (например,
+    /// у IME-источников `kTISPropertyUnicodeKeyLayoutData` равен NULL).
     static func characters(keyCode: UInt16, flags: CGEventFlags) -> String {
         guard let layoutData = currentLayoutData() else { return "" }
 

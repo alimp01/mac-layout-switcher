@@ -121,7 +121,7 @@ public final class EventTap {
     private func process(type: CGEventType, event: CGEvent) -> TapDecision {
         switch type {
         case .tapDisabledByTimeout, .tapDisabledByUserInput:
-            _ = handler?(KeyStroke(kind: .contextChanged, keyCode: 0, characters: "", flags: [], isAutorepeat: false))
+            _ = handler?(KeyStroke(kind: .tapInterrupted, keyCode: 0, characters: "", flags: [], isAutorepeat: false))
             // Система отключила tap (медленный колбэк или secure input) —
             // включаем обратно, иначе перехват молча умирает навсегда.
             if let tap = tap {

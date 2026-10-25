@@ -191,7 +191,20 @@ public final class Engine {
     /// на одном слове, тяжёлая работа уходит на очередь `Typist`.
     @discardableResult
     public func handle(keyEvent stroke: KeyStroke) -> TapDecision {
-        if stroke.kind == .keyDown || stroke.kind == .contextChanged { inputSequence &+= 1 }
+        if stroke.kind == .keyDown || stroke.kind == .contextChanged || stroke.kind == .tapInterrupted { inputSequence &+= 1 }
+        if stroke.kind == .tapInterrupted {
+            // Unlike a click, suspension can hide releases. Retire ownership
+            // synchronously before the tap accepts any fresh physical input.
+            dictation.invalidateInsertion()
+            // A missed release must not leave recording running. A session
+            // already released can still finish into its existing recovery UI.
+            if dictationRequested {
+                DispatchQueue.main.async { [weak self] in self?.dictation.cancel() }
+            }
+            resetPhysicalInputState()
+            inputFocus.invalidate()
+            return .pass
+        }
         // Consumed shortcuts own their repeats as well as their key-up, even
         // if the user releases a modifier before releasing the ordinary key.
         if stroke.kind == .keyDown, shortcutKeysDown.contains(stroke.keyCode) {
@@ -247,7 +260,7 @@ public final class Engine {
         switch stroke.kind {
         case .keyDown: gestureEvent = .down(stroke.keyCode, repeatKey: stroke.isAutorepeat)
         case .keyUp: gestureEvent = .up(stroke.keyCode)
-        case .flagsChanged, .contextChanged: gestureEvent = .modifiers
+        case .flagsChanged, .contextChanged, .tapInterrupted: gestureEvent = .modifiers
         }
         let chosen = config.config.dictationHotkey
         let valid = chosen.dictationValidationError(convert: config.config.convertHotkey,
@@ -297,7 +310,7 @@ public final class Engine {
         }
 
         switch stroke.kind {
-        case .contextChanged: return .pass
+        case .contextChanged, .tapInterrupted: return .pass
         case .keyUp:
             return .pass
         case .flagsChanged:
@@ -535,13 +548,16 @@ public final class Engine {
         if stroke.keyCode == Self.backspaceKeyCode {
             return [.backspace]
         }
-        // Ровно один печатный символ: буква/разделитель. Пусто (стрелки, F-ряд,
-        // escape) или дед-ки — курсор мог уйти, слово больше не наше.
+        // UCKeyTranslate can return C0 controls for arrows, Escape and F-keys.
+        // Only printable text and explicit editing boundaries belong to us.
         guard stroke.characters.count == 1, let ch = stroke.characters.first else {
             return [.reset]
         }
         if Self.boundaryChars.contains(ch) {
             return [.boundary(ch)]
+        }
+        guard !ch.unicodeScalars.contains(where: CharacterSet.controlCharacters.contains) else {
+            return [.reset]
         }
         return [.char(ch)]
     }
