@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-25T07:07:12.141278+00:00",
+  "updatedAt": "2026-10-25T12:24:37.905378+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -48,25 +48,25 @@ window.STATE =
       "id": "build",
       "status": "active",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G27/T32 code/reviews/tests/release1.4.10 complete; actual physical acceptance pending."
+      "note": "G27/T32 complete: 1.4.10 installed/published; user confirmed Option and Space in Codex. Other historical in-ticket scopes unchanged."
     },
     {
       "id": "review",
       "status": "pending",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "G27/T32 code/reviews/tests/release1.4.10 complete; actual physical acceptance pending."
+      "note": "G27/T32 complete: 1.4.10 installed/published; user confirmed Option and Space in Codex. Other historical in-ticket scopes unchanged."
     },
     {
       "id": "final",
       "status": "pending",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "G27/T32 code/reviews/tests/release1.4.10 complete; actual physical acceptance pending."
+      "note": "G27/T32 complete: 1.4.10 installed/published; user confirmed Option and Space in Codex. Other historical in-ticket scopes unchanged."
     }
   ],
   "requirements": {
     "total": 34,
-    "done": 29,
-    "inTicket": 4,
+    "done": 30,
+    "inTicket": 3,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -856,9 +856,11 @@ window.STATE =
         "spec": "approved",
         "standards": "approved"
       },
-      "validation": "baseline RED13 → final raw GREEN77; adapters; fullspeech; mountedDMG; exact Linux95 reuse; installed physical acceptance pending",
+      "validation": "baseline RED13 → final raw GREEN77; adapters; fullspeech; mountedDMG; exact Linux95 reuse; user confirmed physical ghbdtn+Option and ghbdtn+Space in Codex",
       "commit": "72c48b6af12d85e0da244fc55285e00d3fe446f7",
-      "finishedAt": "2026-10-25T07:07:12.141278+00:00"
+      "finishedAt": "2026-10-25T07:07:12.141278+00:00",
+      "physicalAcceptance": "passed",
+      "acceptedAt": "2026-10-25T12:24:37.905378+00:00"
     }
   ],
   "singlePass": null,
@@ -1016,8 +1018,9 @@ window.STATE =
   },
   "manualAcceptance": {
     "version": "1.4.10",
-    "status": "pending",
-    "note": "Requested ghbdtn+Option and separate ghbdtn+Space after candidate starts; prior1.4.9 failed noValue."
+    "status": "passed",
+    "confirmedAt": "2026-10-25T12:24:37.905378+00:00",
+    "note": "User replied «Да, сейчас работает» to ghbdtn+Option and separate ghbdtn+Space verification in Codex. Scope is these physical paths; no new claim for dictation, Enter, or every app."
   },
   "release": {
     "version": "1.4.10",
@@ -1026,8 +1029,8 @@ window.STATE =
     "bytes": 11000313,
     "binarySHA256": "030dc241cab5fd34c6e371c90ed68a2687d7eb665237c810f6e09397634ef3fd",
     "helperSHA256": "e97da801466687fd0aa5f4b18ad39a2a89b52b5dc069935ba1252a6a3599c34e",
-    "publication": "verified; metadata-only sync follows, final receipt in outputs",
-    "physicalAcceptance": "pending",
+    "publication": "verified; acceptance metadata sync follows, final receipt in outputs",
+    "physicalAcceptance": "passed: user confirms ghbdtn+Option and ghbdtn+Space in Codex",
     "installedPID": 23883,
     "installedBackup": "outputs/MacLayoutSwitcher-1.4.9-before-G27-backup.zip",
     "codeCommit": "72c48b6af12d85e0da244fc55285e00d3fe446f7",
@@ -1184,12 +1187,13 @@ window.STATE =
     "qa": "no-value-focus-qa.md",
     "sourceEvidence": "Installed Codex Framework Chromium 155.0.8059.80; exact primary source enhanced accessibility debounced 2s, no manual hook",
     "contract": "Bounded once-per-process preparation; no initial field means fresh operation required after readiness, no stale delayed mutation",
-    "candidate": "1.4.10 installed and published; actual physical acceptance pending",
+    "candidate": "1.4.10 installed/published; physical Option and Space in Codex confirmed by user",
     "native": "Final raw77; adapters; root Engine/navigation + completion; fullspeech/mountedDMG",
     "reviews": "Both independent final approved; process-replacement race fixed",
     "linux": "95 tests reused by exact27input hashes",
     "durableEvidence": "audit/no-value-focus",
     "codeCommit": "72c48b6af12d85e0da244fc55285e00d3fe446f7",
-    "publication": "raw GitHub VERSION + public HTTPS SHA/PAX + 87 frozen/332 tracked file hashes verified"
+    "publication": "raw GitHub VERSION + public HTTPS SHA/PAX + 87 frozen/332 tracked file hashes verified",
+    "confirmedAt": "2026-10-25T12:24:37.905378+00:00"
   }
 };

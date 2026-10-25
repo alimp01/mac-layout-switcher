@@ -1,6 +1,6 @@
 # T32 — восстановить захват поля при AX noValue
 **Requirement:** G27
-**Status:** code/release complete; actual physical acceptance pending
+**Status:** done; user confirmed physical acceptance in Codex
 **Blocked by:** none
 Read ../no-value-focus-spec.md and G26 raw-system-focus tests.
 - [x] Explain exact noValue failure path and source-supported recovery.
@@ -8,7 +8,7 @@ Read ../no-value-focus-spec.md and G26 raw-system-focus tests.
 - [x] Shared capture safely handles valid alternatefocus/lazybootstrap.
 - [x] Stale/foreign/ambiguous/secure/limit/cancel cases fail without text mutation.
 - [x] Relevant native checks, two independent reviews, signed release/publication.
-- [ ] Actual installed keyboard result recorded separately.
+- [x] Actual installed keyboard result recorded separately.
 Fresh executor follows implement/tdd. No root product edits; no live private UI/AX,
 TCC, microphone, global input, helper bypass of prior CUA denial. No version/
 commit/install/push until root signal. Scope focus capture + necessary tests/docs.
@@ -26,6 +26,6 @@ acceptance remain separate; no installed-app success is inferred from fixtures.
 
 Final implementation uses scoped bootstrap, not traversal. Both reviews approve;
 77 final raw checks pass; final signed full-speech build and mounted DMG verified.
-Actual installed acceptance remains pending; see no-value-focus-qa.md.
+User confirmed the installed Option and Space paths in Codex on 25.10; see no-value-focus-qa.md.
 
 Released commit 72c48b6af12d85e0da244fc55285e00d3fe446f7; public VERSION/archive verified.

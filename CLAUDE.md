@@ -20,8 +20,10 @@ final raw GREEN77, adapters/root Engine/completion, exact Linux95 reuse, fullspe
 Установлен exact binary030dc241…; новый PID23883, старый19475 остановлен.
 Backup1.4.9: outputs/MacLayoutSwitcher-1.4.9-before-G27-backup.zip и
 /Applications/.MacLayoutSwitcher-G27-3un9rxng/previous.app. Actual acceptance
-PENDING: задан один тест ghbdtn+Option и отдельно ghbdtn+Space. Не повторять
-старые вопросы и не выдавать headless PASS за живой Codex. No denied-app bypass.
+PASS: 25.10 пользователь ответил «Да, сейчас работает» после проверки
+ghbdtn+Option и отдельно ghbdtn+Space в Codex. G27/T32 закрыт; остальные
+приложения, Enter/Shift+Enter и диктовка этим ответом не подтверждены.
+Не повторять уже пройденный тест. No denied-app bypass.
 См. no-value-focus-spec/qa и audit/no-value-focus.
 
 G26/T29–T31:1.4.9 собрана, exactreviewed установлена25.10; physicalacceptance FAILED (G27).
