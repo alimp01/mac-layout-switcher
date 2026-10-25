@@ -163,3 +163,29 @@ fails the two focus rules and the new diagnostic assertions. These injected
 raw-RPC faults demonstrate resolver behavior, not that either fault occurred
 in the user's installed app. They do not establish live AX/WindowServer or
 user acceptance; the precise remaining real-app cause is still unknown.
+
+
+G27 adds a Chromium 155 bootstrap regression at these same raw boundaries.
+The fixture supplies process launch/bundle metadata and intercepts the final
+CGEvent process post into its own unshown NSTextView; Chromium detection,
+resolver, event construction, text and caret readback remain production code.
+The hidden NSTextView reports AXEnabled=false, so the synthetic Chromium
+metadata reports its own editor's isEditable for that attribute. No live app,
+WindowServer input, clipboard or user editor is accessed.
+
+With AXFrontmost=true and both focus queries returning AXError.noValue, a
+rejected AXManualAccessibility call can fall back to AXEnhancedUserInterface
+only for a detected Chromium framework. The raw fixture delays its tree for
+2.05 seconds. An explicit request with no original field only prepares access;
+a fresh request after the tree appears must convert literal ghbdtn once. The
+same fixture checks readback errors, setter-error-but-actual-field-available,
+unsupported native apps, single activation across adapter instances, PID reuse,
+temporary missing launch metadata, 32 live-process capacity, off-main Option,
+programmatic field changes, cancellation, and three bounded capture attempts.
+Metadata/launch changes before activation must reject the in-flight capture.
+
+Use `GIT_DIR=/tmp/mls-g26-git-store MLS_FOCUS_BASE_REF=cd68fedfe0cd2996a4f6f1383d2c03929d3deec2 bash tools/test-system-focus.sh`
+when the alternate Git store is available, or omit GIT_DIR in a normal checkout.
+The same final fixture fails against that 1.4.9 baseline. These are headless
+compatibility/safety proofs; installed Codex Option/auto/dictation acceptance
+remains a separate user test.

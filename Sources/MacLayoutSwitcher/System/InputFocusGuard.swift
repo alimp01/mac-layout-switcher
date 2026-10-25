@@ -24,6 +24,7 @@ final class InputFocusGuard {
         case accessibilityDenied, protectedField, unavailableField, unavailableSelection
         case unavailableText, selectionTooLarge, changed, unavailableApplication
         case systemFocus(DictationFocusFailure)
+        case preparingAccessibility(DictationFocusFailure?)
         var message: String {
             switch self {
             case .accessibilityDenied:
@@ -32,6 +33,9 @@ final class InputFocusGuard {
             case .unavailableField: return "Редактор не предоставил доступное поле ввода."
             case .unavailableApplication: return "macOS не сообщила активное приложение. Выберите нужное поле и повторите действие."
             case .systemFocus(let failure): return failure.message
+            case .preparingAccessibility(let focus):
+                return "Редактор подготавливает доступ к полю. Повторите действие через несколько секунд."
+                    + (focus.map { " Диагностика: \($0.metadata)." } ?? "")
             case .unavailableSelection: return "Редактор не сообщил положение курсора или выделение."
             case .unavailableText: return "Редактор не предоставил текст для проверки замены."
             case .selectionTooLarge: return "Выделение слишком большое. Выберите меньший фрагмент текста."
@@ -49,21 +53,37 @@ final class InputFocusGuard {
         /// process routing; querying the current element itself never bootstraps.
         static func capture(expectedPID: pid_t? = NSWorkspace.shared.frontmostApplication?.processIdentifier,
                             accessibility: any DictationAccessibility = SystemDictationAccessibility(),
+                            allowed: () -> Bool = { true },
+                            preparingOnly: Bool = false,
                             failure: (CaptureFailure) -> Void = { _ in }) -> Target? {
             func failed(_ reason: CaptureFailure) -> Target? { failure(reason); return nil }
             guard accessibility.isTrusted else { return failed(.accessibilityDenied) }
             guard !accessibility.isSecure else { return failed(.protectedField) }
             guard let pid = expectedPID else { return failed(.unavailableApplication) }
+            guard allowed() else { return failed(.changed) }
+            var bootstrap: DictationAXBootstrap?
             var firstElement: AXUIElement?
             var reason = CaptureFailure.unavailableField
             for attempt in 0..<3 {
                 if attempt > 0 {
-                    if attempt == 1 { accessibility.enableAccessibility(pid: pid) }
-                    Thread.sleep(forTimeInterval: 0.08)
+                    if attempt == 1 {
+                        bootstrap = accessibility.prepareAccessibility(pid: pid, allowed: allowed)
+                        if bootstrap?.rejectsCapture == true { return failed(.changed) }
+                        if bootstrap?.requiresFreshFocus == true && firstElement == nil && !preparingOnly {
+                            guard allowed() else { return failed(.changed) }
+                            if case .systemFocus(let focus) = reason { return failed(.preparingAccessibility(focus.including(bootstrap))) }
+                            return failed(.preparingAccessibility(nil))
+                        }
+                    }
+                    guard bootstrap?.wait(before: attempt, allowed: allowed) != false else { return failed(.changed) }
                 }
+                guard allowed() else { return failed(.changed) }
                 guard accessibility.isTrusted else { return failed(.accessibilityDenied) }
                 guard !accessibility.isSecure else { return failed(.protectedField) }
-                guard let element = accessibility.focusedElement(pid: pid, failure: { reason = .systemFocus($0) }) else { continue }
+                var stop = false
+                guard let element = accessibility.focusedElement(pid: pid, failure: {
+                    reason = .systemFocus($0.including(bootstrap)); stop = $0.preventsBootstrap
+                }) else { if stop { return failed(reason) }; continue }
                 guard accessibility.attribute(kAXSubroleAttribute, of: element) as? String != kAXSecureTextFieldSubrole
                     else { return failed(.protectedField) }
                 if let firstElement, !CFEqual(firstElement, element) { return failed(.changed) }
@@ -73,7 +93,7 @@ final class InputFocusGuard {
                 let role = accessibility.attribute(kAXRoleAttribute, of: element) as? String
                 if role == kAXTextFieldRole || role == kAXTextAreaRole { firstElement = element }
                 let target = Target(element: element, pid: pid, accessibility: accessibility)
-                if target.selection() != nil { return target }
+                if target.selection() != nil { return allowed() ? target : failed(.changed) }
                 reason = .unavailableSelection
             }
             return failed(reason)
@@ -350,7 +370,7 @@ final class InputFocusGuard {
         let requestedPermit = permit
         let expectedPID = NSWorkspace.shared.frontmostApplication?.processIdentifier
         queue.async { [weak self] in
-            let captured = Target.capture(expectedPID: expectedPID)
+            let captured = Target.capture(expectedPID: expectedPID, allowed: { requestedPermit.isAllowed }, preparingOnly: true)
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
                 self.sampling = false

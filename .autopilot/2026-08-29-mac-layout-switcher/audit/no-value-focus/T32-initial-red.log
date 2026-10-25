@@ -1,0 +1,52 @@
+System focus snapshot: /tmp/mls-system-focus.93OJiX
+FAIL: Chromium 155 rejected manual bootstrap resolves delayed raw noValue and converts ghbdtn once
+PASS: ordinary raw system focus authorizes exact own AppKit replacement
+PASS: valid system-focused field survives unavailable app-frontmost RPC
+PASS: positive foreign system focus never falls back to stale application focus
+PASS: explicit non-frontmost application stays fail-closed
+PASS: confirmed frontmost application can supply unavailable system focus
+PASS: bounded bootstrap reacquires real raw focus path
+PASS: unavailable focus refuses target
+PASS: focus timeout retains exact stage and AX errors without source text
+PASS: diagnostic contains no editor text
+PASS: unavailable focus refuses target
+PASS: missing foreground PID has a distinct explanation
+PASS: unavailable focus refuses target
+PASS: raw unsupported/denied/no-value stages remain distinguishable: -25205
+PASS: unavailable focus refuses target
+PASS: raw unsupported/denied/no-value stages remain distinguishable: -25211
+PASS: unavailable focus refuses target
+PASS: raw unsupported/denied/no-value stages remain distinguishable: -25208
+PASS: unavailable focus refuses target
+PASS: raw unsupported/denied/no-value stages remain distinguishable: -25212
+PASS: unavailable focus refuses target
+PASS: malformed positive system focus cannot authorize stale app fallback
+PASS: unavailable focus refuses target
+PASS: unknown owner remains fail-closed and reports lookup error
+PASS: unavailable focus refuses target
+PASS: success without returned values does not invent a target
+PASS: unavailable focus refuses target
+PASS: foreign focus exposes metadata only
+PASS: unavailable focus refuses target
+PASS: explicit inactive application has a distinct diagnostic
+PASS: unavailable focus refuses target
+PASS: trust failure remains separate
+PASS: unavailable focus refuses target
+PASS: secure target remains unavailable
+PASS: unavailable focus refuses target
+PASS: secure input remains unavailable
+PASS: read-only control cannot authorize a write
+PASS: system focus change after capture blocks old target
+PASS: frontend change during selection blocks text mutation
+PASS: cancellation after selection preserves source
+PASS: production Option word captures through raw system focus and converts literal ghbdtn once
+PASS: production Option selected captures through raw system focus and converts literal ghbdtn once
+PASS: empty Option capture retains layout-only route
+PASS: automatic Space uses newly resolved target and preserves once-only separator
+PASS: automatic Enter uses newly resolved target and preserves once-only separator
+PASS: Enter key and flags preserved
+PASS: automatic ShiftEnter uses newly resolved target and preserves once-only separator
+PASS: ShiftEnter key and flags preserved
+PASS: automatic Tab uses newly resolved target and preserves once-only separator
+PASS: Tab key and flags preserved
+PASS: dictation exposes the same raw focus diagnostic before observation or insertion

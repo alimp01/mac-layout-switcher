@@ -26,6 +26,10 @@ names=['AXUIElementCopyAttributeValue','AXUIElementSetAttributeValue','AXUIEleme
 for path in (root/'Sources').glob('*.swift'):
     original=path.read_text(); compiled=original
     if path.name=='DictationTarget.swift':
+        assert 'NSRunningApplication(processIdentifier: pid)' in compiled
+        compiled=re.sub(r'NSRunningApplication\(processIdentifier: ([^)]+)\)', r'fixtureRunningApplication(processIdentifier: \1)', compiled)
+        assert '$0.postToPid($1)' in compiled
+        compiled=compiled.replace('$0.postToPid($1)', 'fixturePostEvent($0, $1)')
         for name in names:
             assert name in compiled, name
             compiled=re.sub(r'\b'+name+r'\b', 'fixture'+name, compiled)

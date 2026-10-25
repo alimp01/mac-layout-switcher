@@ -1,0 +1,63 @@
+T32 executor evidence — 2026-10-25
+
+Physical installed 1.4.9 remains FAILED, as reported by the user. This work
+addresses a source-supported bootstrap compatibility defect. Headless fixtures
+cannot establish that the installed user's field is now working.
+
+Primary evidence:
+https://raw.githubusercontent.com/chromium/chromium/155.0.8059.80/chrome/browser/chrome_browser_application_mac.mm
+The exact installed framework version provided by root is 155.0.8059.80.
+BrowserCrApplication lacks the manual attribute hook and processes enhanced UI
+activation through a two-second debounce. The setter forwards to AppKit after
+requesting activation, so a setter error is not conclusive proof of no effect.
+https://githubnext.github.io/desktop-tools/tools.html
+Documents the Chromium 155 manual rejection, detected-framework-only enhanced
+fallback and readback, including native-app side effects of the alternate.
+https://www.electronjs.org/docs/latest/tutorial/accessibility
+Electron continues to document AXManualAccessibility for third-party software.
+
+Implementation:
+- Preserve exact SystemDictationAccessibility.focusedElement, with no tree walk.
+- Manual unsupported/notImplemented may select alternate only for detected
+  Chromium framework. Retain fixed-code setter/readback diagnostics.
+- Shared bounded (32 live instances) PID+launchDate gate avoids repeated enhanced
+  toggles across sampler/Option/dictation. Missing launch metadata does not evict
+  a live gate; replaced/terminated instances are pruned. No disabling writes.
+- Revalidate current launch identity and framework after lock and before alternate
+  activation. Detected process change immediately rejects the in-flight capture.
+- At most three focus attempts. Enhanced wait covers two-second debounce plus
+  0.5s renderer margin, outside EventTap/main, with cancellation every <=20ms.
+- No initial field identity: explicit Option/dictation only prepares and returns
+  temporary status preserving AX noValue metadata. A fresh request is required;
+  background sampler may prepare readiness. Known initial fields keep identity.
+- No clipboard, full-value writes, backspace, text write retry, arbitrary fields,
+  live UI/AX/helper probe, permissions override, microphone or user text logging.
+
+TDD:
+First literal RED on cd68fedfe0cd2996a4f6f1383d2c03929d3deec2:
+/tmp/mls-system-focus.93OJiX (exact sources, seams, SHA manifest, log).
+The rejected manual/noValue regression failed; all earlier raw resolver checks
+passed. Final raw GREEN77 is /tmp/mls-system-focus.IdMm8Z, with raw OS-only seams,
+actual capture/resolver, CGEvent construction and owned unshown NSTextView.
+Final exact fixture baseline RED: System focus snapshot: /tmp/mls-system-focus.hdFIuI; 13 failing regression assertions, exit1. Final fixture bytes match the GREEN run; no compatibility-only fixture edits.
+
+Independent review found a PID replacement race in the first frozen candidate.
+Literal reviewer RED:
+/var/folders/s7/blf5jdcs7q7bfjjxbt621w500000gn/T/mls-g27-spec-replaced-bwp7a4l8/run.log
+New final fixture tests both replacement during initial metadata and manual RPC;
+both reject enhanced activation and all text writes. Final code hashes in the
+adjacent T32-final-source-sha256.json supersede first-frozen f517ecb2/7b61ed5c.
+
+Regression evidence:
+- Raw focus GREEN77: T32-green.log, /tmp/mls-system-focus.IdMm8Z
+- Native keyboard adapter/recovery/CG transport PASS: T32-keyboard-adapter.log
+- Native dictation adapter PASS: T32-dictation-adapter.log
+- Full engine runner /tmp/mls-keyboard-engine.Pc6yN9 PASS: T32-engine.log, including navigation160, real event translation, Option, repeat and cancellation paths. Root also has an independent run.
+- Root owns Linux95 exact-source reuse, full-speech build, two final independent
+  reviews, packaging and installed acceptance. No commit/install/push by executor.
+
+VERSION is 1.4.10 at root's explicit signal. Seven edited product/test/version
+paths are frozen in /tmp/mls-g27-executor-final-manifest.json. Documentation and
+this evidence do not change those product hashes.
+
+Fetched primary-source SHA256: e6c181cdd0cbddbc8ef55826a841a7cd0465bb7c90a91d2df7e4cdfc3e5085d2

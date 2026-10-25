@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-25T05:47:58.908556+00:00",
+  "updatedAt": "2026-10-25T07:04:26.339079+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -48,25 +48,25 @@ window.STATE =
       "id": "build",
       "status": "active",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G26 code/reviews/tests/release1.4.9 complete; actual physical acceptance still pending."
+      "note": "G27/T32 reviewed, 1.4.10 installed; publication in progress; actual physical acceptance pending."
     },
     {
       "id": "review",
       "status": "pending",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "G26 code/reviews/tests/release1.4.9 complete; actual physical acceptance still pending."
+      "note": "G27/T32 reviewed, 1.4.10 installed; publication in progress; actual physical acceptance pending."
     },
     {
       "id": "final",
       "status": "pending",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "G26 code/reviews/tests/release1.4.9 complete; actual physical acceptance still pending."
+      "note": "G27/T32 reviewed, 1.4.10 installed; publication in progress; actual physical acceptance pending."
     }
   ],
   "requirements": {
-    "total": 33,
+    "total": 34,
     "done": 29,
-    "inTicket": 3,
+    "inTicket": 4,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -841,6 +841,22 @@ window.STATE =
       "actualAcceptance": "pending separate physical keyboard check",
       "commit": "45d622165d10699b7f058c1ae7d9b289dc20b711",
       "publication": "1.4.9 code45d6221 public archive verified"
+    },
+    {
+      "id": "32",
+      "title": "Захват поля при AX noValue",
+      "requirements": [
+        "G27"
+      ],
+      "status": "done",
+      "blockedBy": [],
+      "wave": 27,
+      "repairs": 0,
+      "review": {
+        "spec": "approved",
+        "standards": "approved"
+      },
+      "validation": "baseline RED13 → final raw GREEN77; adapters; fullspeech; mountedDMG; exact Linux95 reuse; installed physical acceptance pending"
     }
   ],
   "singlePass": null,
@@ -983,6 +999,11 @@ window.STATE =
       "spec": "review_reliability_spec",
       "standards": "review_reliability_standards",
       "result": "Both approved0findings; manifestSHA dddd80c7751b8f913b693f1161c6505b0093000aedc9a342d65712899a91f4d1"
+    },
+    "G27": {
+      "spec": "review_no_value_spec",
+      "standards": "review_no_value_standards",
+      "result": "Both final approved, 0 outstanding findings; manifest bf30a557698b2af3fd0eeec39f60aa92bedb517cb16ed9b91eac64b6f1a231cc"
     }
   },
   "blind": {
@@ -992,25 +1013,21 @@ window.STATE =
     "drift": []
   },
   "manualAcceptance": {
-    "version": "1.4.9",
+    "version": "1.4.10",
     "status": "pending",
-    "note": "Exactinstalled newPID14682; physical ghbdtn+Space and separate Option requested. Actual1.4.8 cause remains unknown; controlled bugs proved."
+    "note": "Requested ghbdtn+Option and separate ghbdtn+Space after candidate starts; prior1.4.9 failed noValue."
   },
   "release": {
-    "version": "1.4.9",
-    "artifact": "MacLayoutSwitcher-1.4.9.dmg",
-    "sha256": "dad44e98b9e1833821502af02364e037e13403cac21ffd18563fda8fe80de093",
-    "bytes": 10978284,
-    "binarySHA256": "58dfa3bd6042acb4a7e11f011699ec05f8dc46d218f0443942f83df2e1d90636",
-    "publication": "verified code commit; metadata-only sync follows",
+    "version": "1.4.10",
+    "artifact": "MacLayoutSwitcher-1.4.10.dmg",
+    "sha256": "1e845439ca616a61038f53d51c2bcfe3b16fe1ec5dc4ac56b185525c570daff1",
+    "bytes": 11000313,
+    "binarySHA256": "030dc241cab5fd34c6e371c90ed68a2687d7eb665237c810f6e09397634ef3fd",
+    "helperSHA256": "e97da801466687fd0aa5f4b18ad39a2a89b52b5dc069935ba1252a6a3599c34e",
+    "publication": "in progress",
     "physicalAcceptance": "pending",
-    "installedPID": 14682,
-    "installedBackup": "outputs/MacLayoutSwitcher-1.4.8-before-G26-backup.zip",
-    "codeCommit": "45d622165d10699b7f058c1ae7d9b289dc20b711",
-    "publicCodeArchiveSHA256": "41633beb886e93941473e5be56ccc248780ec3566762265f8f6c9f159bee5516",
-    "frozenProductFilesVerified": 99,
-    "verifiedAt": "2026-10-25T05:47:22.188162+00:00",
-    "verification": "rawGitHubVERSION/publicHTTPSsha/PAX/all99files exact"
+    "installedPID": 23883,
+    "installedBackup": "outputs/MacLayoutSwitcher-1.4.9-before-G27-backup.zip"
   },
   "wordCoverageAudit": {
     "independentRU": 459,
@@ -1112,16 +1129,20 @@ window.STATE =
     "publication": "GitHub VERSION1.4.6 / HTTPSarchiveSHA / PAXcommit / all64approved files exact"
   },
   "previousRelease": {
-    "version": "1.4.5",
-    "codeCommit": "2163e0a3e7fa7f388ba551ef97b69d9a6f0a3126",
-    "artifact": "MacLayoutSwitcher-1.4.5.dmg",
-    "sha256": "58e067a3d42eed8ba5db44c29202f8becf6d7f249b7fac6cc945f6609c9641b7",
-    "bytes": 10958211,
-    "publication": "verified",
-    "physicalAcceptance": "Space correctin bothownedCodexfields; manualEnter/Shift and allapps not declaredpassed",
-    "verifiedAt": "2026-10-10T16:25:53.568774+00:00",
-    "verifiedPublicationHead": "5f6606fd1972229067d17be8c74e2726b1f97261",
-    "publicArchiveSHA256": "cfc49ec37a0b1558a805431cfd9205d44c8c030139b2d493b7419e0b83ae0aa2"
+    "version": "1.4.9",
+    "artifact": "MacLayoutSwitcher-1.4.9.dmg",
+    "sha256": "dad44e98b9e1833821502af02364e037e13403cac21ffd18563fda8fe80de093",
+    "bytes": 10978284,
+    "binarySHA256": "58dfa3bd6042acb4a7e11f011699ec05f8dc46d218f0443942f83df2e1d90636",
+    "publication": "verified code commit; metadata-only sync follows",
+    "physicalAcceptance": "failed: AX noValue; G27/T32 active",
+    "installedPID": 14682,
+    "installedBackup": "outputs/MacLayoutSwitcher-1.4.8-before-G26-backup.zip",
+    "codeCommit": "45d622165d10699b7f058c1ae7d9b289dc20b711",
+    "publicCodeArchiveSHA256": "41633beb886e93941473e5be56ccc248780ec3566762265f8f6c9f159bee5516",
+    "frozenProductFilesVerified": 99,
+    "verifiedAt": "2026-10-25T05:47:22.188162+00:00",
+    "verification": "rawGitHubVERSION/publicHTTPSsha/PAX/all99files exact"
   },
   "safariReplacementAudit": {
     "ticket": "27",
@@ -1144,8 +1165,22 @@ window.STATE =
     "T30": "fullfinalEngine27groups incl160navigation and interruptionGREEN",
     "T31": "updater15/actualhiddenNSWindow/resume/rawstart/dictation15/fullEngineGREEN",
     "reviews": "two independent finalapproved0findings, exact99hashes",
-    "manualAcceptance": "UNKNOWN; CUA TextEdit generated inputs not physicalproof; Option unsupported; no denied-app bypass",
+    "manualAcceptance": "FAILED 1.4.9: user screenshot AXFrontmost=ok; SystemFocus=-25212; AppFocus=-25212",
     "evidence": "audit/reliability",
     "release": "1.4.9 exactsigned installed singlePID14682; code45d6221 pushed/archive verified99files; physicalpending"
+  },
+  "noValueFocusAudit": {
+    "actual": "1.4.9 physicalFAILED",
+    "diagnostic": "AXFrontmost=ok;SystemFocus=-25212;AppFocus=-25212",
+    "meaning": "SDK noValue; not permission denial or timeout",
+    "ticket": "32",
+    "qa": "no-value-focus-qa.md",
+    "sourceEvidence": "Installed Codex Framework Chromium 155.0.8059.80; exact primary source enhanced accessibility debounced 2s, no manual hook",
+    "contract": "Bounded once-per-process preparation; no initial field means fresh operation required after readiness, no stale delayed mutation",
+    "candidate": "1.4.10 installed; publication in progress",
+    "native": "Final raw77; adapters; root Engine/navigation + completion; fullspeech/mountedDMG",
+    "reviews": "Both independent final approved; process-replacement race fixed",
+    "linux": "95 tests reused by exact27input hashes",
+    "durableEvidence": "audit/no-value-focus"
   }
 };

@@ -37,3 +37,5 @@
 | G24 | «Опять сам не меняет, когда уже починим?» | in-ticket | Safari Full name: шднф→ilya detected, source remains, recovery;1.4.6 installed. Actual browser replacement investigation/repair, no dictionary expansion | safari-replacement-spec.md / safari-replacement-qa.md → T27 |
 | G25 | «нажимаю Option чтобы конвертировать неправильно набранный текст, но вылезает опять это окно» | in-ticket | реальный отказ до замены в Codex1.4.7; не маскировать уведомление | option-capture-spec.md → T28 |
 | G26 | «проверь заново все приложение и поправь… одни и теже проблемы» | in-ticket |1.4.8 actual userFAILED ghbdtn/Option unavailableField; comprehensive audit and system-boundary repair | reliability-spec.md → T29–T31; proven focus/input/update defects |
+
+| G27 | Обработать AX noValue при физическом Option после1.4.9 | in-ticket | T32 | Screenshot: AXFrontmost=ok, SystemFocus/AppFocus=-25212; actualFAIL |

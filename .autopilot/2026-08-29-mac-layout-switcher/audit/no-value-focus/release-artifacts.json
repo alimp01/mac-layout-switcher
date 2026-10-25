@@ -1,0 +1,9 @@
+{
+  "version": "1.4.10",
+  "dmgSHA256": "1e845439ca616a61038f53d51c2bcfe3b16fe1ec5dc4ac56b185525c570daff1",
+  "bytes": 11000313,
+  "binarySHA256": "030dc241cab5fd34c6e371c90ed68a2687d7eb665237c810f6e09397634ef3fd",
+  "helperSHA256": "e97da801466687fd0aa5f4b18ad39a2a89b52b5dc069935ba1252a6a3599c34e",
+  "deepStrict": true,
+  "mountedVerified": true
+}

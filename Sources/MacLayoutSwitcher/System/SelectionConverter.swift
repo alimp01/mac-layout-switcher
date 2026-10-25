@@ -42,7 +42,7 @@ final class SelectionConverter {
         queue.async {
             let result: Capture
             var failure = InputFocusGuard.CaptureFailure.unavailableField
-            if request.isAllowed, let target = InputFocusGuard.Target.capture(expectedPID: expectedPID, failure: { failure = $0 }) {
+            if request.isAllowed, let target = InputFocusGuard.Target.capture(expectedPID: expectedPID, allowed: { request.isAllowed }, failure: { failure = $0 }) {
                 if let range = target.selection() {
                     if !target.isCurrent() {
                         result = .unavailable(.changed)

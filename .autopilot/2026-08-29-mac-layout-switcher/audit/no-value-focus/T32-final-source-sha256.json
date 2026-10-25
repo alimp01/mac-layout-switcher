@@ -1,0 +1,9 @@
+{
+  "Sources/MacLayoutSwitcher/Speech/DictationTarget.swift": "066a26bbf79b858649d0dffaf2ca42be039cf0633cc06953b58d2015138b5929",
+  "Sources/MacLayoutSwitcher/System/InputFocusGuard.swift": "31a4323f35aa55d2f016b7ddb7820652811d0c21cec3f50e39d22ff2a8d82383",
+  "Sources/MacLayoutSwitcher/System/SelectionConverter.swift": "a22a3ae2ecf58646069e5d3446c553e717dad6e755df6c650601bc70c39b7482",
+  "tools/test-system-focus.sh": "7d327221485aeb46b5eb492904dbeebc3a8e18d5268ece7a93e34d5bc5f32754",
+  "tools/keyboard-harness/system-focus.swift": "21dfb0c53e1499bf6df4a0da3d67bd83a2e7bae1a43d3cd9e007fc14b40ae882",
+  "tools/keyboard-harness/README.md": "ba1bead81657d20ddd2212522ce1fac4a20fe127b56c69b913ddfaaa09386b15",
+  "VERSION": "ca0eb65c1e54347a8a433a5c76b9127deeffaa1966953c3e92c0ca41aaad237d"
+}

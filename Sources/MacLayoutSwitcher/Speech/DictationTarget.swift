@@ -9,12 +9,16 @@ enum DictationInsertionFailure: Equatable {
     case accessibilityDenied, unavailableField, unavailableSelection, unsupportedEditor
     case monitoringUnavailable, changed, protectedField, unconfirmed
     case systemFocus(DictationFocusFailure)
+    case preparingAccessibility(DictationFocusFailure?)
 
     var message: String {
         switch self {
         case .accessibilityDenied: return "Нет разрешения «Универсальный доступ» для Mac Layout Switcher."
         case .unavailableField: return "Редактор не предоставил доступное поле ввода."
         case .systemFocus(let failure): return failure.message
+        case .preparingAccessibility(let focus):
+            return "Редактор подготавливает доступ к полю. Повторите действие через несколько секунд."
+                + (focus.map { " Диагностика: \($0.metadata)." } ?? "")
         case .unavailableSelection: return "Редактор не сообщил положение курсора или выделение."
         case .unsupportedEditor: return "Редактор не поддерживает проверяемую вставку через Универсальный доступ."
         case .monitoringUnavailable: return "Редактор не позволяет отслеживать изменения поля для безопасной вставки."
@@ -46,6 +50,20 @@ struct DictationFocusFailure: Equatable {
     let frontmost: Status
     let system: Status
     let application: Status
+    var bootstrap: String? = nil
+    var preventsBootstrap: Bool {
+        frontmost == .notFrontmost || [system, application].contains(.foreignOwner)
+            || [system, application].contains(.invalidType)
+    }
+    func including(_ preparation: DictationAXBootstrap?) -> Self {
+        var result = self
+        result.bootstrap = preparation?.diagnostic
+        return result
+    }
+    var metadata: String {
+        "AXFrontmost=\(frontmost.code); SystemFocus=\(system.code); AppFocus=\(application.code)"
+            + (bootstrap.map { "; Bootstrap=\($0)" } ?? "")
+    }
     var message: String {
         let reason: String
         if frontmost == .notFrontmost || system == .foreignOwner || application == .foreignOwner {
@@ -55,7 +73,29 @@ struct DictationFocusFailure: Equatable {
         } else {
             reason = "Не удалось получить поле ввода через Универсальный доступ."
         }
-        return "\(reason) Диагностика: AXFrontmost=\(frontmost.code); SystemFocus=\(system.code); AppFocus=\(application.code)."
+        return "\(reason) Диагностика: \(metadata)."
+    }
+}
+
+/// Activation is separate from capture: neither an ACK nor an enabled flag
+/// authorizes a text write. Only the unchanged focused-field resolver does that.
+struct DictationAXBootstrap {
+    var diagnostic: String? = nil
+    var settleUntil: TimeInterval? = nil
+    var requiresFreshFocus = false
+    var rejectsCapture = false
+
+    /// Three capture attempts total. Chromium debounces enhanced activation for
+    /// two seconds; allow another half second for its renderer tree to appear.
+    /// Poll only cancellation here, never the AX tree, and never on EventTap.
+    func wait(before attempt: Int, allowed: () -> Bool) -> Bool {
+        let now = ProcessInfo.processInfo.systemUptime
+        let deadline = attempt == 2 ? max(now + 0.08, settleUntil ?? 0) : now + 0.08
+        while ProcessInfo.processInfo.systemUptime < deadline {
+            guard allowed() else { return false }
+            Thread.sleep(forTimeInterval: min(0.02, max(0, deadline - ProcessInfo.processInfo.systemUptime)))
+        }
+        return allowed()
     }
 }
 
@@ -97,6 +137,7 @@ protocol DictationAccessibility {
     func focusedElement(pid: pid_t) -> AXUIElement?
     func focusedElement(pid: pid_t, failure: (DictationFocusFailure) -> Void) -> AXUIElement?
     func enableAccessibility(pid: pid_t)
+    func prepareAccessibility(pid: pid_t, allowed: () -> Bool) -> DictationAXBootstrap
     func attribute(_ name: String, of element: AXUIElement) -> CFTypeRef?
     func selectedTextIsSettable(_ element: AXUIElement) -> Bool
     func supportsUnicodeInsertion(_ element: AXUIElement) -> Bool
@@ -110,6 +151,10 @@ protocol DictationAccessibility {
 }
 
 extension DictationAccessibility {
+    func prepareAccessibility(pid: pid_t, allowed: () -> Bool) -> DictationAXBootstrap {
+        if allowed() { enableAccessibility(pid: pid) }
+        return DictationAXBootstrap()
+    }
     func focusedElement(pid: pid_t, failure: (DictationFocusFailure) -> Void) -> AXUIElement? {
         focusedElement(pid: pid)
     }
@@ -122,6 +167,23 @@ extension DictationAccessibility {
 }
 
 struct SystemDictationAccessibility: DictationAccessibility {
+    private struct ProcessInstance: Hashable {
+        let pid: pid_t
+        let launchDate: Date
+    }
+    // Shared by keyboard sampling, Option capture and dictation. Repeated true
+    // writes would restart Chromium's two-second debounce indefinitely.
+    private static let bootstrapLock = NSLock()
+    private static var enhancedBootstraps: [ProcessInstance: DictationAXBootstrap] = [:]
+    private static func isChromium(_ bundle: URL?) -> Bool {
+        guard let bundle else { return false }
+        let frameworks = bundle.appendingPathComponent("Contents/Frameworks")
+        let names = (try? FileManager.default.contentsOfDirectory(atPath: frameworks.path)) ?? []
+        return names.contains {
+            ["Electron Framework.framework", "Codex Framework.framework", "Chromium Framework.framework", "Google Chrome Framework.framework",
+             "Brave Browser Framework.framework", "Microsoft Edge Framework.framework"].contains($0)
+        }
+    }
     private let postEvent: (CGEvent, pid_t) -> Void
     /// The injectable boundary is the actual process post, after event creation.
     /// Native harnesses inspect serialized CGEvents without touching other apps.
@@ -186,11 +248,73 @@ struct SystemDictationAccessibility: DictationAccessibility {
         return ownedElement(value, status: &appStatus) ?? failed()
     }
     func enableAccessibility(pid: pid_t) {
-        // Electron's documented opt-in lazily creates the Chromium AX tree.
-        // Unsupported native apps simply reject this attribute. No permissions
-        // are requested or overridden, and no editor text is touched.
+        _ = prepareAccessibility(pid: pid, allowed: { true })
+    }
+    func prepareAccessibility(pid: pid_t, allowed: () -> Bool) -> DictationAXBootstrap {
+        guard allowed(), isTrusted, !isSecure else { return .init(diagnostic: "cancelled") }
+        let running = NSRunningApplication(processIdentifier: pid)
+        let chromium = Self.isChromium(running?.bundleURL)
+        let instance = running?.launchDate.map { ProcessInstance(pid: pid, launchDate: $0) }
+        Self.bootstrapLock.lock()
+        defer { Self.bootstrapLock.unlock() }
+        // Retain a live instance's gate. At capacity, refuse another enhanced
+        // activation rather than evicting it and restarting a pending debounce.
+        Self.enhancedBootstraps = Self.enhancedBootstraps.filter { key, _ in
+            guard let application = NSRunningApplication(processIdentifier: key.pid) else { return false }
+            return application.launchDate.map { $0 == key.launchDate } ?? true
+        }
+        func currentProcessMatches() -> Bool {
+            guard let instance, let current = NSRunningApplication(processIdentifier: pid),
+                  current.launchDate == instance.launchDate else { return false }
+            return !chromium || Self.isChromium(current.bundleURL)
+        }
+        if instance != nil && !currentProcessMatches() {
+            return .init(diagnostic: "process-changed", rejectsCapture: true)
+        }
+        if chromium, let instance, let previous = Self.enhancedBootstraps[instance] { return previous }
+        guard allowed() else { return .init(diagnostic: "cancelled") }
         let app = bounded(AXUIElementCreateApplication(pid))
-        _ = AXUIElementSetAttributeValue(app, "AXManualAccessibility" as CFString, kCFBooleanTrue)
+        let manual = AXUIElementSetAttributeValue(app, "AXManualAccessibility" as CFString, kCFBooleanTrue)
+        let manualDiagnostic = "manual:\(manual.rawValue)"
+        // Electron documents the manual hook. Chromium 155 no longer implements
+        // it; its BrowserCrApplication handles enhanced UI with a 2s debounce.
+        // Never send that alternate attribute to native/WebKit/unknown apps.
+        guard chromium, manual == .attributeUnsupported || manual == .notImplemented else {
+            return .init(diagnostic: manualDiagnostic)
+        }
+        guard let instance else { return .init(diagnostic: manualDiagnostic + "; enhanced:no-process-instance") }
+        guard Self.enhancedBootstraps.count < 32 else { return .init(diagnostic: manualDiagnostic + "; enhanced:limit") }
+        guard allowed(), isTrusted, !isSecure,
+              attribute(kAXFrontmostAttribute, of: app) as? Bool == true else {
+            return .init(diagnostic: manualDiagnostic + "; enhanced:inactive")
+        }
+        func readEnhanced() -> (Bool?, String) {
+            var value: CFTypeRef?
+            let code = AXUIElementCopyAttributeValue(app, "AXEnhancedUserInterface" as CFString, &value)
+            guard code == .success else { return (nil, String(code.rawValue)) }
+            guard let value else { return (nil, "no-value") }
+            guard CFGetTypeID(value) == CFBooleanGetTypeID() else { return (nil, "invalid-type") }
+            let enabled = CFBooleanGetValue(unsafeBitCast(value, to: CFBoolean.self))
+            return (enabled, enabled ? "true" : "false")
+        }
+        guard currentProcessMatches() else { return .init(diagnostic: "process-changed", rejectsCapture: true) }
+        let existing = readEnhanced()
+        guard currentProcessMatches() else { return .init(diagnostic: "process-changed", rejectsCapture: true) }
+        var outcome = "already-on"
+        var readback = existing
+        if existing.0 != true {
+            guard allowed() else { return .init(diagnostic: manualDiagnostic + "; enhanced:cancelled") }
+            let result = AXUIElementSetAttributeValue(app, "AXEnhancedUserInterface" as CFString, kCFBooleanTrue)
+            outcome = String(result.rawValue)
+            readback = readEnhanced()
+        }
+        // Chromium forwards the setter to AppKit after requesting activation:
+        // even an error may have acted. Record both outcomes, then let actual
+        // focused-field readback decide. Never retry or turn the attribute off.
+        let preparation = DictationAXBootstrap(diagnostic: manualDiagnostic + "; enhanced:" + outcome + "; read:" + readback.1,
+                                               settleUntil: ProcessInfo.processInfo.systemUptime + 2.5, requiresFreshFocus: true)
+        Self.enhancedBootstraps[instance] = preparation
+        return preparation
     }
     func selectedTextIsSettable(_ element: AXUIElement) -> Bool {
         var settable = DarwinBoolean(false)
@@ -206,12 +330,7 @@ struct SystemDictationAccessibility: DictationAccessibility {
         // input route before selection/text mutation, never as a write retry.
         if let identifier = Bundle(url: bundle)?.bundleIdentifier,
            ["com.apple.Safari", "com.apple.SafariTechnologyPreview"].contains(identifier) { return true }
-        let frameworks = bundle.appendingPathComponent("Contents/Frameworks")
-        let names = (try? FileManager.default.contentsOfDirectory(atPath: frameworks.path)) ?? []
-        return names.contains { name in
-            ["Electron Framework.framework", "Codex Framework.framework", "Chromium Framework.framework", "Google Chrome Framework.framework",
-             "Brave Browser Framework.framework", "Microsoft Edge Framework.framework"].contains(name)
-        }
+        return Self.isChromium(bundle)
     }
     func supportsUnicodeInsertion(_ element: AXUIElement) -> Bool {
         let role = attribute(kAXRoleAttribute, of: element) as? String
@@ -338,17 +457,37 @@ struct DictationTarget {
         guard accessibility.isTrusted else { return .unavailable(.accessibilityDenied) }
         guard !accessibility.isSecure else { return .unavailable(.protectedField) }
         var lastFailure = DictationInsertionFailure.unavailableField
+        var bootstrap: DictationAXBootstrap?
+        var firstElement: AXUIElement?
         // One bounded bootstrap and two reacquisitions for lazily exposed trees.
         for attempt in 0..<3 {
             guard permit.isAllowed else { return .unavailable(.changed) }
             if attempt > 0 {
-                if attempt == 1 { accessibility.enableAccessibility(pid: expectedPID) }
-                Thread.sleep(forTimeInterval: 0.08)
+                if attempt == 1 {
+                    bootstrap = accessibility.prepareAccessibility(pid: expectedPID, allowed: { permit.isAllowed })
+                    if bootstrap?.rejectsCapture == true { return .unavailable(.changed) }
+                    if bootstrap?.requiresFreshFocus == true && firstElement == nil {
+                        guard permit.isAllowed else { return .unavailable(.changed) }
+                        if case .systemFocus(let focus) = lastFailure {
+                            return .unavailable(.preparingAccessibility(focus.including(bootstrap)))
+                        }
+                        return .unavailable(.preparingAccessibility(nil))
+                    }
+                }
+                guard bootstrap?.wait(before: attempt, allowed: { permit.isAllowed }) != false else { return .unavailable(.changed) }
             }
+            guard permit.isAllowed else { return .unavailable(.changed) }
+            guard accessibility.isTrusted else { return .unavailable(.accessibilityDenied) }
             guard !accessibility.isSecure else { return .unavailable(.protectedField) }
-            guard let element = accessibility.focusedElement(pid: expectedPID, failure: { lastFailure = .systemFocus($0) }) else { continue }
+            var stop = false
+            guard let element = accessibility.focusedElement(pid: expectedPID, failure: {
+                lastFailure = .systemFocus($0.including(bootstrap)); stop = $0.preventsBootstrap
+            }) else { if stop { return .unavailable(lastFailure) }; continue }
+            if let firstElement, !CFEqual(firstElement, element) { return .unavailable(.changed) }
             var pid: pid_t = 0
             guard AXUIElementGetPid(element, &pid) == .success, pid == expectedPID else { continue }
+            let role = accessibility.attribute(kAXRoleAttribute, of: element) as? String
+            if role == kAXTextFieldRole || role == kAXTextAreaRole { firstElement = element }
             if accessibility.attribute(kAXSubroleAttribute, of: element) as? String == kAXSecureTextFieldSubrole {
                 return .unavailable(.protectedField)
             }

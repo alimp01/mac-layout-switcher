@@ -8,7 +8,21 @@
 
 ## Текущее состояние — 2026-10-25
 
-G26/T29–T31:1.4.9 собрана, exactreviewed установлена25.10; physicalacceptance PENDING.
+G27/T32: 1.4.10 собрана и установлена, публикация в работе. Два независимых
+ревью одобрили исправление. Chromium 155 использует AXEnhancedUserInterface
+с debounce 2 s; добавлена подготовка один раз на PID+launchDate, без обхода дерева.
+При отсутствии начального поля требуется свежий захват: отложенная операция не
+меняет позднее найденное поле. Смена процесса отменяет запрос. Baseline RED13 →
+final raw GREEN77, adapters/root Engine/completion, exact Linux95 reuse, fullspeech
+и mountedDMG PASS. Manifest bf30a557698b2af3fd0eeec39f60aa92bedb517cb16ed9b91eac64b6f1a231cc.
+Установлен exact binary030dc241…; новый PID23883, старый19475 остановлен.
+Backup1.4.9: outputs/MacLayoutSwitcher-1.4.9-before-G27-backup.zip и
+/Applications/.MacLayoutSwitcher-G27-3un9rxng/previous.app. Actual acceptance
+PENDING: задан один тест ghbdtn+Option и отдельно ghbdtn+Space. Не повторять
+старые вопросы и не выдавать headless PASS за живой Codex. No denied-app bypass.
+См. no-value-focus-spec/qa и audit/no-value-focus.
+
+G26/T29–T31:1.4.9 собрана, exactreviewed установлена25.10; physicalacceptance FAILED (G27).
 Useractual1.4.8FAIL ghbdtn/Option unavailableField остаётся исходной жалобой,
 точная причина на установленномMac покаUNKNOWN. Доказаны rawAX resolver bugs:
 missingAXFrontmost ошибочно отклонял exactsystemfocus; foreignsystemfocus

@@ -1,0 +1,29 @@
+Engine regression scratch: /tmp/mls-keyboard-engine.ssZv9x
+PASS: AX navigation repeat=false, auto/Option capture/Option write/idle, source and native Space preserved
+PASS: AX navigation repeat=true, auto/Option capture/Option write/idle, source and native Space preserved
+PASS: Unicode navigation repeat=false, auto/Option capture/Option write/idle, source and native Space preserved
+PASS: Unicode navigation repeat=true, auto/Option capture/Option write/idle, source and native Space preserved
+PASS: CGEventType(rawValue: -2) retires convert/toggle/dictation/modifier ownership and cancels AX/Unicode pending replacement
+PASS: CGEventType(rawValue: -1) retires convert/toggle/dictation/modifier ownership and cancels AX/Unicode pending replacement
+PASS: clicks retain actual held shortcut ownership; recording transitions clear stale ownership and modifier taps
+PASS: Option accepts fresh field before sampler and discards stale buffered word
+PASS: Option distinguishes actual process trust denial
+PASS: Option cancels changed context during capture
+PASS: Option same-field buffered/fallback/selection/undo/empty behavior on AX and Unicode
+PASS: Option field/PID/caret/key/click changes during capture cancel without writing
+PASS: Option distinct secure/field/range/text reasons and bounded bootstrap
+PASS: Option keeps editable-field bootstrap identity, validates full capture before every write route, and cancels before dispatch
+PASS: AX Space/Enter/Shift+Enter/Tab repeat after temporary selection, down/up, flags, own markers
+PASS: AX printable and Backspace repeats preserve text-edit order
+PASS: AX three queued repeats arrive exactly once
+PASS: AX original keyUp/repeated down-up/fast letter after queued Enter
+PASS: AX fast next word remains in original captured layout
+PASS: Unicode Space/Enter/Shift+Enter/Tab repeat after temporary selection, down/up, flags, own markers
+PASS: Unicode printable and Backspace repeats preserve text-edit order
+PASS: Unicode three queued repeats arrive exactly once
+PASS: Unicode original keyUp/repeated down-up/fast letter after queued Enter
+PASS: Unicode fast next word remains in original captured layout
+PASS: Left/Right/Home/End/Esc/F1/Cmd/Ctrl autorepeat and click preserve cancellation
+PASS: unconfirmed AX/Unicode keeps source, planned replacement, repeat Enter and keyUp without submission
+PASS: outside-busy printable/Backspace/Space/Enter/Tab repeats pass and reset correction candidates
+Production EventTap→KeyTranslator→Engine regression passed. Private AppKit receiver; native physical-post resolution injected; no hardware/WindowServer delivery proof.
