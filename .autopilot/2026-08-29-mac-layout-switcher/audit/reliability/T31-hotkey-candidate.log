@@ -1,0 +1,6 @@
+PASS: application focus loss with unfinished modifier chord cancels recording without saving
+PASS: window focus loss with unfinished modifier chord cancels recording without saving
+PASS: window close cancels recording without saving
+PASS: Escape cancels recording without saving
+PASS: completed chord still saves once and releases processing
+PASS: no window was shown, no user config or global input accessed

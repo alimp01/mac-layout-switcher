@@ -1,0 +1,16 @@
+{
+  "version": "1.4.9",
+  "binarySHA256": "58dfa3bd6042acb4a7e11f011699ec05f8dc46d218f0443942f83df2e1d90636",
+  "helperSHA256": "f6e95f878341aaab6ecea3e57caace28de796538da1201efe3524650c39c30f4",
+  "oldPIDs": [
+    1462
+  ],
+  "newPIDs": [
+    14682
+  ],
+  "launchExit": 0,
+  "previousBundle": "/Applications/.MacLayoutSwitcher-G26-z0_lj6ol/previous.app",
+  "codesign": "deep strict PASS",
+  "actualOption": "pending physical keyboard; no AX trust bypass",
+  "installedAt": "2026-10-25T05:43:36.462295+00:00"
+}

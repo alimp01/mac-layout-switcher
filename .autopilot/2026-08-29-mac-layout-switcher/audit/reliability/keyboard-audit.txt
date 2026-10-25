@@ -1,0 +1,37 @@
+G26 keyboard/core audit — 2026-10-25
+Repository: /Users/ilyaalimpiev/Documents/Codex/2026-09-16/mac-layout-switcher-punto-caramba-switcher/work/mac-layout-switcher
+Scope: read-only production EventTap, KeyTranslator, Engine, EngineCore, WordBuffer, InputFocusGuard, SelectionConverter, Typist, InputReplayPolicy; CLAUDE.md, G26 reliability spec, ADR0011/0013; existing native engine/adapter tests. No product changes. No private app UI/AX/CDP/TCC access, no event tap registration, no global synthetic input, no microphone, no external calls. Test input is owned in-process NSTextView fixtures only.
+
+Two concrete defects found and independently reproduced.
+
+[P1] Normal navigation is misclassified as text and may inject C0 control text while a replacement is pending.
+Location: Sources/MacLayoutSwitcher/Engine.swift:538-546 (root); replayPress:404-408 and busy handling:343-364 (effect).
+Trigger: Start an automatic word correction, then press a normal non-autorepeat Left/Right/Home/End/Esc/F key while the worker owns the temporary source selection.
+Production KeyTranslator returns one C0 character, not an empty string: Left U+001C, Right U+001D, Down U+001F, Up U+001E, Home U+0001, End U+0004, Esc U+001B, F1 U+0010. translate classifies it as .char; inputFocus is not invalidated; replayPress builds Unicode instead of preserving/cancelling the navigation key; the app receives the control character after the correction.
+Repro: exact compiled EventTap→KeyTranslator→Engine→Typist, production core and focus/selection code, owned AppKit receiver; final CG post and system focus replaced with documented existing harness boundaries. On current RU input source, typed literal руддщ, began Space correction, injected normal Left in selectionHook. Observed: NONREPEAT_ARROW_DECISION suppress; AFTER_NONREPEAT_ARROW "hello \u{1C}" posted [0,0]. Required original unchanged and no synthetic posts (same expectation already established by autorepeat tests). Runner exits 1.
+Evidence: /tmp/mls-keyboard-engine.d3iUU2/run.log; main.swift; source-provenance.json; seams.patch; SHA256SUMS. Minimal production KeyTranslator scalar probe: /tmp/mls-g26-keyboard-audit-probe/main.swift and probe binary (no changes to actual layout).
+Why existing tests missed it: tools/keyboard-harness/engine.swift:394-400 uses autorepeat:true for every navigation case, forcing translate to .reset at Engine:532 before control classification. textEditingRepeat already rejects controlCharacters at Engine:395, but the ordinary translate path does not.
+Fix direction: classify control scalars as reset after explicitly allowing boundary characters and Backspace; preserve pass/cancellation for ordinary navigation. Add both non-repeat and repeat cases on both AX/Unicode replacement routes; include quiet-buffer reset and pending Option. No need for dictionary or transport change.
+This finding is not claimed to explain the initial unavailableField user error. It is an additional reproducible integrity failure discovered by the comprehensive audit.
+
+[P2] Event tap interruption retains consumed shortcut ownership and suppresses the next fresh ordinary key when its keyUp was missed.
+Location: Sources/MacLayoutSwitcher/System/EventTap.swift:123-129; Sources/MacLayoutSwitcher/Engine.swift:197-209. resetPhysicalInputState exists at Engine:157-165 but is not invoked for tap interruption.
+Trigger: Configured ordinary convert shortcut CmdShiftK has its down consumed; tap becomes disabled before its keyUp reaches Engine; tap is re-enabled; user presses unmodified K.
+Repro: same production EventTap→Engine harness; custom fixture config uses Hotkey(keyCode:40,modifiers:[.command,.shift]); invoke consumed keyDown; send tapDisabledByTimeout to production EventTap.process; omit keyUp to model suspension; fresh unmodified K down returns suppress. Required pass. Runner exits 1 with POST_TIMEOUT_FRESH_KEY_DECISION suppress.
+Evidence: /tmp/mls-keyboard-engine.ypfecB/run.log; main.swift; source-provenance.json; seams.patch; SHA256SUMS.
+Cause: timeout maps to generic contextChanged (same as clicks), whose Engine branch invalidates focus but leaves shortcutKeysDown/suppressedKeyUps/dictationGesture intact. Next down hits stale shortcutKeysDown before normal processing. First fresh K/up clears the stale ownership, but that real keystroke is lost. Existing comment explicitly says ownership must not survive suspension.
+Fix direction: distinguish tap interruption from mouse context change and synchronously reset physical ownership/gestures on suspension. Review dictation cancellation on interruption without starting mic in tests. Do not blindly reset shortcut ownership for every mouse click, because a physically held shortcut may still own its repeats/keyUp.
+
+Coverage reviewed / no further concrete defect established in this pass:
+- Core reset clears current word, lastRegion, lastAuto, detector context; Enter/Tab reset post-decision. Backspace on empty resets. Replacement outcomes carry expected source, failure rolls back provisional undo teaching.
+- Initial focus bind intentionally preserves first buffered word; early separator without ticket passes through; changing cache cancels generation. InputFocus sampling is paused while Typist or explicit capture is pending. Fresh Option captures current target and resets old core context on target change.
+- Option has pre-dispatch inputSequence guard, capture permit cancellation on physical keyDown/context change, full selected range/value snapshot and revalidation before mutation; selected text wins over undo/fallback. Existing fixtures cover selected/buffered/fallback/undo/empty, changed PID/field/caret/fullvalue, lazy bootstrap, missing field/range/value/trust.
+- Targeted replacement verifies identity, source, exact full value and caret; selects direct vs Unicode before mutation; no retry after unknown write; selection acknowledgement is read back and uncertainty retains original/planned/held input. Bounds checks precede NSString substring operations.
+- Typist queue orders replacement, Space embedding, Enter/Tab with original flags, physical replay and recovery. Existing fixtures cover AX/Unicode Space/Enter/ShiftEnter/Tab, repeats, rapid next word, dependent replacement cancellation, no-op write, delayed selection, pair ownership and synthetic markers.
+- Existing InputFocusGuard/SelectionConverter/Engine native fixtures substitute focusedElement; they therefore cannot establish system AXFrontmost/ownerPID correctness or resolve exact user unavailableField. Root executor owns that separate boundary audit/fix.
+
+Verification limits:
+Only the two new targeted failing checks and translator scalar probe were run for this audit; existing suites were read to identify their gaps, not relabelled as newly executed PASS. Owned in-process fixtures do not prove physical WindowServer delivery or acceptance in user's actual apps. No universal/all-app claim is justified.
+
+Reproduction assets:
+/tmp/mls-g26-keyboard-audit-probe/tools/test-keyboard-engine.sh currently re-runs the tap interruption case against source under its Sources symlink to current repository. For the navigation case, copy /tmp/mls-keyboard-engine.d3iUU2/main.swift into /tmp/mls-g26-keyboard-audit-probe/tools/keyboard-harness/engine.swift, then run the same script. Both baselines have frozen compiled source/provenance in the scratch directories above.

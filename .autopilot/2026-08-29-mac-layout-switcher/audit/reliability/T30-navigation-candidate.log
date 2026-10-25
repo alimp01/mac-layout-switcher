@@ -1,0 +1,4 @@
+PASS: AX navigation repeat=false, auto/Option capture/Option write/idle, source and native Space preserved
+PASS: AX navigation repeat=true, auto/Option capture/Option write/idle, source and native Space preserved
+PASS: Unicode navigation repeat=false, auto/Option capture/Option write/idle, source and native Space preserved
+PASS: Unicode navigation repeat=true, auto/Option capture/Option write/idle, source and native Space preserved

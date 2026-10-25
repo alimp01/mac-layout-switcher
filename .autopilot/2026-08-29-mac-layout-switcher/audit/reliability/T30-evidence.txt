@@ -1,0 +1,36 @@
+T30 physical input integrity — 2026-10-25
+Owned files are listed with exact SHA256 in OWNED-SHA256SUMS.
+Production and fixture files frozen; Engine.start handed to T31 after freeze.
+
+Changes:
+- Engine.translate permits the existing Backspace and explicit boundary characters, then rejects Unicode control scalars as reset/cancellation rather than printable text.
+- EventTap emits KeyStroke.tapInterrupted for both disabled notifications, separately from mouse context changes.
+- Engine handles tap interruption synchronously before shortcut ownership checks: increment input sequence, revoke dictation insertion, reset shortcut/key-up/modifier/dictation gesture ownership and selection capture, invalidate focus/core state.
+- A held dictation request schedules coordinator cancellation off the event callback, avoiding a missed release leaving recording alive. Already released sessions retain normal result/recovery after insertion permit invalidation.
+- KeyTranslator/KeyStroke documentation acknowledges Carbon navigation control output.
+
+Permanent tests:
+- physical-input.swift enters production EventTap with real private CGEvents; unchanged KeyTranslator and production Engine/Target/Typist.
+- 160 navigation cases: AX/Unicode x repeated/ordinary x Left/Right/Down/Up/Home/End/Escape/F1/F12/ForwardDelete x auto/Option-write/Option-capture/idle.
+- Navigation must pass, cancellation boundary must execute, source remains literal, synthetic replay absent, following Space passes without stale conversion.
+- Both tap interruption types: convert/toggle missing release, fresh normal key down/up, modifier Option interruption/fresh Option, paused dictation hold cancellation/fresh Space/Escape, pending AX/Unicode replacement.
+- Counterexamples: click retains still-held ordinary shortcut repeats/key-up; hotkey recorder transitions release old ownership without converting modifier release.
+- Existing paired physical helper now also rejects stale suppression of key-up after a passed down.
+
+RED evidence (same final test definitions, production owning files from HEAD):
+/tmp/mls-t30-baseline.yaxfttel
+/tmp/mls-keyboard-engine.ehgKZv: FAIL AX/Left/repeat=false/auto: navigation passes
+/tmp/mls-keyboard-engine.dRPxct: FAIL convert: interruption retires ownership before next ordinary key
+Earlier single-slice REDs: /tmp/mls-keyboard-engine.fOSu0q and /tmp/mls-keyboard-engine.mfl4HO.
+
+Targeted GREEN:
+/tmp/mls-keyboard-engine.Onw0Dn: all 160 navigation cases.
+/tmp/mls-keyboard-engine.QYkFVo: all interruption/click/recording cases.
+Engine/EventTap/KeyStroke hashes in these runs exactly match freeze. KeyTranslator differs only by final comment line wrapping.
+bash tools/test-keyboard-adapter.sh: complete existing adapter suite PASS, including no-op/partial/deletion recovery, selected source, Unicode payload, stale prefix and cold-focus behavior.
+git diff --check and bash -n tools/test-keyboard-engine.sh PASS.
+
+Initial exact frozen full Engine run /tmp/mls-keyboard-engine.3aQflI was invalidated by external RU-to-EN input-source drift after three navigation groups passed. Its pre-separator literal source assertion caught actual hello instead of expected руддщ, with currentKey5 g instead of startup п. No product failure or full PASS claimed from that run. Unchanged frozen retry /tmp/mls-keyboard-engine.fiNWxj completed with exit 0: all 27 PASS groups, including 160 navigation cases plus interruption/click/recording, previous Option, AX/Unicode separator/replay, uncertain recovery and outside-busy input. Exact production and fixture source hashes plus complete SHA256SUMS independently verified.
+No commit, version bump, install, push, live UI, global event tap, external input, private AX, microphone or TCC changes.
+Fixtures do not establish real WindowServer delivery or actual user-app acceptance.
+Root owns final integrated source validation, full Linux/fullspeech checks and two independent reviews.

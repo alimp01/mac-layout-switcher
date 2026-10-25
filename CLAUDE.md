@@ -6,7 +6,24 @@
 исправление, автозапуск, индикатор RU/EN и утка, самообновление, локальная
 диктовка GigaAM v3. Дневника набора нет.
 
-## Текущее состояние — 2026-10-23
+## Текущее состояние — 2026-10-25
+
+G26/T29–T31:1.4.9 собрана, exactreviewed установлена25.10; physicalacceptance PENDING.
+Useractual1.4.8FAIL ghbdtn/Option unavailableField остаётся исходной жалобой,
+точная причина на установленномMac покаUNKNOWN. Доказаны rawAX resolver bugs:
+missingAXFrontmost ошибочно отклонял exactsystemfocus; foreignsystemfocus
+проваливался в staleappfield. Исправлены оба, добавлены фиксированные AXstage
+codes без текстовых логов. T30 navcontrolscalar/recover tapownership и T31
+updaterfailure/recorderfocusloss/failedresume тоже имеют RED→GREEN.
+Two fresh finalreviews0findings, exact99sourcehashes; Linux95/nativefullEngine/
+focus50/nav160/update15/dictation15/fullspeech/deepstrict/mountedDMG PASS.
+Installedbinary58dfa3bd6042acb4a7e11f011699ec05f8dc46d218f0443942f83df2e1d90636,
+one newPID14682 after old1462 stopped. Backup1.4.8 in outputs zip and
+/Applications/.MacLayoutSwitcher-G26-z0_lj6ol/previous.app. Publication pending.
+User asked physical ghbdtn+Space and separate ghbdtn+Option afterpermissions.
+Do not ask old app/trigger/selection questions again. No deniedCodex/MLS CUA
+bypass; own TextEdit CUA-generatedkeys inconclusive, bareOption unsupported.
+See reliability-spec/qa and audit/reliability. G26 not closed pending actualresult.
 
 G25/T28: кандидат1.4.8 одобрен двумя independent reviews0 blockers и установлен.
 Доказаны stale cached field и changed full-value context RED→GREEN; исправлены

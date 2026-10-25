@@ -1,0 +1,3 @@
+PASS: CGEventType(rawValue: -2) retires convert/toggle/dictation/modifier ownership and cancels AX/Unicode pending replacement
+PASS: CGEventType(rawValue: -1) retires convert/toggle/dictation/modifier ownership and cancels AX/Unicode pending replacement
+PASS: clicks retain actual held shortcut ownership; recording transitions clear stale ownership and modifier taps

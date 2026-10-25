@@ -1,0 +1,22 @@
+[
+  {
+    "path": "Sources/MacLayoutSwitcher/Speech/DictationTarget.swift",
+    "sha256": "184660393f4b66a17ab9eb95c95a03b4589b79368a6dbc005c120663c2c160a3"
+  },
+  {
+    "path": "Sources/MacLayoutSwitcher/System/InputFocusGuard.swift",
+    "sha256": "f558ecd285038a08ebd7bd22b14ee085392b5909a5d555f5b18654f4a7a56691"
+  },
+  {
+    "path": "tools/keyboard-harness/system-focus.swift",
+    "sha256": "9d6d958622bc5fe72748c0347400c22c6765bd642e5d3a85a396bd46c3e14c67"
+  },
+  {
+    "path": "tools/test-system-focus.sh",
+    "sha256": "39ece6ff3f89f05cd29152b0061660cb3c9bc725c845f72aeb44f65a0a3196d4"
+  },
+  {
+    "path": "tools/keyboard-harness/README.md",
+    "sha256": "fa71983ac873377f93a25a829cb43a2150cb2eb8416645715c43b1e25dce7fab"
+  }
+]

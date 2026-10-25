@@ -1,0 +1,11 @@
+Standards review — G26 final integrated T29/T30/T31, 2026-10-25
+
+Verdict: approved; 0 blockers, 0 actionable nits. No newly introduced documented-standard breach or baseline code smell warrants a change. Pre-existing concerns are not promoted into findings.
+
+Reviewed frozen candidate /tmp/mls-g26-release.qc3brwao/source against public baseline 01ec68262fb1f4c663a9ae6560410223a116cb00 (1.4.8 → 1.4.9), including the final update.py cleanup-fixture delta. All 99 files match REVIEWED-SHA256.json. Manifest SHA256: dddd80c7751b8f913b693f1161c6505b0093000aedc9a342d65712899a91f4d1. Diff SHA256: da4c0e344be871b6d438ab685ac0a2902d6e9d87fe218495ad96407ba51affcc. Individual exact hashes and test paths are preserved alongside this report.
+
+Standards checked: CLAUDE.md architecture/input/dictation/release rules; ADR0008, ADR0010 and ADR0013; reliability-spec.md and tickets29–31. Focus resolution preserves exact element/PID identity, explicit inactive rejection, bounded worker-side RPCs, source/caret checks and cancellation. Navigation/control input passes natively; tap suspension retires unknown physical ownership without changing click ownership. The update transaction retains recovery material, waits for the parent, quotes paths safely, and never rolls back after accepted new launch. Rejected startup/resume leaves workers stopped and paused UI truthful; recorder focus loss releases processing without saving.
+
+Independently executed: raw system-focus 50 checks PASS; physical input 160 navigation cases plus both interruption types/click/recording cases PASS; updater all 15 failure/handoff cases PASS; latest cleanup-alias delta PASS; actual hidden-NSWindow recorder app/window/close/Escape/completion checks PASS; pause/rejected-resume/retry and rejected initial-start checks PASS; shell syntax PASS. Fixtures intercept raw OS boundaries or use owned files and hidden controls; no global tap, private editor, microphone, TCC change, install or product edit occurred.
+
+Limits: actual ghbdtn/Option failure cause remains UNKNOWN. LaunchServices acceptance is not process-identity proof, and fixture/native compilation success is not real-app physical acceptance (ADR0013 limitations). Root owns Linux/fullspeech/DMG verification and release decisions.

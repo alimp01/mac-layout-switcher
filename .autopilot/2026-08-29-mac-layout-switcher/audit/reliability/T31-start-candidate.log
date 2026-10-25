@@ -1,0 +1,4 @@
+PASS: engine reports startup failure
+PASS: failed startup cannot activate dictation
+PASS: failed initial startup leaves no focus sampler
+PASS: owned app lifecycle; no shown UI, real event tap, microphone or user config

@@ -1,0 +1,67 @@
+G26 speech/settings/startup/update audit — 2026-10-25
+Repository: /Users/ilyaalimpiev/Documents/Codex/2026-09-16/mac-layout-switcher-punto-caramba-switcher/work/mac-layout-switcher
+Starting HEAD: 01ec68262fb1f4c663a9ae6560410223a116cb00 (1.4.8 metadata head).
+Read-only auditor: no repository/product changes; all new fixtures and logs are under /tmp.
+Read CLAUDE.md, reliability-spec.md, ADR 0008/0009/0010/0012/0013. Shared focus-boundary repair and keyboard-input audit belong to other agents.
+
+PRIORITIZED FINDINGS
+
+1. [P1] Failed self-update leaves the entire switcher stopped without recovery.
+Sources: Sources/MacLayoutSwitcher/System/Updater.swift:209-221; tools/self-update.sh:23,38-56,61-72,100.
+The UI starts a detached script and immediately terminates NSApp. The script runs under set -euo pipefail and only invokes open after every download/extract/build/install step succeeds. Its EXIT trap cleans temporary directories but never restarts the still-valid old application or reports the failure to the user. An ordinary network outage, corrupt/incomplete archive, or failed Swift build therefore removes all auto conversion, Option and dictation service until manual reopening. The on-disk bundle is preserved, but the working app is not restored.
+Owned executable reproduction: /tmp/mls-g26-lifecycle-audit/run-update-fixture.py, /tmp/mls-g26-lifecycle-audit/update-results.json.
+Compiled/executed production script is byte-for-byte except LOG is redirected to an owned /tmp path. Stub curl supplies only owned archives or exits6; stub open logs its calls. No network, installed bundle, real app, or user log modified.
+Results:
+- offline: exit6, old executable preserved, relaunch calls0
+- invalid archive: exit1, old executable preserved, relaunch calls0
+- build failure: exit71, old executable preserved, relaunch calls0
+- success control: exit0, new executable installed, relaunch calls1
+Recommended ticket acceptance: failure after user approves update retains/restores a running old version and visibly reports failure; success launches the intended new version after old process shutdown. Test all three failure stages and successful replacement with owned bundles/launch seam.
+
+2. [P2] Leaving hotkey recording open disables every feature in other applications.
+Sources: Sources/MacLayoutSwitcher/UI/HotkeyRecorderWindow.swift:127-140,190-218; Sources/MacLayoutSwitcher/Engine.swift:36-46,225-228; main.swift:180-183 (onRecordingChanged wiring).
+Recording sets Engine.isRecordingHotkey=true, making all subsequent Engine input return .pass before dictation and layout hotkey logic. The recorder only installs a local NSEvent monitor and clears the flag on a completed recording, Esc in its own app, or closing the window. It has no windowDidResignKey/applicationDidResignActive handling. Clicking Record then switching to another application leaves the global feature-disable flag active, while the local monitor cannot receive that other app's normal keystrokes. Automatic conversion, Option and dictation remain unavailable until the recording is finished or its window closed.
+Owned headless reproduction: /tmp/mls-g26-hotkey-probe/main.swift, run.log, probe.
+Production Config and HotkeyRecorderWindow compiled unchanged, production SwitcherCore compiled locally. Creates only headless NSButton/NSApplication(.prohibited), invokes actual @objc startRecording, delivers local resign-active/resign-key notifications, then actual windowWillClose. No shown window, external AX, global input, app activation, or TCC changes.
+Output:
+recording_after_app_and_window_resign=true, callback_history=[true]
+recording_after_close=false, callback_history=[true, false]
+This proves flag lifetime; effect on Engine follows the unconditional production gate above. It does not claim a live cross-app reproduction.
+Recommended ticket acceptance: recording ends or is suspended when its window/application loses focus, without leaking the recorded chord into conversion/dictation; close/Esc/normal finalize still clear the flag.
+
+3. [P2] Failed resume reports active status despite a missing event tap.
+Sources: Sources/MacLayoutSwitcher/main.swift:87-90; Sources/MacLayoutSwitcher/UI/StatusBarUI.swift:226-229; Sources/MacLayoutSwitcher/Engine.swift:134-142.
+Initial startup checks engine.start() and displays onboarding on failure. The Pause->Resume callback discards the same Bool, while StatusBarUI already toggles paused=false and main updates the active indicator. Engine.start also sets dictation.paused=false and starts focus sampling before tap.start can fail. If the event tap cannot be recreated (for example permission was revoked while paused), the app looks resumed but no input reaches auto correction, Option, or dictation. No explanation/recovery path is invoked.
+Evidence level: direct source control-flow proof. I did not revoke permissions or make live event taps fail, per task constraints; no runtime TCC reproduction is claimed.
+Recommended ticket acceptance: only show resumed state after successful tap start; preserve truthful paused/failed status and surface permission or startup failure, with no focus sampler left active on failed start. Exercise injected start=false and later recovery=true.
+
+VERIFIED COVERAGE
+
+A. Whole dictation insertion / cancellation
+Ran tools/test-dictation-completion.sh unchanged against the 1.4.8 baseline production DictationTarget and SecureInput sources, before the concurrent T29/T30 product edits. Exit0, 15 PASS groups. Log: /tmp/mls-g26-dictation-completion.log; each group records its frozen /tmp source snapshot.
+Covers full literal Russian phrase delivered exactly once using actual CGEvent serialization into owned NSTextView; long Unicode; selected text/suffix/caret; duplicate, delayed and coalesced own notifications; pre-insertion cancellation receipts; concurrent foreign value/range; multi-write notification overlap; bounded history capacity; stalled reads; cancellation/focus and field/value/range/secure mutations after a capacity wait; no retry after uncertain/partial delivery. Final delivery and AX observations are controlled owned boundaries, not user-editor or WindowServer acceptance.
+No new partial-voice/duplicate insertion defect found in this coverage.
+
+B. Model cache / helper process
+Unchanged production SpeechModelStore.swift and SpeechRecognitionProcess.swift copied and compiled in /tmp/mls-g26-speech-probe; fixture main.swift and run.log retained. 15 PASS lines, exit0. Model weights were COW-copied to the owned fixture from the existing installed model directory; no user model modified and no downloads performed.
+- Actual pinned four files pass exact SHA256/size validation alongside the existing optimized_cache .ort.
+- Corrupting only the owned derived .ort continues to pass model validation: it does not force a 233MB model download (actual runtime rebuilding itself was not rerun in this audit).
+- Extra model, missing required artifact, and absent directory return damagedModel/missingModel as intended.
+- Owned fake helper receives relative recording.wav in private CWD and returns full response.
+- no_speech, model_load_failed, inference_failed and invalid JSON map to bounded explicit errors.
+- Excess stdout and stderr trigger outputLimit.
+- A helper ignoring SIGTERM is killed after timeout or cancellation; timeout completed below2s and cancellation returns cancelled.
+- Exactly one main callback observed; caller-owned input file remains owned by caller.
+No real microphone capture, speech recording, or private transcript was read.
+
+C. Source review
+Checked coordinator session-token guards, starting/release/cancel paths, recorder serial cleanup/delegate identity, helper cancellation/shutdown, result fallback retaining full recognized text, 300s limit, permission setup requiring a new hold after approval, persistent model location outside app, download staging/hash/atomic publication, config default migration and background writes, hotkey validation/reset, SMAppService usage, startup and quit logic, version fetch/update shell, build.sh and build-dmg.sh.
+Source SHA manifest: /tmp/mls-g26-lifecycle-audit/source-sha256.txt.
+
+LIMITS / REMAINING COVERAGE
+- No microphone hardware/AVAudioRecorder device failure or interruption was exercised; source was audited only.
+- No live TCC grant/revoke, cross-app AX, private editor, UI control, AppleScript/CDP, or global input performed. Focus-system adapter is separately owned by T29 executor.
+- Actual new-version process identity, LaunchServices behavior after replacement, duplicate-process prevention, SMAppService changes in System Settings, and failure during filesystem replacement were not executed against the installed app. Existing open(exit0) alone must not be treated as proof that the intended version is running.
+- Network model download/repair and real GigaSTT inference were not repeated; this audit verified cache recognition and helper protocol/error lifecycle with owned fixtures.
+- AppConfig disk editing has no reload caller and autostart indicator is read on startup/toggle only; noted as scope gaps, not promoted to urgent blockers without requested live-reload semantics.
+- This audit does not identify the current user's ghbdtn/unavailableField cause; the shared system-focus seam is the primary independent repair. Findings1-3 are separate real lifecycle failures and should not be represented as that symptom's proven cause.

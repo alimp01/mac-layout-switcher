@@ -1,0 +1,47 @@
+FAIL: valid system-focused field survives unavailable app-frontmost RPC
+FAIL: positive foreign system focus never falls back to stale application focus
+FAIL: focus timeout retains exact stage and AX errors without source text
+FAIL: missing foreground PID has a distinct explanation
+FAIL: raw unsupported/denied/no-value stages remain distinguishable: -25205
+FAIL: raw unsupported/denied/no-value stages remain distinguishable: -25211
+FAIL: raw unsupported/denied/no-value stages remain distinguishable: -25208
+FAIL: raw unsupported/denied/no-value stages remain distinguishable: -25212
+FAIL: unavailable focus refuses target
+FAIL: malformed positive system focus cannot authorize stale app fallback
+FAIL: unknown owner remains fail-closed and reports lookup error
+FAIL: success without returned values does not invent a target
+FAIL: unavailable focus refuses target
+FAIL: foreign focus exposes metadata only
+FAIL: explicit inactive application has a distinct diagnostic
+FAIL: system focus change after capture blocks old target
+FAIL: production Option word raw focus capture
+FAIL: production Option selected raw focus capture
+FAIL: empty Option capture retains layout-only route
+FAIL: automatic Space target through raw focus
+FAIL: automatic Enter target through raw focus
+FAIL: automatic ShiftEnter target through raw focus
+FAIL: automatic Tab target through raw focus
+FAIL: dictation exposes the same raw focus diagnostic before observation or insertion
+PASS: ordinary raw system focus authorizes exact own AppKit replacement
+PASS: explicit non-frontmost application stays fail-closed
+PASS: confirmed frontmost application can supply unavailable system focus
+PASS: bounded bootstrap reacquires real raw focus path
+PASS: unavailable focus refuses target
+PASS: diagnostic contains no editor text
+PASS: unavailable focus refuses target
+PASS: unavailable focus refuses target
+PASS: unavailable focus refuses target
+PASS: unavailable focus refuses target
+PASS: unavailable focus refuses target
+PASS: unavailable focus refuses target
+PASS: unavailable focus refuses target
+PASS: unavailable focus refuses target
+PASS: unavailable focus refuses target
+PASS: trust failure remains separate
+PASS: unavailable focus refuses target
+PASS: secure target remains unavailable
+PASS: unavailable focus refuses target
+PASS: secure input remains unavailable
+PASS: read-only control cannot authorize a write
+PASS: frontend change during selection blocks text mutation
+PASS: cancellation after selection preserves source

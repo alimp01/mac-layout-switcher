@@ -1,0 +1,35 @@
+T31 lifecycle recovery — implementation receipt, 2026-10-25
+Repository: /Users/ilyaalimpiev/Documents/Codex/2026-09-16/mac-layout-switcher-punto-caramba-switcher/work/mac-layout-switcher
+Baseline: 01ec68262fb1f4c663a9ae6560410223a116cb00
+Product freeze: /tmp/mls-t31-final.tun_d12_
+Final fixture freeze: /tmp/mls-t31-final-fixtures.pfi7dq15
+Product bytes are identical across both snapshots. OWNED-SHA256SUMS records all owned files. VERSION is 1.4.9, bumped only after root authorization. No commit/install/push performed.
+
+Changes
+- self-update.sh installs its EXIT recovery before logging, preserving/relaunching the old app and reporting failed log creation/open, download, archive, build or replacement. New candidate copied into a unique same-volume transaction directory; original bundle retained until open accepts new launch. Failed rename/open restores original; failed restoration preserves backup with an explicit path. Cleanup never recursively deletes caller-supplied script directories. Old PID exit is bounded and required before replacement/relaunch; timeout preserves original and makes no second launch request. Open acceptance is described honestly, not as process identity verification.
+- Updater.swift launches nohup with structured Process arguments and the exiting app PID, avoiding shell interpolation; preparation/launch failures leave current app running and show an error.
+- HotkeyRecorderWindow cancels incomplete recording on application or window focus loss, clears the Engine gate without saving pending modifiers; close/Escape/completion remain valid.
+- StatusBarUI requests desired pause state; main commits active state only after Engine.start succeeds. Failed resume remains paused and gives permission/retry instructions without adding a second status item.
+- Engine.start changed only after T30 handoff: tap must start before dictation unpauses and focus sampling begins. Failure runs stop() to clear partial workers and gestures.
+
+RED / GREEN evidence
+Updater same runner baseline: /tmp/mls-update-lifecycle.vh_5druw/results.json
+  Offline6/badarchive1/build71 retain original but make 0 launch/report calls; success control makes 1.
+Early log creation RED: /tmp/mls-update-lifecycle.04tqg2hy/results.json
+Final updater: /tmp/mls-update-lifecycle._tyxsx9p/results.json — 15/15 GREEN.
+  Includes early mkdir and exec-open failures, copy/install/new-launch/rollback failure, failed old relaunch, PID exit/timeout, metacharacter paths, unsafe cleanup argument, valid cleanup through /tmp symlink spelling, success.
+  For ordinary failure there is exactly one accepted old launch plus a report. Failed new launch has two requests but only one accepted launch. Rollback failure preserves previous.app, reports its path and makes no misleading launch request. Parent timeout preserves original and makes no launch request. Success makes exactly one request.
+Actual hidden NSWindow recorder baseline: /tmp/mls-hotkey-lifecycle.eaeFsJ — both app and window focus loss RED.
+Actual hidden NSWindow final: /tmp/mls-hotkey-lifecycle.tysLjl — GREEN including pending Shift chord, unchanged hotkey after release, delegate wiring/notification delivery, close, Escape and completed save.
+  Production recorder source is unchanged except private build visibility in the copied source; seams.patch retained. No window shown/activated.
+Resume baseline: /tmp/mls-resume-lifecycle.Us1Djd — failed resume menu RED and separate initial start leaves dictation unpaused RED.
+Final resume: /tmp/mls-resume-lifecycle.3ae7z7 — GREEN failed menu/tap/alert, stopped sampling, successful retry and failed initial start dictation/sampling.
+  All production app files compile; actual EventTap creation/enable system boundaries return a private Mach port or nil. Owned config, hidden menus, recorded alerts and denied AX-trust boundary prevent any user input/window/mic/TCC activity. source-provenance.json and seams.patch retained.
+Full dictation-completion final15groups GREEN; /tmp/mls-dictation-completion.SouIrE (first) through /tmp/mls-dictation-completion.EUwKa0 (last); each group retains its own frozen sources/run evidence.
+Shell syntax and git diff --check PASS.
+Integrated keyboard Engine final: /tmp/mls-keyboard-engine.bxONiY — running at receipt creation; final result appended below.
+
+Limits
+No actual installed LaunchServices identity/duplicate-process acceptance is claimed from the launch stub; only command acceptance and old-PID wait are tested. No live UI, AX tree, permission grant/revoke, physical cross-app input, microphone or model downloads. Actual user issue acceptance remains separate. Fullspeech release, full Linux suite, two final independent reviews and installation are owned by root integration.
+
+Final integrated result: /tmp/mls-keyboard-engine.bxONiY/run.log EXIT0, complete production EventTap→KeyTranslator→Engine regression GREEN. All160 navigation modes, tap interruption/recording ownership, Option fresh/cancellation/bootstrap, AX+Unicode delimiters/repeats/native ordering, recovery and outside-busy behavior passed on the final frozen Engine.start implementation. No product changes followed this result.

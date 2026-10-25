@@ -1,0 +1,38 @@
+[
+  {
+    "scenario": "offline",
+    "exit": 6,
+    "installed_text": "old working binary",
+    "app_launch_requests": 0,
+    "accepted_launches": 0,
+    "reports": 0,
+    "passed": false
+  },
+  {
+    "scenario": "invalid_archive",
+    "exit": 1,
+    "installed_text": "old working binary",
+    "app_launch_requests": 0,
+    "accepted_launches": 0,
+    "reports": 0,
+    "passed": false
+  },
+  {
+    "scenario": "build_fail",
+    "exit": 71,
+    "installed_text": "old working binary",
+    "app_launch_requests": 0,
+    "accepted_launches": 0,
+    "reports": 0,
+    "passed": false
+  },
+  {
+    "scenario": "success",
+    "exit": 0,
+    "installed_text": "new working binary",
+    "app_launch_requests": 1,
+    "accepted_launches": 1,
+    "reports": 0,
+    "passed": true
+  }
+]

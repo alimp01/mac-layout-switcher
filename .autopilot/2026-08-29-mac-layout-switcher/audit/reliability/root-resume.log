@@ -1,0 +1,15 @@
+Resume lifecycle scratch: /tmp/mls-resume-lifecycle.f2TYsy
+PASS: pause removes tap and offers resume
+PASS: rejected event tap keeps paused menu
+PASS: rejected resume has no active event tap
+PASS: rejected resume explains recovery
+PASS: rejected resume stops background focus sampling
+PASS: later successful resume restores active menu and tap
+PASS: engine reports startup failure
+PASS: failed startup cannot activate dictation
+PASS: failed initial startup leaves no focus sampler
+PASS: owned app lifecycle; no shown UI, real event tap, microphone or user config
+PASS: engine reports startup failure
+PASS: failed startup cannot activate dictation
+PASS: failed initial startup leaves no focus sampler
+PASS: owned app lifecycle; no shown UI, real event tap, microphone or user config

@@ -1,0 +1,25 @@
+T29 focused-system boundary evidence, 2026-10-25
+
+User actual1.4.8 acceptance remains FAILED and candidate actual acceptance UNKNOWN.
+No live app AX probe, microphone, TCC operation, global event post or installation was performed by this executor.
+
+Initial raw-RPC RED: /tmp/mls-system-focus.GItFdQ/run.log
+Minimal resolver GREEN: /tmp/mls-system-focus.4hbUlr/run.log
+Diagnostic RED: /tmp/mls-system-focus.PXTPi2/run.log
+Diagnostic GREEN: /tmp/mls-system-focus.7Mk4AB/run.log
+Final identical-fixture baseline: /tmp/mls-system-focus.NgQr5N/run.log (23 PASS, 24 FAIL, expected exit1)
+Final identical-fixture candidate: /tmp/mls-system-focus.QLaRFZ/run.log (50 PASS, 0 FAIL, exit0)
+The final main.swift SHA matches in both baseline and candidate snapshots.
+
+Baseline code: 01ec68262fb1f4c663a9ae6560410223a116cb00.
+Proof boundary: raw AX C RPC fault responses, unchanged compiled production focusedElement/capture/selection/replace flow; private NSTextView performs text mutation. Explicit system/app identity tokens are never used for real RPCs. The test proves resolver behavior under those responses, not that either response occurred in the installed user's app.
+
+Bugs: app AXFrontmost missing/error rejected a valid exact-owner system-focused field; positive foreign system focus fell back to a stale expected-app field. The repair retains explicit false/inactive rejection, exact owner identity, original source/selection/value guards, no write retry, existing 0.1 timeout and bounded bootstrap. Failed captures now retain fixed stage codes only, including missing PID and raw error/type/owner failures, in existing selectable notice/fallback.
+
+Native regression snapshot and logs: /tmp/mls-t29-validation.ad2o3_3w
+keyboard-adapter.log PASS; selection-delay.log PASS; webkit.log PASS; dictation-adapter.log PASS; dictation-completion.log full matrix PASS. All group shell exits0.
+MLS_DISABLE_SPEECH=1 debug application build PASS, build.log (58.94s).
+Explicit Swift/Clang module caches were under /tmp.
+No Linux/fullspeech/release/DMG claim by this executor; root owns integrated checks.
+
+T29-FREEZE.json identifies current five changed files. README also received T30's disjoint physical-input section after the original T29 freeze; product and harness hashes stayed unchanged. No commit/version/install/push was performed.

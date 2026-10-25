@@ -1,0 +1,2 @@
+PASS: pause removes tap and offers resume
+FAIL: rejected event tap keeps paused menu

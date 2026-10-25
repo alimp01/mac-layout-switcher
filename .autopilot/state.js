@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-23T17:44:17.813361+00:00",
+  "updatedAt": "2026-10-25T05:44:42.326070+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -48,25 +48,25 @@ window.STATE =
       "id": "build",
       "status": "active",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G25 code1.4.8 reviewed, tested, installed and published; actual user acceptance pending. G24 physical Safari still pending."
+      "note": "G26 codechecked/reviewed/installed1.4.9; physical acceptance and publication pending."
     },
     {
       "id": "review",
       "status": "pending",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "G25 code1.4.8 reviewed, tested, installed and published; actual user acceptance pending. G24 physical Safari still pending."
+      "note": "G26 codechecked/reviewed/installed1.4.9; physical acceptance and publication pending."
     },
     {
       "id": "final",
       "status": "pending",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "G25 code1.4.8 reviewed, tested, installed and published; actual user acceptance pending. G24 physical Safari still pending."
+      "note": "G26 codechecked/reviewed/installed1.4.9; physical acceptance and publication pending."
     }
   ],
   "requirements": {
-    "total": 32,
+    "total": 33,
     "done": 29,
-    "inTicket": 2,
+    "inTicket": 3,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -775,14 +775,73 @@ window.STATE =
       "validation": "two reviews approved0; native7/Linux95/fullspeech/mountedDMG/installed1.4.8 exact/publicarchive91hashes PASS; user launch/Option acceptance pending",
       "version": "1.4.8",
       "commit": "3f4f8166971c2ee1468b209f234351deea6b801a",
-      "publication": "1.4.8 verified; code3f4f816; metadata receipt follows"
+      "publication": "1.4.8 verified; code3f4f816; metadata receipt follows",
+      "actualAcceptance": "FAILED25.10: unavailableField on ghbdtn/Option; continuesG26/T29"
+    },
+    {
+      "id": "29",
+      "title": "Системный поиск поля и проверка надёжности всего приложения",
+      "requirements": [
+        "G26"
+      ],
+      "blockedBy": [],
+      "wave": 25,
+      "status": "in-progress",
+      "startedAt": "2026-10-25T05:11:39.865636+00:00",
+      "retries": 0,
+      "repairs": 0,
+      "review": {
+        "spec": "approved",
+        "standards": "approved"
+      },
+      "version": "1.4.9",
+      "validation": "Final integrated suites and exact99hashes reviewed; see audit/reliability",
+      "actualAcceptance": "pending separate physical keyboard check"
+    },
+    {
+      "id": "30",
+      "title": "Целостность физического ввода и восстановление EventTap",
+      "requirements": [
+        "G26"
+      ],
+      "blockedBy": [],
+      "wave": 25,
+      "status": "done",
+      "retries": 0,
+      "repairs": 0,
+      "review": {
+        "spec": "approved",
+        "standards": "approved"
+      },
+      "version": "1.4.9",
+      "validation": "Final integrated suites and exact99hashes reviewed; see audit/reliability",
+      "actualAcceptance": "pending separate physical keyboard check"
+    },
+    {
+      "id": "31",
+      "title": "Восстановление после ошибки обновления и возобновления",
+      "requirements": [
+        "G26"
+      ],
+      "blockedBy": [],
+      "wave": 26,
+      "status": "done",
+      "retries": 0,
+      "repairs": 0,
+      "review": {
+        "spec": "approved",
+        "standards": "approved"
+      },
+      "version": "1.4.9",
+      "validation": "Final integrated suites and exact99hashes reviewed; see audit/reliability",
+      "actualAcceptance": "pending separate physical keyboard check"
     }
   ],
   "singlePass": null,
   "tests": {
     "passed": 95,
     "failed": 0,
-    "note": "G22 rootLinux95/95; frozen finalEngine/delayedselection/fullspeech/deepstrict/mountedDMG; reviewerskeyboard/notice/G19 PASS. PhysicalSpace GREEN bothownedCodexIAB fields; privatecomposer/allapps/manualEnterShift pending."
+    "note": "G26 exact27 Linuxinputs95/95; rawfocus50/nav160/update15/dictation15/finalEngine27groups/fullspeech/deepstrict/mountedDMG PASS; two fresh reviews99hashes0findings. Physicalacceptance pending."
   },
   "debt": {
     "placeholders": [],
@@ -913,6 +972,11 @@ window.STATE =
       "spec": "review_dictation_completion_spec",
       "standards": "review_dictation_completion_standards",
       "result": "Both frozen4 finalapproved0findings; all64hashes stable; actualspeech unproven"
+    },
+    "G26": {
+      "spec": "review_reliability_spec",
+      "standards": "review_reliability_standards",
+      "result": "Both approved0findings; manifestSHA dddd80c7751b8f913b693f1161c6505b0093000aedc9a342d65712899a91f4d1"
     }
   },
   "blind": {
@@ -922,41 +986,20 @@ window.STATE =
     "drift": []
   },
   "manualAcceptance": {
-    "version": "1.4.6",
+    "version": "1.4.9",
     "status": "pending",
-    "checks": [
-      "ozon после смены поля; b/B/z/Z и plan b",
-      "Option по выделению с переносами и без выделения",
-      "Enter/Shift+Enter и быстрый ghbdtn+Tab+abc",
-      "диктовка после перезапуска без скачивания; новый hold после подготовки",
-      "f/d/r/j/c/e одиночные + Englishlabels; ни/буду/могу/люблю; rfr?/ghbdtn!/(yt)",
-      "Диктовка в Codex: удержание/отпускание вставляет один раз без Enter",
-      "Во время распознавания сменить поле/ввести символ: видимый результат, причина отказа, явное копирование",
-      "Длинная фраза и выделение, поздние уведомления; непроверенная доставка сохраняет весь результат с предупреждением",
-      "Option: выделение/слово после reset/пустое поле → RU/EN",
-      "ghbdtn+Space/Enter, Shift+Enter, быстрый ввод в native и Codex",
-      "При неподтверждённой записи Enter остановлен, удержанный ввод сохраняется до явного Close"
-    ],
-    "note": "Userasked to update via menu and dictate literalphrase in own Codex chat. G23 no actualspeechPASS yet. PriorG22 physicalSpace1.4.5 GREEN ownIABfields; Enter/Shift/allapps remain untested."
+    "note": "Exactinstalled newPID14682; physical ghbdtn+Space and separate Option requested. Actual1.4.8 cause remains unknown; controlled bugs proved."
   },
   "release": {
-    "version": "1.4.6",
-    "artifact": "MacLayoutSwitcher-1.4.6.dmg",
-    "sha256": "0571ae808a108550662b10decc38600b9df0519e81b383b79be19abaaa40e326",
-    "bytes": 10966502,
-    "binarySHA256": "cff40179237f82900269144880096325e4f71bf5147b9bb0c6465b60d8ca655f",
-    "mountedVerification": "version/helper/deepstrict/Applications symlink/main binary exact PASS",
-    "speechAcceptance": "manual Codex pending",
-    "publication": "verified",
-    "verifiedPublicationHead": "f96f920104b538201d12c51bf7d8d8018eaf5b71",
-    "publicArchiveSHA256": "532c606d13f4bb45a665d8fcef5acd9124a0f37d8e598f419f0eefe9f7c33d59",
-    "frozenProductFilesVerified": 64,
-    "verification": "GitHub raw VERSION / server HEAD / HTTPS archive SHA / PAX commit / all64approved hashes exact",
-    "manualSpeech": "pending; no actual Codex/WindowServer acceptance claimed",
-    "codeCommit": "f96f920104b538201d12c51bf7d8d8018eaf5b71",
-    "verifiedAt": "2026-10-10T17:27:38.248052+00:00",
-    "physicalAcceptance": "G23 speechpending; priorG22 physicalSpace1.4.5 ownCodexfields GREEN",
-    "publicationNote": "Verification receipt covers exact published codecommit; root metadata follows, finalarchive externally reverified"
+    "version": "1.4.9",
+    "artifact": "MacLayoutSwitcher-1.4.9.dmg",
+    "sha256": "dad44e98b9e1833821502af02364e037e13403cac21ffd18563fda8fe80de093",
+    "bytes": 10978284,
+    "binarySHA256": "58dfa3bd6042acb4a7e11f011699ec05f8dc46d218f0443942f83df2e1d90636",
+    "publication": "pending",
+    "physicalAcceptance": "pending",
+    "installedPID": 14682,
+    "installedBackup": "outputs/MacLayoutSwitcher-1.4.8-before-G26-backup.zip"
   },
   "wordCoverageAudit": {
     "independentRU": 459,
@@ -1075,5 +1118,23 @@ window.STATE =
     "actual": "Uservideo Safari source remains/recovery; exact failedstage unknown",
     "manualAcceptance": "pending",
     "dictionary": "cancelled expansion remains out of scope"
+  },
+  "reliabilityAudit": {
+    "requirement": "G26",
+    "tickets": [
+      "29",
+      "30",
+      "31"
+    ],
+    "actualInstalledFailure": "1.4.8 ghbdtn auto no-op and Option unavailableField; cause unknown",
+    "baselineCommit": "01ec68262fb1f4c663a9ae6560410223a116cb00",
+    "scope": "shared raw AX focus, physical input integrity, updater/resume/recorder lifecycle; speech/model audited",
+    "T29": "rawAX baseline24fails→final50pass; installed1.4.9, actualcause/acceptance unknown",
+    "T30": "fullfinalEngine27groups incl160navigation and interruptionGREEN",
+    "T31": "updater15/actualhiddenNSWindow/resume/rawstart/dictation15/fullEngineGREEN",
+    "reviews": "two independent finalapproved0findings, exact99hashes",
+    "manualAcceptance": "UNKNOWN; CUA TextEdit generated inputs not physicalproof; Option unsupported; no denied-app bypass",
+    "evidence": "audit/reliability",
+    "release": "1.4.9 exactsigned installed; newPID14682; publication pending"
   }
 };

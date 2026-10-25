@@ -1,0 +1,12 @@
+{
+  "version": "1.4.9",
+  "dmgSHA256": "dad44e98b9e1833821502af02364e037e13403cac21ffd18563fda8fe80de093",
+  "bytes": 10978284,
+  "files": {
+    "Contents/MacOS/MacLayoutSwitcher": "58dfa3bd6042acb4a7e11f011699ec05f8dc46d218f0443942f83df2e1d90636",
+    "Contents/Helpers/SpeechRecognizer": "f6e95f878341aaab6ecea3e57caace28de796538da1201efe3524650c39c30f4",
+    "Contents/Resources/self-update.sh": "5e4be78c39e2705381427e85e3850965ee076e55466c98dfdb6f6beb97fcd29d"
+  },
+  "mountedVerification": "version,deepstrict,helper,Applications symlink,matching builtbytes PASS",
+  "checkedAt": "2026-10-25T05:38:09.429660+00:00"
+}
