@@ -135,11 +135,16 @@ public final class Engine {
     @discardableResult
     public func start() -> Bool {
         resetPhysicalInputState()
-        dictation.paused = false
-        inputFocus.start()
-        return tap.start { [weak self] stroke in
+        let started = tap.start { [weak self] stroke in
             self?.handle(keyEvent: stroke) ?? .pass
         }
+        guard started else {
+            stop()
+            return false
+        }
+        dictation.paused = false
+        inputFocus.start()
+        return true
     }
 
     /// Останавливает перехват.

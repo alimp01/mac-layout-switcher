@@ -175,12 +175,11 @@ final class Updater {
     // MARK: - Запуск самообновления
 
     /// Копирует self-update.sh из Resources бандла во временную папку и
-    /// запускает КОПИЮ detached (nohup + &): скрипт заменит сам бандл, поэтому
+    /// запускает КОПИЮ detached (nohup): скрипт заменит сам бандл, поэтому
     /// исполняемый файл не должен исчезнуть из-под bash. После запуска
     /// приложение выходит — скрипт соберёт новую версию и откроет её сам.
     private func runSelfUpdate() {
-        // Страховка поверх проверки в check(): скрипт сделает rm -rf по этому
-        // пути, поэтому он обязан быть путём к .app (скрипт валидирует тоже).
+        // Скрипт заменяет только установленный .app (он валидирует путь тоже).
         let appPath = Bundle.main.bundlePath
         guard appPath.hasSuffix(".app") else {
             NSLog("MacLayoutSwitcher: bundlePath '\(appPath)' — не .app, самообновление отменено")
@@ -188,6 +187,7 @@ final class Updater {
         }
         guard let scriptURL = Bundle.main.url(forResource: "self-update", withExtension: "sh") else {
             NSLog("MacLayoutSwitcher: self-update.sh не найден в Resources бандла — обновление невозможно")
+            presentUpdateStartFailedAlert()
             return
         }
         let fm = FileManager.default
@@ -199,31 +199,41 @@ final class Updater {
             try fm.copyItem(at: scriptURL, to: tmpScript)
         } catch {
             NSLog("MacLayoutSwitcher: не удалось подготовить копию self-update.sh: \(error)")
+            try? fm.removeItem(at: tmpDir)
+            presentUpdateStartFailedAlert()
             return
         }
 
         // nohup: скрипт переживает выход приложения (setsid в macOS нет).
         // Вывода у него не остаётся — скрипт сам пишет всё в свой лог-файл.
-        // Вторым аргументом отдаём tmpDir: скрипт удалит папку со своей
-        // копией при завершении (мы к тому моменту уже вышли).
-        let command = "nohup /bin/bash \(shellQuote(tmpScript.path)) "
-            + "\(shellQuote(appPath)) \(shellQuote(tmpDir.path)) >/dev/null 2>&1 &"
+        // Прямой Process не требует shell quoting и сообщает ошибку запуска.
+        // PID позволяет дождаться завершения dictation.shutdown до замены
+        // и открытия бандла; open не должен вернуть ещё старый процесс.
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/bin/bash")
-        process.arguments = ["-c", command]
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/nohup")
+        process.arguments = ["/bin/bash", tmpScript.path, appPath, tmpDir.path,
+                             String(ProcessInfo.processInfo.processIdentifier)]
+        process.standardInput = FileHandle.nullDevice
+        process.standardOutput = FileHandle.nullDevice
+        process.standardError = FileHandle.nullDevice
         do {
             try process.run()
         } catch {
             NSLog("MacLayoutSwitcher: не удалось запустить self-update.sh: \(error)")
+            try? fm.removeItem(at: tmpDir)
+            presentUpdateStartFailedAlert()
             return
         }
         NSLog("MacLayoutSwitcher: самообновление запущено, выходим")
         NSApp.terminate(nil)
     }
 
-    /// Одинарные кавычки для шелла: путь может содержать пробелы.
-    private func shellQuote(_ s: String) -> String {
-        return "'" + s.replacingOccurrences(of: "'", with: "'\\''") + "'"
+    private func presentUpdateStartFailedAlert() {
+        let alert = NSAlert()
+        alert.messageText = "Не удалось запустить обновление"
+        alert.informativeText = "Приложение продолжает работать. Проверьте свободное место и повторите «Проверить обновления…»."
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
     }
 }
 #endif

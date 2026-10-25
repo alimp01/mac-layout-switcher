@@ -35,8 +35,9 @@ public final class StatusBarUI: NSObject {
         }
     }
 
-    // Колбэки тумблеров/пунктов. Аргумент — НОВОЕ состояние после переключения.
+    // Pause requests a desired state; the owner confirms it after Engine.start.
     public var onTogglePause: ((Bool) -> Void)?
+    // Other toggles report their new state.
     public var onToggleAutoSwitch: ((Bool) -> Void)?
     public var onToggleSounds: ((Bool) -> Void)?
     /// Тумблер автозапуска. Аргумент — ЖЕЛАЕМОЕ состояние. Колбэк сам пробует
@@ -98,6 +99,11 @@ public final class StatusBarUI: NSObject {
     /// снаружи меню (хоткей `.toggleAuto`). Паузу/звуки не трогает.
     public func setAutoSwitchState(_ on: Bool) {
         state.autoSwitch = on
+        refresh()
+    }
+
+    public func setPausedState(_ paused: Bool) {
+        state.paused = paused
         refresh()
     }
 
@@ -224,9 +230,7 @@ public final class StatusBarUI: NSObject {
     // MARK: - Действия
 
     @objc private func togglePause() {
-        state.paused.toggle()
-        refresh()
-        onTogglePause?(state.paused)
+        onTogglePause?(!state.paused)
     }
 
     @objc private func toggleAuto() {

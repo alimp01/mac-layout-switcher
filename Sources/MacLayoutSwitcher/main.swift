@@ -85,9 +85,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // автопауза secure-input/исключений считается внутри на каждое событие).
         // Индикатор раскладки при этом приглушается/оживает.
         ui.onTogglePause = { [weak self, weak engine] paused in
-            if paused { engine?.stop() } else { engine?.start() }
-            self?.manualPaused = paused
-            self?.updateLayoutIndicator()
+            guard let self, let engine else { return }
+            if paused {
+                engine.stop()
+                self.manualPaused = true
+            } else {
+                self.manualPaused = !engine.start()
+            }
+            self.ui?.setPausedState(self.manualPaused)
+            self.updateLayoutIndicator()
+            if !paused && self.manualPaused { self.showOnboardingAlert(resuming: true) }
         }
         ui.onToggleAutoSwitch = { [weak engine] on in
             engine?.setAutoSwitch(on)   // сам пишет config
@@ -251,10 +258,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         showOnboardingAlert()
     }
 
-    private func showOnboardingAlert() {
+    private func showOnboardingAlert(resuming: Bool = false) {
         let alert = NSAlert()
-        alert.messageText = "Нужны разрешения"
-        alert.informativeText = """
+        alert.messageText = resuming ? "Не удалось возобновить работу" : "Нужны разрешения"
+        let resumeExplanation = resuming
+            ? "Перехват клавиатуры не запустился. Приложение осталось на паузе. Проверьте разрешения ниже и повторите «Работа (снять паузу)»; если это не поможет, перезапустите приложение.\n\n"
+            : ""
+        let retryInstruction = resuming
+            ? "После этого повторите «Работа (снять паузу)»."
+            : "Затем перезапустите приложение (пункт меню-бара «Я выдал разрешения»)."
+        alert.informativeText = resumeExplanation + """
         Mac Layout Switcher слушает клавиатуру во всех приложениях, поэтому \
         macOS требует два разрешения:
 
@@ -262,8 +275,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         перепечатывать текст.
         2. Мониторинг ввода (Input Monitoring) — чтобы видеть нажатия клавиш.
 
-        Откройте обе панели кнопками ниже, включите «Mac Layout Switcher», \
-        затем перезапустите приложение (пункт меню-бара «Я выдал разрешения»).
+        Откройте обе панели кнопками ниже и включите «Mac Layout Switcher». \
+        \(retryInstruction)
         """
         alert.addButton(withTitle: "Открыть «Универсальный доступ»")
         alert.addButton(withTitle: "Открыть «Мониторинг ввода»")

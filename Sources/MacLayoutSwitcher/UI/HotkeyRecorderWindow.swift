@@ -30,7 +30,12 @@ public final class HotkeyRecorderWindow: NSObject, NSWindowDelegate {
     public init(config: Config) {
         self.config = config
         super.init()
+        NotificationCenter.default.addObserver(self,
+            selector: #selector(cancelRecording),
+            name: NSApplication.didResignActiveNotification, object: nil)
     }
+
+    deinit { NotificationCenter.default.removeObserver(self) }
 
     /// Показывает окно (создаёт при первом вызове), выводит на передний план.
     public func show() {
@@ -214,7 +219,19 @@ public final class HotkeyRecorderWindow: NSObject, NSWindowDelegate {
     // MARK: - NSWindowDelegate
 
     public func windowWillClose(_ notification: Notification) {
-        if monitor != nil { stopRecording() }
+        cancelRecording()
+    }
+
+    public func windowDidResignKey(_ notification: Notification) {
+        cancelRecording()
+    }
+
+    /// A local monitor cannot finish a chord after focus leaves this window.
+    /// Release Engine's recording gate without saving any partial modifiers.
+    @objc private func cancelRecording() {
+        guard recordingTag != nil else { return }
+        stopRecording()
+        refreshValues()
     }
 
     // MARK: - Модификаторы NSEvent → модель
