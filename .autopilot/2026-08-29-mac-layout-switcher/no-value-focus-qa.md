@@ -59,4 +59,7 @@ was preserved as outputs/MacLayoutSwitcher-1.4.9-before-G27-backup.zip and
 Actual physical acceptance is PENDING. User was asked to test ghbdtn+Option and
 separate ghbdtn+Space in Codex after the candidate starts. No denied-app UI/AX
 probe, TCC change, microphone, global typing or clipboard access was performed.
-Publication receipt follows after commit/push/archive verification.
+Code commit 72c48b6af12d85e0da244fc55285e00d3fe446f7 pushed and archived. Raw GitHub VERSION1.4.10,
+public HTTPS archive SHA a52a092cecc890744f548ab00ab4cc9caad44d214d958ef91c06956499dd0cbf and
+embedded commit match; all 87 frozen release inputs and all 332 tracked files
+match Git blobs. Final metadata archive receipt is in outputs.

@@ -1,13 +1,13 @@
 # T32 — восстановить захват поля при AX noValue
 **Requirement:** G27
-**Status:** reviewed; installed 1.4.10; publication in progress
+**Status:** code/release complete; actual physical acceptance pending
 **Blocked by:** none
 Read ../no-value-focus-spec.md and G26 raw-system-focus tests.
 - [x] Explain exact noValue failure path and source-supported recovery.
 - [x] Literal raw RPC baselineRED and finalGREEN; no mocked focusedElement.
 - [x] Shared capture safely handles valid alternatefocus/lazybootstrap.
 - [x] Stale/foreign/ambiguous/secure/limit/cancel cases fail without text mutation.
-- [ ] Relevant native checks, two independent reviews, signed release/publication.
+- [x] Relevant native checks, two independent reviews, signed release/publication.
 - [ ] Actual installed keyboard result recorded separately.
 Fresh executor follows implement/tdd. No root product edits; no live private UI/AX,
 TCC, microphone, global input, helper bypass of prior CUA denial. No version/
@@ -27,3 +27,5 @@ acceptance remain separate; no installed-app success is inferred from fixtures.
 Final implementation uses scoped bootstrap, not traversal. Both reviews approve;
 77 final raw checks pass; final signed full-speech build and mounted DMG verified.
 Actual installed acceptance remains pending; see no-value-focus-qa.md.
+
+Released commit 72c48b6af12d85e0da244fc55285e00d3fe446f7; public VERSION/archive verified.

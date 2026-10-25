@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-25T07:04:26.339079+00:00",
+  "updatedAt": "2026-10-25T07:07:12.141278+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -48,19 +48,19 @@ window.STATE =
       "id": "build",
       "status": "active",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G27/T32 reviewed, 1.4.10 installed; publication in progress; actual physical acceptance pending."
+      "note": "G27/T32 code/reviews/tests/release1.4.10 complete; actual physical acceptance pending."
     },
     {
       "id": "review",
       "status": "pending",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "G27/T32 reviewed, 1.4.10 installed; publication in progress; actual physical acceptance pending."
+      "note": "G27/T32 code/reviews/tests/release1.4.10 complete; actual physical acceptance pending."
     },
     {
       "id": "final",
       "status": "pending",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "G27/T32 reviewed, 1.4.10 installed; publication in progress; actual physical acceptance pending."
+      "note": "G27/T32 code/reviews/tests/release1.4.10 complete; actual physical acceptance pending."
     }
   ],
   "requirements": {
@@ -856,7 +856,9 @@ window.STATE =
         "spec": "approved",
         "standards": "approved"
       },
-      "validation": "baseline RED13 → final raw GREEN77; adapters; fullspeech; mountedDMG; exact Linux95 reuse; installed physical acceptance pending"
+      "validation": "baseline RED13 → final raw GREEN77; adapters; fullspeech; mountedDMG; exact Linux95 reuse; installed physical acceptance pending",
+      "commit": "72c48b6af12d85e0da244fc55285e00d3fe446f7",
+      "finishedAt": "2026-10-25T07:07:12.141278+00:00"
     }
   ],
   "singlePass": null,
@@ -1024,10 +1026,15 @@ window.STATE =
     "bytes": 11000313,
     "binarySHA256": "030dc241cab5fd34c6e371c90ed68a2687d7eb665237c810f6e09397634ef3fd",
     "helperSHA256": "e97da801466687fd0aa5f4b18ad39a2a89b52b5dc069935ba1252a6a3599c34e",
-    "publication": "in progress",
+    "publication": "verified; metadata-only sync follows, final receipt in outputs",
     "physicalAcceptance": "pending",
     "installedPID": 23883,
-    "installedBackup": "outputs/MacLayoutSwitcher-1.4.9-before-G27-backup.zip"
+    "installedBackup": "outputs/MacLayoutSwitcher-1.4.9-before-G27-backup.zip",
+    "codeCommit": "72c48b6af12d85e0da244fc55285e00d3fe446f7",
+    "publicCodeArchiveSHA256": "a52a092cecc890744f548ab00ab4cc9caad44d214d958ef91c06956499dd0cbf",
+    "verifiedAt": "2026-10-25T07:06:11.467101+00:00",
+    "frozenProductFilesVerified": 87,
+    "allTrackedFilesVerified": 332
   },
   "wordCoverageAudit": {
     "independentRU": 459,
@@ -1177,10 +1184,12 @@ window.STATE =
     "qa": "no-value-focus-qa.md",
     "sourceEvidence": "Installed Codex Framework Chromium 155.0.8059.80; exact primary source enhanced accessibility debounced 2s, no manual hook",
     "contract": "Bounded once-per-process preparation; no initial field means fresh operation required after readiness, no stale delayed mutation",
-    "candidate": "1.4.10 installed; publication in progress",
+    "candidate": "1.4.10 installed and published; actual physical acceptance pending",
     "native": "Final raw77; adapters; root Engine/navigation + completion; fullspeech/mountedDMG",
     "reviews": "Both independent final approved; process-replacement race fixed",
     "linux": "95 tests reused by exact27input hashes",
-    "durableEvidence": "audit/no-value-focus"
+    "durableEvidence": "audit/no-value-focus",
+    "codeCommit": "72c48b6af12d85e0da244fc55285e00d3fe446f7",
+    "publication": "raw GitHub VERSION + public HTTPS SHA/PAX + 87 frozen/332 tracked file hashes verified"
   }
 };
