@@ -47,10 +47,19 @@ helper, Applications link and main/helper binary hashes passed.
 Installed exact 1.4.11; old PID53896 stopped, one new PID85982 confirmed twice.
 Previous 1.4.10 retained in outputs/MacLayoutSwitcher-1.4.10-before-G28-backup.zip
 and /Applications/.MacLayoutSwitcher-G28-k7tdtkiq/previous.app. User asked to repeat
-зщкефд+Option in the actual Bitrix24 field after preparation. Physical acceptance
-PENDING; Codex1.4.10 accepted Option/Space history remains intact.
+зщкефд+Option in the actual Bitrix24 field after preparation. At release, physical acceptance was pending; the confirmed result is recorded below.
+Codex1.4.10 accepted Option/Space history remains intact.
 No private UI/AX, TCC, microphone, clipboard or form submission during tests.
 Code 77e96bec6ce1a54f4d8c624b202fa0bfeb670621 pushed and archived. Public HTTPS archive SHA
 a88a2696e563ffbfb88fa1af383da8509f508479ae241705aeeb6be07f56ce40 and PAX commit match; raw
 GitHub VERSION1.4.11 and all355 tracked Git blobs verified from release server.
-Final metadata receipt is in outputs; physical Bitrix24 result remains pending.
+Final metadata receipt is in outputs; the Bitrix24 physical result is recorded below.
+
+## User acceptance — 26.10.2026
+
+After installed1.4.11, the user repeated зщкефд+Option without selection in the
+actual native Bitrix24 address field and answered: «Да, получилось portal».
+Record this physical conversion as PASS and close G28/T33. This does not extend
+physical acceptance to Yandex, automatic separators, dictation or every editor.
+Prior Codex1.4.10 Option/Space acceptance remains recorded separately.
+This is an acceptance-only update; product sources and VERSION are unchanged.

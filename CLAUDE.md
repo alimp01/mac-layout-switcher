@@ -18,8 +18,10 @@ Bitrix24 Framework.framework и Yandex Framework.framework в общий classif
 reuse27, fullspeech/mountedDMG и оба fresh reviews approved0. Manifest e0635fa9….
 Installed binary5c0b5472…; новый PID85982, старый53896 остановлен. Backup1.4.10
 в outputs zip и /Applications/.MacLayoutSwitcher-G28-k7tdtkiq/previous.app.
-Actual Bitrix acceptance PENDING: задан зщкефд+Option→portal. Не подменять его
-headless PASS; принятый Codex G27 не отзывать. See browser-family-spec/qa.
+Actual Bitrix acceptance PASS: 26.10 пользователь ответил «Да, получилось portal»
+после зщкефд+Option без выделения в реальном поле Bitrix24. G28/T33 закрыт.
+Yandex/авторазделители/диктовка этим тестом не подтверждены. Принятый Codex
+G27 сохранён. Не повторять пройденный тест. See browser-family-spec/qa.
 
 G27/T32: 1.4.10 установлена и опубликована (code72c48b6). Raw VERSION и
 public archive SHA/PAX/87 frozen + 332 tracked files проверены; final metadata

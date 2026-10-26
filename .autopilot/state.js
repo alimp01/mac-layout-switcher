@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-26T07:13:05.380626+00:00",
+  "updatedAt": "2026-10-26T09:36:58.857391+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -48,25 +48,25 @@ window.STATE =
       "id": "build",
       "status": "active",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G28/T33 code/reviews/tests/release1.4.11 complete; actual Bitrix24 acceptance pending. G27 Codex remains accepted."
+      "note": "G28/T33 complete: 1.4.11 published and physical Bitrix24 Option accepted by user. G27 Codex remains accepted; other historical scopes unchanged."
     },
     {
       "id": "review",
       "status": "pending",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "G28/T33 code/reviews/tests/release1.4.11 complete; actual Bitrix24 acceptance pending. G27 Codex remains accepted."
+      "note": "G28/T33 complete: 1.4.11 published and physical Bitrix24 Option accepted by user. G27 Codex remains accepted; other historical scopes unchanged."
     },
     {
       "id": "final",
       "status": "pending",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "G28/T33 code/reviews/tests/release1.4.11 complete; actual Bitrix24 acceptance pending. G27 Codex remains accepted."
+      "note": "G28/T33 complete: 1.4.11 published and physical Bitrix24 Option accepted by user. G27 Codex remains accepted; other historical scopes unchanged."
     }
   ],
   "requirements": {
     "total": 35,
-    "done": 30,
-    "inTicket": 4,
+    "done": 31,
+    "inTicket": 3,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -875,9 +875,11 @@ window.STATE =
         "spec": "approved",
         "standards": "approved"
       },
-      "validation": "Same final raw RED24→GREEN147, adapters, Linux95 exact27 reuse, fullspeech/mountedDMG; physical Bitrix pending",
+      "validation": "Same final raw RED24→GREEN147, adapters, Linux95 exact27 reuse, fullspeech/mountedDMG; physical Bitrix Option accepted by user",
       "commit": "77e96bec6ce1a54f4d8c624b202fa0bfeb670621",
-      "finishedAt": "2026-10-26T07:13:05.380626+00:00"
+      "finishedAt": "2026-10-26T07:13:05.380626+00:00",
+      "acceptedAt": "2026-10-26T09:36:58.857391+00:00",
+      "physicalAcceptance": "passed: Bitrix24 Option"
     }
   ],
   "singlePass": null,
@@ -1040,9 +1042,10 @@ window.STATE =
   },
   "manualAcceptance": {
     "version": "1.4.11",
-    "status": "pending",
+    "status": "passed",
     "scope": "Bitrix24 native app зщкефд+Option → portal",
-    "note": "Prior1.4.10 Codex Option/Space accepted; new app requires separate physical confirmation."
+    "note": "User answered «Да, получилось portal» after actual Bitrix24 зщкефд+Option without selection. This confirms manual conversion in that field; Yandex, auto separators and dictation were not part of this test.",
+    "confirmedAt": "2026-10-26T09:36:58.857391+00:00"
   },
   "release": {
     "version": "1.4.11",
@@ -1052,7 +1055,7 @@ window.STATE =
     "binarySHA256": "5c0b54728f2c043a80e2387838beab291db290276a6ea331097b0c0de14f92d5",
     "helperSHA256": "7e753560e52177d92e33777cebfa2ad3e94e08d8cdd600747d7ddb4c3e7269fe",
     "publication": "verified; metadata-only sync follows; final receipt in outputs",
-    "physicalAcceptance": "pending: Bitrix24 Option",
+    "physicalAcceptance": "passed: Bitrix24 зщкефд+Option → portal confirmed by user",
     "installedPID": 85982,
     "installedBackup": "outputs/MacLayoutSwitcher-1.4.10-before-G28-backup.zip",
     "codeCommit": "77e96bec6ce1a54f4d8c624b202fa0bfeb670621",
@@ -1225,13 +1228,14 @@ window.STATE =
     "knownDefect": "Bitrix24 and Yandex frameworks omitted; static BrowserCrApplication/upstream enhanced evidence",
     "browserConfirmation": "User explicitly answered Приложение Битрикс24",
     "priorCodexAcceptance": "1.4.10 Option and Space confirmed 25.10",
-    "candidate": "1.4.11 installed/published; physical Bitrix24 acceptance pending",
+    "candidate": "1.4.11 installed/published; actual Bitrix24 Option accepted",
     "scope": "Two exact framework names only; Bitrix target plus confirmed relatedYandex omission",
     "validation": "RED24/GREEN147; two independent approvals; fullspeech/DMG; exactLinux95 reuse",
-    "physicalAcceptance": "pending Bitrix24 user test",
+    "physicalAcceptance": "passed: user answered Да, получилось portal",
     "durableEvidence": "audit/browser-family",
     "codeCommit": "77e96bec6ce1a54f4d8c624b202fa0bfeb670621",
-    "publication": "public HTTPS/rawVERSION/PAX/all355 Git blobs verified"
+    "publication": "public HTTPS/rawVERSION/PAX/all355 Git blobs verified",
+    "confirmedAt": "2026-10-26T09:36:58.857391+00:00"
   },
   "previousManualAcceptance": {
     "version": "1.4.10",
