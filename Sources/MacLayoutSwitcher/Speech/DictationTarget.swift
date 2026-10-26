@@ -181,7 +181,8 @@ struct SystemDictationAccessibility: DictationAccessibility {
         let names = (try? FileManager.default.contentsOfDirectory(atPath: frameworks.path)) ?? []
         return names.contains {
             ["Electron Framework.framework", "Codex Framework.framework", "Chromium Framework.framework", "Google Chrome Framework.framework",
-             "Brave Browser Framework.framework", "Microsoft Edge Framework.framework"].contains($0)
+             "Brave Browser Framework.framework", "Microsoft Edge Framework.framework", "Yandex Framework.framework",
+             "Bitrix24 Framework.framework"].contains($0)
         }
     }
     private let postEvent: (CGEvent, pid_t) -> Void

@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-25T12:24:37.905378+00:00",
+  "updatedAt": "2026-10-26T07:09:37.070516+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -48,25 +48,25 @@ window.STATE =
       "id": "build",
       "status": "active",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G27/T32 complete: 1.4.10 installed/published; user confirmed Option and Space in Codex. Other historical in-ticket scopes unchanged."
+      "note": "G28/T33 reviewed;1.4.11 installed, publication in progress; physical Bitrix24 acceptance pending. G27 Codex remains accepted."
     },
     {
       "id": "review",
       "status": "pending",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "G27/T32 complete: 1.4.10 installed/published; user confirmed Option and Space in Codex. Other historical in-ticket scopes unchanged."
+      "note": "G28/T33 reviewed;1.4.11 installed, publication in progress; physical Bitrix24 acceptance pending. G27 Codex remains accepted."
     },
     {
       "id": "final",
       "status": "pending",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "G27/T32 complete: 1.4.10 installed/published; user confirmed Option and Space in Codex. Other historical in-ticket scopes unchanged."
+      "note": "G28/T33 reviewed;1.4.11 installed, publication in progress; physical Bitrix24 acceptance pending. G27 Codex remains accepted."
     }
   ],
   "requirements": {
-    "total": 34,
+    "total": 35,
     "done": 30,
-    "inTicket": 3,
+    "inTicket": 4,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -861,6 +861,21 @@ window.STATE =
       "finishedAt": "2026-10-25T07:07:12.141278+00:00",
       "physicalAcceptance": "passed",
       "acceptedAt": "2026-10-25T12:24:37.905378+00:00"
+    },
+    {
+      "id": "33",
+      "title": "Поддержка Битрикс24 и Яндекса",
+      "requirements": [
+        "G28"
+      ],
+      "status": "done",
+      "blockedBy": [],
+      "wave": 28,
+      "review": {
+        "spec": "approved",
+        "standards": "approved"
+      },
+      "validation": "Same final raw RED24→GREEN147, adapters, Linux95 exact27 reuse, fullspeech/mountedDMG; physical Bitrix pending"
     }
   ],
   "singlePass": null,
@@ -1008,6 +1023,11 @@ window.STATE =
       "spec": "review_no_value_spec",
       "standards": "review_no_value_standards",
       "result": "Both final approved, 0 outstanding findings; manifest bf30a557698b2af3fd0eeec39f60aa92bedb517cb16ed9b91eac64b6f1a231cc"
+    },
+    "G28": {
+      "spec": "review_browser_family_spec",
+      "standards": "review_browser_family_standards",
+      "result": "Both final approved 0 findings; exact manifest e0635fa95231c2118c297077d29ffc29f49e88cd1f6ef2be61b25cfb73c1f7b3"
     }
   },
   "blind": {
@@ -1017,27 +1037,22 @@ window.STATE =
     "drift": []
   },
   "manualAcceptance": {
-    "version": "1.4.10",
-    "status": "passed",
-    "confirmedAt": "2026-10-25T12:24:37.905378+00:00",
-    "note": "User replied «Да, сейчас работает» to ghbdtn+Option and separate ghbdtn+Space verification in Codex. Scope is these physical paths; no new claim for dictation, Enter, or every app."
+    "version": "1.4.11",
+    "status": "pending",
+    "scope": "Bitrix24 native app зщкефд+Option → portal",
+    "note": "Prior1.4.10 Codex Option/Space accepted; new app requires separate physical confirmation."
   },
   "release": {
-    "version": "1.4.10",
-    "artifact": "MacLayoutSwitcher-1.4.10.dmg",
-    "sha256": "1e845439ca616a61038f53d51c2bcfe3b16fe1ec5dc4ac56b185525c570daff1",
-    "bytes": 11000313,
-    "binarySHA256": "030dc241cab5fd34c6e371c90ed68a2687d7eb665237c810f6e09397634ef3fd",
-    "helperSHA256": "e97da801466687fd0aa5f4b18ad39a2a89b52b5dc069935ba1252a6a3599c34e",
-    "publication": "verified; acceptance metadata sync follows, final receipt in outputs",
-    "physicalAcceptance": "passed: user confirms ghbdtn+Option and ghbdtn+Space in Codex",
-    "installedPID": 23883,
-    "installedBackup": "outputs/MacLayoutSwitcher-1.4.9-before-G27-backup.zip",
-    "codeCommit": "72c48b6af12d85e0da244fc55285e00d3fe446f7",
-    "publicCodeArchiveSHA256": "a52a092cecc890744f548ab00ab4cc9caad44d214d958ef91c06956499dd0cbf",
-    "verifiedAt": "2026-10-25T07:06:11.467101+00:00",
-    "frozenProductFilesVerified": 87,
-    "allTrackedFilesVerified": 332
+    "version": "1.4.11",
+    "artifact": "MacLayoutSwitcher-1.4.11.dmg",
+    "sha256": "220b985a585e112ecd4ac2a42ddba321db3978f33c557f626f236926ddbb57f7",
+    "bytes": 11000556,
+    "binarySHA256": "5c0b54728f2c043a80e2387838beab291db290276a6ea331097b0c0de14f92d5",
+    "helperSHA256": "7e753560e52177d92e33777cebfa2ad3e94e08d8cdd600747d7ddb4c3e7269fe",
+    "publication": "in progress",
+    "physicalAcceptance": "pending: Bitrix24 Option",
+    "installedPID": 85982,
+    "installedBackup": "outputs/MacLayoutSwitcher-1.4.10-before-G28-backup.zip"
   },
   "wordCoverageAudit": {
     "independentRU": 459,
@@ -1139,20 +1154,21 @@ window.STATE =
     "publication": "GitHub VERSION1.4.6 / HTTPSarchiveSHA / PAXcommit / all64approved files exact"
   },
   "previousRelease": {
-    "version": "1.4.9",
-    "artifact": "MacLayoutSwitcher-1.4.9.dmg",
-    "sha256": "dad44e98b9e1833821502af02364e037e13403cac21ffd18563fda8fe80de093",
-    "bytes": 10978284,
-    "binarySHA256": "58dfa3bd6042acb4a7e11f011699ec05f8dc46d218f0443942f83df2e1d90636",
-    "publication": "verified code commit; metadata-only sync follows",
-    "physicalAcceptance": "failed: AX noValue; G27/T32 active",
-    "installedPID": 14682,
-    "installedBackup": "outputs/MacLayoutSwitcher-1.4.8-before-G26-backup.zip",
-    "codeCommit": "45d622165d10699b7f058c1ae7d9b289dc20b711",
-    "publicCodeArchiveSHA256": "41633beb886e93941473e5be56ccc248780ec3566762265f8f6c9f159bee5516",
-    "frozenProductFilesVerified": 99,
-    "verifiedAt": "2026-10-25T05:47:22.188162+00:00",
-    "verification": "rawGitHubVERSION/publicHTTPSsha/PAX/all99files exact"
+    "version": "1.4.10",
+    "artifact": "MacLayoutSwitcher-1.4.10.dmg",
+    "sha256": "1e845439ca616a61038f53d51c2bcfe3b16fe1ec5dc4ac56b185525c570daff1",
+    "bytes": 11000313,
+    "binarySHA256": "030dc241cab5fd34c6e371c90ed68a2687d7eb665237c810f6e09397634ef3fd",
+    "helperSHA256": "e97da801466687fd0aa5f4b18ad39a2a89b52b5dc069935ba1252a6a3599c34e",
+    "publication": "verified; acceptance metadata sync follows, final receipt in outputs",
+    "physicalAcceptance": "passed: user confirms ghbdtn+Option and ghbdtn+Space in Codex",
+    "installedPID": 23883,
+    "installedBackup": "outputs/MacLayoutSwitcher-1.4.9-before-G27-backup.zip",
+    "codeCommit": "72c48b6af12d85e0da244fc55285e00d3fe446f7",
+    "publicCodeArchiveSHA256": "a52a092cecc890744f548ab00ab4cc9caad44d214d958ef91c06956499dd0cbf",
+    "verifiedAt": "2026-10-25T07:06:11.467101+00:00",
+    "frozenProductFilesVerified": 87,
+    "allTrackedFilesVerified": 332
   },
   "safariReplacementAudit": {
     "ticket": "27",
@@ -1195,5 +1211,23 @@ window.STATE =
     "codeCommit": "72c48b6af12d85e0da244fc55285e00d3fe446f7",
     "publication": "raw GitHub VERSION + public HTTPS SHA/PAX + 87 frozen/332 tracked file hashes verified",
     "confirmedAt": "2026-10-25T12:24:37.905378+00:00"
+  },
+  "browserFamilyAudit": {
+    "ticket": "33",
+    "actual": "Native Bitrix24.app address field noValue; manual:-25205",
+    "knownDefect": "Bitrix24 and Yandex frameworks omitted; static BrowserCrApplication/upstream enhanced evidence",
+    "browserConfirmation": "User explicitly answered Приложение Битрикс24",
+    "priorCodexAcceptance": "1.4.10 Option and Space confirmed 25.10",
+    "candidate": "1.4.11 installed; publication in progress",
+    "scope": "Two exact framework names only; Bitrix target plus confirmed relatedYandex omission",
+    "validation": "RED24/GREEN147; two independent approvals; fullspeech/DMG; exactLinux95 reuse",
+    "physicalAcceptance": "pending Bitrix24 user test",
+    "durableEvidence": "audit/browser-family"
+  },
+  "previousManualAcceptance": {
+    "version": "1.4.10",
+    "status": "passed",
+    "confirmedAt": "2026-10-25T12:24:37.905378+00:00",
+    "note": "User replied «Да, сейчас работает» to ghbdtn+Option and separate ghbdtn+Space verification in Codex. Scope is these physical paths; no new claim for dictation, Enter, or every app."
   }
 };

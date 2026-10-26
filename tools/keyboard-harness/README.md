@@ -189,3 +189,20 @@ when the alternate Git store is available, or omit GIT_DIR in a normal checkout.
 The same final fixture fails against that 1.4.9 baseline. These are headless
 compatibility/safety proofs; installed Codex Option/auto/dictation acceptance
 remains a separate user test.
+
+G28 uses literal framework directories inside an unrelated `Renamed.app` name.
+The user confirmed native Bitrix24 as the failing app. Its installed metadata
+identifies `BrowserCrApplication`, Chromium branch 7727 (147), and `Bitrix24
+Framework.framework`. Installed Yandex metadata independently identifies Chromium
+150 and `Yandex Framework.framework`. Both matching Chromium branches implement
+the enhanced activation hook. The raw fixture reproduces rejected manual
+accessibility plus missing focus for these exact directories, including a fresh
+Bitrix24 Option conversion of literal `зщкефд` to `portal` without submission.
+The initial request only prepares access, repeated samples
+do not restart activation, and fresh Option/automatic requests must use verified
+Unicode before a no-op advertised AXSelectedText setter. Full text, caret and
+separator delivery are checked alongside all six previously supported families,
+unknown/lookalike frameworks, read-only controls, process changes and cancellation.
+Use `MLS_FOCUS_BASE_REF=d82a6748ec1c8b523c77c119bbaed3c6fd4637a4` for the
+unchanged final fixture's 1.4.10 RED baseline. Actual installed Bitrix24 acceptance
+remains independent of these synthetic tests.

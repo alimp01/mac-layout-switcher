@@ -1,0 +1,149 @@
+System focus snapshot: /tmp/mls-system-focus.hiFlki
+PASS: ordinary raw system focus authorizes exact own AppKit replacement
+PASS: valid system-focused field survives unavailable app-frontmost RPC
+PASS: positive foreign system focus never falls back to stale application focus
+PASS: explicit non-frontmost application stays fail-closed
+PASS: confirmed frontmost application can supply unavailable system focus
+PASS: bounded bootstrap reacquires real raw focus path
+PASS: missing initial Chromium field prepares without licensing a delayed edit
+PASS: Chromium 155 rejected manual bootstrap resolves delayed raw noValue and fresh request converts ghbdtn once
+PASS: Yandex missing initial field refuses text mutation while preparing accessibility
+PASS: repeated Yandex samples share the process gate without restarting activation
+PASS: literal Yandex framework resolves manual unsupported plus noValue and fresh capture selects Unicode before mutation
+PASS: Electron Framework.framework prepares missing focus once without delayed mutation
+PASS: renamed app containing Electron Framework.framework uses verified Unicode on a fresh request
+PASS: Codex Framework.framework prepares missing focus once without delayed mutation
+PASS: renamed app containing Codex Framework.framework uses verified Unicode on a fresh request
+PASS: Chromium Framework.framework prepares missing focus once without delayed mutation
+PASS: renamed app containing Chromium Framework.framework uses verified Unicode on a fresh request
+PASS: Google Chrome Framework.framework prepares missing focus once without delayed mutation
+PASS: renamed app containing Google Chrome Framework.framework uses verified Unicode on a fresh request
+PASS: Brave Browser Framework.framework prepares missing focus once without delayed mutation
+PASS: renamed app containing Brave Browser Framework.framework uses verified Unicode on a fresh request
+PASS: Microsoft Edge Framework.framework prepares missing focus once without delayed mutation
+PASS: renamed app containing Microsoft Edge Framework.framework uses verified Unicode on a fresh request
+PASS: Yandex Framework.framework prepares missing focus once without delayed mutation
+PASS: renamed app containing Yandex Framework.framework uses verified Unicode on a fresh request
+PASS: Bitrix24 Framework.framework prepares missing focus once without delayed mutation
+PASS: renamed app containing Bitrix24 Framework.framework uses verified Unicode on a fresh request
+PASS: unrecognized Yandex Framework.framework.backup retains native direct insertion
+PASS: unrecognized Yandex Framework.framework.backup never receives enhanced UI
+PASS: unrecognized Not Yandex Framework.framework retains native direct insertion
+PASS: unrecognized Not Yandex Framework.framework never receives enhanced UI
+PASS: unrecognized Chromium Browser.framework retains native direct insertion
+PASS: unrecognized Chromium Browser.framework never receives enhanced UI
+PASS: unrecognized Unknown Browser Framework.framework retains native direct insertion
+PASS: unrecognized Unknown Browser Framework.framework never receives enhanced UI
+PASS: unrecognized Bitrix24 Framework.framework.backup retains native direct insertion
+PASS: unrecognized Bitrix24 Framework.framework.backup never receives enhanced UI
+PASS: unavailable focus refuses target
+PASS: literal Bitrix24 missing focus plus rejected manual accessibility only prepares without editing original source
+PASS: fresh Bitrix24 Option converts literal зщкефд to portal through verified Unicode once with exact full value and caret
+PASS: native app rejecting manual accessibility never receives enhanced UI
+PASS: unavailable focus refuses target
+PASS: preparing diagnostic preserves noValue and verifies alternate readback without text
+PASS: unavailable focus refuses target
+PASS: unavailable focus refuses target
+PASS: unavailable focus refuses target
+PASS: separate capture adapters do not restart a live process activation debounce
+PASS: unavailable focus refuses target
+PASS: unavailable focus refuses target
+PASS: temporarily missing launch metadata cannot evict a live activation gate
+PASS: unavailable focus refuses target
+PASS: reused PID with a new launch identity receives its own activation
+PASS: unavailable focus refuses target
+PASS: alternate setter error or false flag cannot veto independently available exact field readback
+PASS: unavailable focus refuses target
+PASS: unknown alternate readback never invents a focused field
+PASS: ambiguous manual timeout does not authorize an alternate mutation
+PASS: Option with no original identity prepares off-main and cannot edit a later same-app field
+PASS: known initial field changing during delayed bootstrap is rejected
+PASS: Codex Framework.framework dictation cancellation interrupts pending enhanced wait off-main without writes
+PASS: Yandex Framework.framework dictation cancellation interrupts pending enhanced wait off-main without writes
+PASS: Bitrix24 Framework.framework dictation cancellation interrupts pending enhanced wait off-main without writes
+PASS: unavailable delayed tree ends after bounded three focus reads and one activation
+PASS: positive foreign focus cannot trigger activation of the stale application
+PASS: Codex Framework.framework process replacement during metadata refuses enhanced UI and cannot license new process field
+PASS: Codex Framework.framework process replacement during manual refuses enhanced UI and cannot license new process field
+PASS: Yandex Framework.framework process replacement during metadata refuses enhanced UI and cannot license new process field
+PASS: Yandex Framework.framework process replacement during manual refuses enhanced UI and cannot license new process field
+PASS: Bitrix24 Framework.framework process replacement during metadata refuses enhanced UI and cannot license new process field
+PASS: Bitrix24 Framework.framework process replacement during manual refuses enhanced UI and cannot license new process field
+PASS: live activation gates are bounded without evicting and restarting older processes
+PASS: unavailable focus refuses target
+PASS: focus timeout retains exact stage and AX errors without source text
+PASS: diagnostic contains no editor text
+PASS: unavailable focus refuses target
+PASS: missing foreground PID has a distinct explanation
+PASS: unavailable focus refuses target
+PASS: raw unsupported/denied/no-value stages remain distinguishable: -25205
+PASS: unavailable focus refuses target
+PASS: raw unsupported/denied/no-value stages remain distinguishable: -25211
+PASS: unavailable focus refuses target
+PASS: raw unsupported/denied/no-value stages remain distinguishable: -25208
+PASS: unavailable focus refuses target
+PASS: raw unsupported/denied/no-value stages remain distinguishable: -25212
+PASS: unavailable focus refuses target
+PASS: malformed positive system focus cannot authorize stale app fallback
+PASS: unavailable focus refuses target
+PASS: unknown owner remains fail-closed and reports lookup error
+PASS: unavailable focus refuses target
+PASS: success without returned values does not invent a target
+PASS: unavailable focus refuses target
+PASS: foreign focus exposes metadata only
+PASS: unavailable focus refuses target
+PASS: explicit inactive application has a distinct diagnostic
+PASS: unavailable focus refuses target
+PASS: trust failure remains separate
+PASS: unavailable focus refuses target
+PASS: secure target remains unavailable
+PASS: unavailable focus refuses target
+PASS: secure input remains unavailable
+PASS: native read-only control cannot authorize a write
+PASS: Yandex Framework.framework read-only control cannot authorize a write
+PASS: Bitrix24 Framework.framework read-only control cannot authorize a write
+PASS: system focus change after capture blocks old target
+PASS: frontend change during selection blocks text mutation
+PASS: cancellation after selection preserves source
+PASS: native production Option word captures raw focus and converts literal ghbdtn once with exact caret
+PASS: native production Option selected captures raw focus and converts literal ghbdtn once with exact caret
+PASS: empty Option capture retains layout-only route
+PASS: Yandex Framework.framework production Option word captures raw focus and converts literal ghbdtn once with exact caret
+PASS: Yandex Framework.framework production Option selected captures raw focus and converts literal ghbdtn once with exact caret
+PASS: empty Option capture retains layout-only route
+PASS: Codex Framework.framework production Option word captures raw focus and converts literal ghbdtn once with exact caret
+PASS: Codex Framework.framework production Option selected captures raw focus and converts literal ghbdtn once with exact caret
+PASS: empty Option capture retains layout-only route
+PASS: Bitrix24 Framework.framework production Option word captures raw focus and converts literal ghbdtn once with exact caret
+PASS: Bitrix24 Framework.framework production Option selected captures raw focus and converts literal ghbdtn once with exact caret
+PASS: empty Option capture retains layout-only route
+PASS: native automatic Space preserves full value, exact caret and once-only separator
+PASS: native automatic Enter preserves full value, exact caret and once-only separator
+PASS: Enter key and flags preserved
+PASS: native automatic ShiftEnter preserves full value, exact caret and once-only separator
+PASS: ShiftEnter key and flags preserved
+PASS: native automatic Tab preserves full value, exact caret and once-only separator
+PASS: Tab key and flags preserved
+PASS: Yandex Framework.framework automatic Space preserves full value, exact caret and once-only separator
+PASS: Yandex Framework.framework automatic Enter preserves full value, exact caret and once-only separator
+PASS: Enter key and flags preserved
+PASS: Yandex Framework.framework automatic ShiftEnter preserves full value, exact caret and once-only separator
+PASS: ShiftEnter key and flags preserved
+PASS: Yandex Framework.framework automatic Tab preserves full value, exact caret and once-only separator
+PASS: Tab key and flags preserved
+PASS: Codex Framework.framework automatic Space preserves full value, exact caret and once-only separator
+PASS: Codex Framework.framework automatic Enter preserves full value, exact caret and once-only separator
+PASS: Enter key and flags preserved
+PASS: Codex Framework.framework automatic ShiftEnter preserves full value, exact caret and once-only separator
+PASS: ShiftEnter key and flags preserved
+PASS: Codex Framework.framework automatic Tab preserves full value, exact caret and once-only separator
+PASS: Tab key and flags preserved
+PASS: Bitrix24 Framework.framework automatic Space preserves full value, exact caret and once-only separator
+PASS: Bitrix24 Framework.framework automatic Enter preserves full value, exact caret and once-only separator
+PASS: Enter key and flags preserved
+PASS: Bitrix24 Framework.framework automatic ShiftEnter preserves full value, exact caret and once-only separator
+PASS: ShiftEnter key and flags preserved
+PASS: Bitrix24 Framework.framework automatic Tab preserves full value, exact caret and once-only separator
+PASS: Tab key and flags preserved
+PASS: dictation exposes the same raw focus diagnostic before observation or insertion
+System focus harness passed; raw AX faults and own AppKit only, not live WindowServer acceptance.

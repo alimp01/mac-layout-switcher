@@ -6,7 +6,19 @@
 исправление, автозапуск, индикатор RU/EN и утка, самообновление, локальная
 диктовка GigaAM v3. Дневника набора нет.
 
-## Текущее состояние — 2026-10-25
+## Текущее состояние — 2026-10-26
+
+G28/T33: 1.4.11 установлена, публикация в работе. Реальный сбой был в native
+Bitrix24.app (пользователь уточнил), не в Яндексе. Добавлены ровно два имени:
+Bitrix24 Framework.framework и Yandex Framework.framework в общий classifier
+подготовки/Unicode. Bitrix principalclass BrowserCrApplication, static selectors
+и Chromium147 branch7727 подтверждены; Яндекс явно Chromium150. Остальные
+пути записи/защиты неизменны. Same raw RED24→GREEN147, adapters, exactLinux95
+reuse27, fullspeech/mountedDMG и оба fresh reviews approved0. Manifest e0635fa9….
+Installed binary5c0b5472…; новый PID85982, старый53896 остановлен. Backup1.4.10
+в outputs zip и /Applications/.MacLayoutSwitcher-G28-k7tdtkiq/previous.app.
+Actual Bitrix acceptance PENDING: задан зщкефд+Option→portal. Не подменять его
+headless PASS; принятый Codex G27 не отзывать. See browser-family-spec/qa.
 
 G27/T32: 1.4.10 установлена и опубликована (code72c48b6). Raw VERSION и
 public archive SHA/PAX/87 frozen + 332 tracked files проверены; final metadata

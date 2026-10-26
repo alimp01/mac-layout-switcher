@@ -45,6 +45,8 @@ final class FocusFixture {
     var enhancedCount = 0
     var bootstrapCount = 0
     var writes = 0
+    var directWrites = 0
+    var directWriteIsNoOp = false
     var trusted = true
     var afterSelection: (() -> Void)?
     var afterMetadataRead: (() -> Void)?
@@ -62,15 +64,20 @@ struct FixtureRunningApplication {
     let launchDate: Date?
 }
 let metadataRoot = FileManager.default.temporaryDirectory.appendingPathComponent("mls-focus-bundles-" + UUID().uuidString)
-try! FileManager.default.createDirectory(at: metadataRoot.appendingPathComponent("Contents/Frameworks/Codex Framework.framework"), withIntermediateDirectories: true)
+func fixtureBundle(framework: String) -> URL {
+    // The .app name is deliberately unrelated to the framework identity.
+    let bundle = metadataRoot.appendingPathComponent(framework).appendingPathComponent("Renamed.app")
+    try! FileManager.default.createDirectory(at: bundle.appendingPathComponent("Contents/Frameworks/" + framework), withIntermediateDirectories: true)
+    return bundle
+}
 defer { try? FileManager.default.removeItem(at: metadataRoot) }
 var otherRunningInstances: [pid_t: Date] = [:]
 func fixtureRunningApplication(processIdentifier: pid_t) -> FixtureRunningApplication? {
     if let launchDate = otherRunningInstances[processIdentifier] {
-        return FixtureRunningApplication(bundleURL: metadataRoot, launchDate: launchDate)
+        return FixtureRunningApplication(bundleURL: fixtureBundle(framework: "Codex Framework.framework"), launchDate: launchDate)
     }
     guard processIdentifier == getpid() else { return nil }
-    let snapshot = FixtureRunningApplication(bundleURL: fixture.framework == nil ? nil : metadataRoot,
+    let snapshot = FixtureRunningApplication(bundleURL: fixture.framework.map(fixtureBundle),
                                             launchDate: fixture.missingLaunchDate ? nil : fixture.launchDate)
     let callback = fixture.afterMetadataRead
     fixture.afterMetadataRead = nil
@@ -170,6 +177,8 @@ func fixtureAXUIElementSetAttributeValue(_ element: AXUIElement, _ name: CFStrin
             fixture.afterSelection?()
         case kAXSelectedTextAttribute:
             fixture.writes += 1
+            fixture.directWrites += 1
+            if fixture.directWriteIsNoOp { return .success }
             fixture.editor.setAccessibilitySelectedText((value as! String))
         default: fatalError("whole-field writes and other mutation are forbidden")
         }
@@ -210,12 +219,70 @@ let treeDeadline = Date().addingTimeInterval(2.6)
 while Date() < treeDeadline { pump() }
 check(capturedReplacement() && fixture.enhancedCount == 1,
       "Chromium 155 rejected manual bootstrap resolves delayed raw noValue and fresh request converts ghbdtn once")
+fixture = FocusFixture(); fixture.framework = "Yandex Framework.framework"
+fixture.lazyTree = true; fixture.manualError = .attributeUnsupported; fixture.directWriteIsNoOp = true
+check(!capturedReplacement() && fixture.writes == 0,
+      "Yandex missing initial field refuses text mutation while preparing accessibility")
+for _ in 0..<3 { _ = InputFocusGuard.Target.capture(expectedPID: getpid()) }
+check(fixture.bootstrapCount == 1 && fixture.enhancedCount == 1 && fixture.writes == 0,
+      "repeated Yandex samples share the process gate without restarting activation")
+let yandexTreeDeadline = Date().addingTimeInterval(2.6)
+while Date() < yandexTreeDeadline { pump() }
+check(capturedReplacement() && fixture.enhancedCount == 1 && fixture.directWrites == 0,
+      "literal Yandex framework resolves manual unsupported plus noValue and fresh capture selects Unicode before mutation")
+for framework in ["Electron Framework.framework", "Codex Framework.framework", "Chromium Framework.framework",
+                  "Google Chrome Framework.framework", "Brave Browser Framework.framework",
+                  "Microsoft Edge Framework.framework", "Yandex Framework.framework", "Bitrix24 Framework.framework"] {
+    fixture = FocusFixture(); fixture.framework = framework; fixture.directWriteIsNoOp = true
+    fixture.lazyTree = true; fixture.manualError = .attributeUnsupported; fixture.enhancedDelay = 0
+    check(!capturedReplacement() && fixture.writes == 0 && fixture.enhancedCount == 1,
+          "\(framework) prepares missing focus once without delayed mutation")
+    check(capturedReplacement() && fixture.directWrites == 0 && fixture.enhancedCount == 1,
+          "renamed app containing \(framework) uses verified Unicode on a fresh request")
+}
+for framework in ["Yandex Framework.framework.backup", "Not Yandex Framework.framework", "Chromium Browser.framework", "Unknown Browser Framework.framework", "Bitrix24 Framework.framework.backup"] {
+    fixture = FocusFixture(); fixture.framework = framework
+    check(capturedReplacement() && fixture.directWrites == 1,
+          "unrecognized \(framework) retains native direct insertion")
+    fixture = FocusFixture(); fixture.framework = framework
+    fixture.lazyTree = true; fixture.manualError = .attributeUnsupported
+    check(!capturedReplacement() && fixture.writes == 0 && fixture.enhancedCount == 0,
+          "unrecognized \(framework) never receives enhanced UI")
+}
 func failureMessage(pid: pid_t? = getpid()) -> String {
     var message = ""
     check(InputFocusGuard.Target.capture(expectedPID: pid, failure: { message = $0.message }) == nil,
           "unavailable focus refuses target")
     return message
 }
+fixture = FocusFixture(); fixture.framework = "Bitrix24 Framework.framework"
+fixture.editor.string = "before зщкефд after"
+fixture.editor.setSelectedRange(NSRange(location: 13, length: 0))
+fixture.lazyTree = true; fixture.manualError = .attributeUnsupported; fixture.directWriteIsNoOp = true
+let bitrixPreparingMessage = failureMessage()
+check(bitrixPreparingMessage.contains("SystemFocus=-25212; AppFocus=-25212")
+      && bitrixPreparingMessage.contains("manual:-25205; enhanced:0; read:true")
+      && fixture.editor.string == "before зщкефд after" && fixture.writes == 0,
+      "literal Bitrix24 missing focus plus rejected manual accessibility only prepares without editing original source")
+let bitrixTreeDeadline = Date().addingTimeInterval(2.6)
+while Date() < bitrixTreeDeadline { pump() }
+let bitrixConverter = SelectionConverter()
+var bitrixCapture: SelectionConverter.Capture?
+var bitrixRequest: InputFocusGuard.Permit?
+bitrixConverter.capture(expectedPID: getpid()) { bitrixCapture = $0; bitrixRequest = $1 }
+let bitrixCaptureDeadline = Date().addingTimeInterval(4)
+while bitrixCapture == nil && Date() < bitrixCaptureDeadline { pump() }
+if case .empty(_, _, let word, _) = bitrixCapture, let word, let bitrixRequest {
+    let typist = Typist(postEvent: { _ in fatalError("Option does not post global keys") })
+    var result: InputFocusGuard.ReplacementResult?
+    bitrixConverter.replace(word, permit: bitrixRequest, typist: typist, replayRoute: .init(target: word.target)) { result = $0; _ = $1 }
+    let deadline = Date().addingTimeInterval(4)
+    while (result == nil || typist.isBusy) && Date() < deadline { pump() }
+    check(result == .confirmed && fixture.editor.string == "before portal after"
+          && fixture.editor.selectedRange() == NSRange(location: 13, length: 0)
+          && fixture.enhancedCount == 1 && fixture.writes == 1 && fixture.directWrites == 0,
+          "fresh Bitrix24 Option converts literal зщкефд to portal through verified Unicode once with exact full value and caret")
+} else { check(false, "fresh Bitrix24 Option captures the ready original word") }
 // Bootstrap compatibility and safety at the same raw OS boundary.
 fixture = FocusFixture(); fixture.lazyTree = true; fixture.manualError = .attributeUnsupported
 check(!capturedReplacement() && fixture.enhancedCount == 0 && fixture.writes == 0,
@@ -279,19 +346,21 @@ let changedDeadline = Date().addingTimeInterval(4)
 while !changedFieldDone && Date() < changedDeadline { pump() }
 check(changedFieldDone && changedFieldCapture == nil && fixture.writes == 0,
       "known initial field changing during delayed bootstrap is rejected")
-fixture = FocusFixture(); fixture.framework = "Codex Framework.framework"; fixture.rangeNeedsTree = true
-fixture.manualError = .attributeUnsupported; fixture.enhancedDelay = 100
-let cancelPermit = DictationInsertionPermit()
-var cancelledCapture: DictationTarget.Capture?
-DispatchQueue.global().async { cancelledCapture = DictationTarget.capture(expectedPID: getpid(), permit: cancelPermit) }
-let cancelEnableDeadline = Date().addingTimeInterval(1)
-while fixture.enhancedCount == 0 && Date() < cancelEnableDeadline { pump() }
-cancelPermit.cancel()
-let cancelDeadline = Date().addingTimeInterval(0.5)
-while cancelledCapture == nil && Date() < cancelDeadline { pump() }
-if case .unavailable(.changed) = cancelledCapture {
-    check(fixture.writes == 0 && !fixture.bootstrapOnMain, "dictation cancellation interrupts pending enhanced wait off-main without writes")
-} else { check(false, "dictation cancellation interrupts pending enhanced wait") }
+for framework in ["Codex Framework.framework", "Yandex Framework.framework", "Bitrix24 Framework.framework"] {
+    fixture = FocusFixture(); fixture.framework = framework; fixture.rangeNeedsTree = true
+    fixture.manualError = .attributeUnsupported; fixture.enhancedDelay = 100
+    let cancelPermit = DictationInsertionPermit()
+    var cancelledCapture: DictationTarget.Capture?
+    DispatchQueue.global().async { cancelledCapture = DictationTarget.capture(expectedPID: getpid(), permit: cancelPermit) }
+    let cancelEnableDeadline = Date().addingTimeInterval(1)
+    while fixture.enhancedCount == 0 && Date() < cancelEnableDeadline { pump() }
+    cancelPermit.cancel()
+    let cancelDeadline = Date().addingTimeInterval(0.5)
+    while cancelledCapture == nil && Date() < cancelDeadline { pump() }
+    if case .unavailable(.changed) = cancelledCapture {
+        check(fixture.writes == 0 && !fixture.bootstrapOnMain, "\(framework) dictation cancellation interrupts pending enhanced wait off-main without writes")
+    } else { check(false, "\(framework) dictation cancellation interrupts pending enhanced wait") }
+}
 fixture = FocusFixture(); fixture.framework = "Codex Framework.framework"; fixture.rangeNeedsTree = true
 fixture.manualError = .attributeUnsupported; fixture.enhancedDelay = 100
 let boundedStart = ProcessInfo.processInfo.systemUptime
@@ -301,18 +370,20 @@ check(!capturedReplacement() && ProcessInfo.processInfo.systemUptime - boundedSt
 fixture = FocusFixture(); fixture.framework = "Codex Framework.framework"; fixture.systemFocus = fixture.foreign
 check(!capturedReplacement() && fixture.enhancedCount == 0 && fixture.bootstrapCount == 0,
       "positive foreign focus cannot trigger activation of the stale application")
-for stage in ["metadata", "manual"] {
-    fixture = FocusFixture(); fixture.framework = "Codex Framework.framework"; fixture.lazyTree = true
-    fixture.manualError = .attributeUnsupported
-    let replaceProcess = {
-        fixture.launchDate = fixture.launchDate.addingTimeInterval(1)
-        fixture.framework = nil
-        fixture.lazyTree = false
+for framework in ["Codex Framework.framework", "Yandex Framework.framework", "Bitrix24 Framework.framework"] {
+    for stage in ["metadata", "manual"] {
+        fixture = FocusFixture(); fixture.framework = framework; fixture.lazyTree = true
+        fixture.manualError = .attributeUnsupported
+        let replaceProcess = {
+            fixture.launchDate = fixture.launchDate.addingTimeInterval(1)
+            fixture.framework = nil
+            fixture.lazyTree = false
+        }
+        if stage == "metadata" { fixture.afterMetadataRead = replaceProcess }
+        else { fixture.afterManual = replaceProcess }
+        check(!capturedReplacement() && fixture.enhancedCount == 0 && fixture.writes == 0,
+              "\(framework) process replacement during \(stage) refuses enhanced UI and cannot license new process field")
     }
-    if stage == "metadata" { fixture.afterMetadataRead = replaceProcess }
-    else { fixture.afterManual = replaceProcess }
-    check(!capturedReplacement() && fixture.enhancedCount == 0 && fixture.writes == 0,
-          "process replacement during \(stage) refuses enhanced UI and cannot license new process field")
 }
 // Retain at most 32 live gates. These fake process identities never reach AX.
 var capacityActivations = 0
@@ -358,8 +429,11 @@ check(failureMessage().contains("защищённое"), "secure target remains 
 fixture = FocusFixture(); fixtureSecureInput = true
 check(failureMessage().contains("защищённое"), "secure input remains unavailable")
 fixtureSecureInput = false
-fixture = FocusFixture(); fixture.editor.isEditable = false
-check(!capturedReplacement() && fixture.writes == 0 && fixture.editor.string == "before ghbdtn after", "read-only control cannot authorize a write")
+for framework: String? in [nil, "Yandex Framework.framework", "Bitrix24 Framework.framework"] {
+    fixture = FocusFixture(); fixture.framework = framework; fixture.editor.isEditable = false
+    check(!capturedReplacement() && fixture.writes == 0 && fixture.editor.string == "before ghbdtn after",
+          "\(framework ?? "native") read-only control cannot authorize a write")
+}
 fixture = FocusFixture()
 let captured = InputFocusGuard.Target.capture(expectedPID: getpid())!
 fixture.systemFocus = fixture.foreign
@@ -376,52 +450,62 @@ fixture.afterSelection = { permit.cancel() }
 check(cancelledTarget.replace(range: CFRange(location: 7, length: 6), expected: "ghbdtn", with: "привет",
     originalSelection: CFRange(location: 13, length: 0), allowed: { permit.isAllowed }) == .untouched
     && fixture.writes == 0 && fixture.editor.string == "before ghbdtn after", "cancellation after selection preserves source")
-for kind in ["word", "selected", "empty"] {
-    fixture = FocusFixture(); fixture.frontmostError = .cannotComplete; fixture.frontmost = nil
-    if kind == "selected" { fixture.editor.setSelectedRange(NSRange(location: 7, length: 6)) }
-    if kind == "empty" { fixture.editor.string = ""; fixture.editor.setSelectedRange(NSRange(location: 0, length: 0)) }
-    let converter = SelectionConverter()
-    var capture: SelectionConverter.Capture?
-    var request: InputFocusGuard.Permit?
-    converter.capture(expectedPID: getpid()) { capture = $0; request = $1 }
-    let deadline = Date().addingTimeInterval(4)
-    while capture == nil && Date() < deadline { pump() }
-    var selection: SelectionConverter.Selection?
-    switch capture {
-    case .selected(let value): selection = value
-    case .empty(_, _, let word, _): selection = word
-    default: break
+for framework: String? in [nil, "Yandex Framework.framework", "Codex Framework.framework", "Bitrix24 Framework.framework"] {
+    for kind in ["word", "selected", "empty"] {
+        fixture = FocusFixture(); fixture.frontmostError = .cannotComplete; fixture.frontmost = nil
+        fixture.framework = framework; fixture.directWriteIsNoOp = framework != nil
+        if kind == "selected" { fixture.editor.setSelectedRange(NSRange(location: 7, length: 6)) }
+        if kind == "empty" { fixture.editor.string = ""; fixture.editor.setSelectedRange(NSRange(location: 0, length: 0)) }
+        let converter = SelectionConverter()
+        var capture: SelectionConverter.Capture?
+        var request: InputFocusGuard.Permit?
+        converter.capture(expectedPID: getpid()) { capture = $0; request = $1 }
+        let deadline = Date().addingTimeInterval(4)
+        while capture == nil && Date() < deadline { pump() }
+        var selection: SelectionConverter.Selection?
+        switch capture {
+        case .selected(let value): selection = value
+        case .empty(_, _, let word, _): selection = word
+        default: break
+        }
+        if kind == "empty" {
+            if case .empty = capture { check(selection == nil && fixture.writes == 0, "empty Option capture retains layout-only route") }
+            else { check(false, "empty Option capture retains layout-only route") }
+        } else if let selection, let request {
+            let typist = Typist(postEvent: { _ in fatalError("Option does not post global keys") })
+            var result: InputFocusGuard.ReplacementResult?
+            converter.replace(selection, permit: request, typist: typist, replayRoute: .init(target: selection.target)) { result = $0; _ = $1 }
+            let writeDeadline = Date().addingTimeInterval(4)
+            while (result == nil || typist.isBusy) && Date() < writeDeadline { pump() }
+            check(result == .confirmed && fixture.editor.string == "before привет after" && fixture.writes == 1
+                  && fixture.editor.selectedRange() == NSRange(location: 13, length: 0)
+                  && fixture.directWrites == (framework == nil ? 1 : 0),
+                  "\(framework ?? "native") production Option \(kind) captures raw focus and converts literal ghbdtn once with exact caret")
+        } else { check(false, "\(framework ?? "native") production Option \(kind) raw focus capture") }
     }
-    if kind == "empty" {
-        if case .empty = capture { check(selection == nil && fixture.writes == 0, "empty Option capture retains layout-only route") }
-        else { check(false, "empty Option capture retains layout-only route") }
-    } else if let selection, let request {
-        let typist = Typist(postEvent: { _ in fatalError("Option does not post global keys") })
-        var result: InputFocusGuard.ReplacementResult?
-        converter.replace(selection, permit: request, typist: typist, replayRoute: .init(target: selection.target)) { result = $0; _ = $1 }
-        let writeDeadline = Date().addingTimeInterval(4)
-        while (result == nil || typist.isBusy) && Date() < writeDeadline { pump() }
-        check(result == .confirmed && fixture.editor.string == "before привет after" && fixture.writes == 1,
-              "production Option \(kind) captures through raw system focus and converts literal ghbdtn once")
-    } else { check(false, "production Option \(kind) raw focus capture") }
 }
-for (label, key, flags) in [("Space", CGKeyCode(49), CGEventFlags()), ("Enter", 36, CGEventFlags()),
-                            ("ShiftEnter", 36, CGEventFlags.maskShift), ("Tab", 48, CGEventFlags())] {
-    fixture = FocusFixture(); fixture.frontmostError = .cannotComplete; fixture.frontmost = nil
-    guard let target = InputFocusGuard.Target.capture(expectedPID: getpid()) else {
-        check(false, "automatic \(label) target through raw focus"); continue
+for framework: String? in [nil, "Yandex Framework.framework", "Codex Framework.framework", "Bitrix24 Framework.framework"] {
+    for (label, key, flags) in [("Space", CGKeyCode(49), CGEventFlags()), ("Enter", 36, CGEventFlags()),
+                                ("ShiftEnter", 36, CGEventFlags.maskShift), ("Tab", 48, CGEventFlags())] {
+        fixture = FocusFixture(); fixture.frontmostError = .cannotComplete; fixture.frontmost = nil
+        fixture.framework = framework; fixture.directWriteIsNoOp = framework != nil
+        guard let target = InputFocusGuard.Target.capture(expectedPID: getpid()) else {
+            check(false, "automatic \(label) target through raw focus"); continue
+        }
+        let ticket = InputFocusGuard.Ticket(target: target, permit: .init(), replacementPermit: .init(), replayRoute: .init(target: target))
+        var posted: [CGEvent] = []
+        let typist = Typist(postEvent: { posted.append(CGEvent(withDataAllocator: nil, data: $0.data!)!) })
+        var result: InputFocusGuard.ReplacementResult?
+        typist.replaceLastWord(expected: "ghbdtn", with: "привет", ticket: ticket,
+            separator: Typist.makeKeyPress(keyCode: key, flags: flags), separatorCharacter: key == 49 ? " " : (key == 48 ? "\t" : "\n"), navigates: key != 49) { result = $0 }
+        let deadline = Date().addingTimeInterval(4)
+        while (result == nil || typist.isBusy) && Date() < deadline { pump() }
+        check(result == .confirmed && fixture.editor.string == (key == 49 ? "before привет  after" : "before привет after")
+            && fixture.writes == 1 && fixture.directWrites == (framework == nil ? 1 : 0)
+            && fixture.editor.selectedRange() == NSRange(location: key == 49 ? 14 : 13, length: 0)
+            && posted.count == (key == 49 ? 0 : 2), "\(framework ?? "native") automatic \(label) preserves full value, exact caret and once-only separator")
+        if key != 49 { check(posted.allSatisfy { $0.getIntegerValueField(.keyboardEventKeycode) == key && $0.flags == flags }, "\(label) key and flags preserved") }
     }
-    let ticket = InputFocusGuard.Ticket(target: target, permit: .init(), replacementPermit: .init(), replayRoute: .init(target: target))
-    var posted: [CGEvent] = []
-    let typist = Typist(postEvent: { posted.append(CGEvent(withDataAllocator: nil, data: $0.data!)!) })
-    var result: InputFocusGuard.ReplacementResult?
-    typist.replaceLastWord(expected: "ghbdtn", with: "привет", ticket: ticket,
-        separator: Typist.makeKeyPress(keyCode: key, flags: flags), separatorCharacter: key == 49 ? " " : (key == 48 ? "\t" : "\n"), navigates: key != 49) { result = $0 }
-    let deadline = Date().addingTimeInterval(4)
-    while (result == nil || typist.isBusy) && Date() < deadline { pump() }
-    check(result == .confirmed && fixture.editor.string == (key == 49 ? "before привет  after" : "before привет after")
-        && fixture.writes == 1 && posted.count == (key == 49 ? 0 : 2), "automatic \(label) uses newly resolved target and preserves once-only separator")
-    if key != 49 { check(posted.allSatisfy { $0.getIntegerValueField(.keyboardEventKeycode) == key && $0.flags == flags }, "\(label) key and flags preserved") }
 }
 fixture = FocusFixture(); fixture.frontmostError = .cannotComplete; fixture.frontmost = nil
 fixture.systemError = .cannotComplete; fixture.systemFocus = nil

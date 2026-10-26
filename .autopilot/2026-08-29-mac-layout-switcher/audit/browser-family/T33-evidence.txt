@@ -1,0 +1,69 @@
+T33 executor evidence — 2026-10-26
+
+Actual target and scope:
+The user confirmed native Bitrix24.app. Its 1.4.10 screenshot shows unchanged
+source, AXFrontmost=ok, SystemFocus/AppFocus=-25212 and Bootstrap=manual:-25205.
+The shared framework classifier omitted Bitrix24 and independently omitted
+Yandex. Yandex-only initial RED/GREEN work is retained with yandex-only names
+and a superseded manifest; it is not acceptance of the actual Bitrix issue.
+Accepted Codex Option/Space from 25.10 remains accepted.
+
+Positive identity evidence (static files only):
+- Bitrix24.app: com.bitrixsoft.bitrix24desktop, app23.0.32; framework
+  Bitrix24 Framework.framework / com.bitrixsoft.bitrix24desktop.framework,
+  version23.0.32.91. NSPrincipalClass=BrowserCrApplication. SCMRevision includes
+  refs/branch-heads/7727; root independently found binary Chromium147.0.7727.144
+  and BrowserCrApplication, AXEnhancedUserInterface,
+  enableScreenReaderCompleteModeAfterDelay: static strings.
+- Yandex.app: ru.yandex.desktop.yandex-browser, app26.8.3.1016; framework
+  Yandex Framework.framework / ru.yandex.desktop.yandex-browser.framework,
+  explicit CFBundleChromiumShortVersionString=150.0.7871.250.
+- Matching Chromium branch7727 and branch7871 BrowserCrApplication source handles
+  AXEnhancedUserInterface with a two-second debounce and forwards to AppKit after
+  requesting activation. Neither source includes AXManualAccessibility.
+  These sources support the existing preparation strategy; they do not prove
+  every runtime detail of a vendor fork or actual installed UI acceptance.
+
+Primary source URLs and retrieved SHA256:
+https://chromium.googlesource.com/chromium/src/+/refs/branch-heads/7727/chrome/browser/chrome_browser_application_mac.mm?format=TEXT
+a3bbf7d2878019bbb555779859d8699bb3728e8dd57de8227b42d593100d059d
+https://chromium.googlesource.com/chromium/src/+/refs/branch-heads/7871/chrome/browser/chrome_browser_application_mac.mm?format=TEXT
+83fe534883220804de925904534b10115c5f78332e20ee1cf17a29d7779371d0
+
+Implementation:
+Only two exact framework names are added to the existing shared isChromium
+list. Preparation and verified Unicode routing already call that same predicate.
+No heuristics, family abstraction, tree walker, new retries, full-value writes,
+clipboard or dictionary changes. All PID+launch gates, fresh request rules,
+source/range/caret checks and cancellation paths are unchanged.
+
+Fixture quality:
+The existing fixture previously used the same Codex directory for every nonnil
+framework label. It now creates the literal declared framework directory under
+Renamed.app. Only raw operating-system calls, process metadata and final process
+post are substituted; actual resolver, capture, replacement, selection conversion,
+Typist and CGEvent construction remain production code. Owned unshown NSTextView
+is the only editor. A no-op direct setter proves Unicode is selected before text
+mutation rather than retried after a failed direct write.
+
+Validation:
+The identical final raw fixture runs baseline d82a6748ec1c8b523c77c119bbaed3c6fd4637a4
+in /tmp/mls-system-focus.pXkG60 (24 failing assertions, exit1) and the candidate
+in /tmp/mls-system-focus.hiFlki. Each snapshot includes original/compiled sources,
+seam patch, SHA manifest and complete output. Bitrix literal missing focus refuses
+the initial operation; a fresh Option after preparation changes only the owned
+literal before зщкефд after to before portal after with exact caret and one write.
+All eight supported framework identities, renamed app, unknown/lookalike/native,
+read-only, process replacement, cancellation, Option word/selection/empty and
+Space/Enter/ShiftEnter/Tab full value/caret/separator behavior are exercised.
+No actual external app AX, UI input, permission changes or microphone accesses.
+Physical installed Bitrix24 acceptance remains a separate user result.
+
+Root owns two fresh reviews, unchanged-core Linux95 reuse, full-speech build,
+signed DMG, commit/install/publish and actual acceptance. No such actions are
+performed by the executor. Final status/hashes follow after candidate completion.
+
+Final candidate: 147 raw assertions PASS, exit0; baseline 123 PASS / 24 FAIL.
+Final raw harness bytes are identical in the RED and GREEN snapshots (cmp PASS).
+Native keyboard adapter and dictation adapter both exit0 on the final two-name
+product. VERSION1.4.11 applied only after these passes under root authorization.
