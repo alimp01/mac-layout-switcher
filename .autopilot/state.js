@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-26T16:42:26.566268+00:00",
+  "updatedAt": "2026-10-26T16:44:41.762729+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -48,19 +48,19 @@ window.STATE =
       "id": "build",
       "status": "active",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G29/T34 1.4.12 installed and all code/build/review gates passed; publication and actual Spotlight acceptance pending; G27/G28 accepted."
+      "note": "G29/T34 1.4.12 installed/published; all code/build/review gates passed, actual Spotlight acceptance pending; G27/G28 accepted."
     },
     {
       "id": "review",
       "status": "pending",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "G29/T34 1.4.12 installed and all code/build/review gates passed; publication and actual Spotlight acceptance pending; G27/G28 accepted."
+      "note": "G29/T34 1.4.12 installed/published; all code/build/review gates passed, actual Spotlight acceptance pending; G27/G28 accepted."
     },
     {
       "id": "final",
       "status": "pending",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "G29/T34 1.4.12 installed and all code/build/review gates passed; publication and actual Spotlight acceptance pending; G27/G28 accepted."
+      "note": "G29/T34 1.4.12 installed/published; all code/build/review gates passed, actual Spotlight acceptance pending; G27/G28 accepted."
     }
   ],
   "requirements": {
@@ -901,7 +901,9 @@ window.STATE =
       "implementation": "complete",
       "reviews": "Spec/Standards final approved0",
       "validation": "raw199/adapters20+2/Option7+7/rootEngine27/exactLinux95/fullspeech/DMG PASS",
-      "physicalAcceptance": "pending"
+      "physicalAcceptance": "pending",
+      "commit": "dba351ccdd82cd737661531e744dc0bd2c5b33e7",
+      "publication": "verified"
     }
   ],
   "singlePass": null,
@@ -1077,11 +1079,15 @@ window.STATE =
     "artifact": "MacLayoutSwitcher-1.4.12.dmg",
     "mountedVerified": true,
     "deepStrictVerified": true,
-    "publication": "pending",
+    "publication": "raw VERSION/public HTTPS archive/PAX/all384 files verified; metadata-only sync follows; final receipt in outputs",
     "physicalAcceptance": "pending: Spotlight ghbdtn+Option asked",
     "installedPID": 46563,
     "installedBackup": "/Users/ilyaalimpiev/Documents/Codex/2026-09-16/mac-layout-switcher-punto-caramba-switcher/outputs/MacLayoutSwitcher-1.4.11-before-G29-backup.zip",
-    "frozenManifestSHA256": "6170dbc8f72a6754a851a8fa0954be8d1c392ab8ee2f6acffd0250081df0a164"
+    "frozenManifestSHA256": "6170dbc8f72a6754a851a8fa0954be8d1c392ab8ee2f6acffd0250081df0a164",
+    "codeCommit": "dba351ccdd82cd737661531e744dc0bd2c5b33e7",
+    "publicCodeArchiveSHA256": "b1f2e4ea6fb08cc901608bec34d1ee2a887bb642357a496225ab4a58b1206fc7",
+    "allTrackedFilesVerified": 384,
+    "verifiedAt": "2026-10-26T16:43:25.254023+00:00"
   },
   "wordCoverageAudit": {
     "independentRU": 459,
@@ -1266,7 +1272,7 @@ window.STATE =
     "ticket": "34",
     "diagnostic": "AXFrontmost=ok; SystemFocus=foreign-owner; AppFocus=not-read",
     "userConfirmation": "Да, Spotlight",
-    "status": "installed/reviewed; publication and physical acceptance pending",
+    "status": "installed/published; physical acceptance pending",
     "baseline": "6241c86d769382413cbb6e63f59816ada55e2ee5",
     "physicalAcceptance": "pending",
     "v1Manifest": "e189e575698aeef6ef91f24d980e5a5921f6c9528088f3e663a3103f598af16b",
@@ -1277,7 +1283,9 @@ window.STATE =
     "candidate": "1.4.12",
     "finalManifestSHA256": "6170dbc8f72a6754a851a8fa0954be8d1c392ab8ee2f6acffd0250081df0a164",
     "evidence": "audit/spotlight-focus",
-    "installedPID": 46563
+    "installedPID": 46563,
+    "codeCommit": "dba351ccdd82cd737661531e744dc0bd2c5b33e7",
+    "publication": "rawVERSION/publicHTTPS/PAX/all384files verified"
   },
   "bitrixManualAcceptance": {
     "version": "1.4.11",

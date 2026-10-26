@@ -8,7 +8,8 @@
 
 ## Текущее состояние — 2026-10-26
 
-G29/T34:1.4.12 installed, publication pending; actual Spotlight acceptance pending.
+G29/T34:1.4.12 installed/published (codedba351c), rawVERSION/publicHTTPS
+archiveSHA/PAX/all384files verified; actual Spotlight acceptance pending.
 User confirmed Spotlight, foreign-owner. Narrow initial system-overlay capture
 binds exactApple path/ID/executable + actualPID + libproc start; Cocoa launchDate
 is nil on this Mac. Strict existing-field/system-only validation, no app-focus

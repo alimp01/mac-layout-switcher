@@ -1,7 +1,9 @@
 # G29 / T34 — Spotlight focus QA
 
 ## Result and actual scope
-Candidate1.4.12 installed; publication pending. Actual Spotlight hardware
+1.4.12 installed/published (code dba351ccdd82cd737661531e744dc0bd2c5b33e7).
+Raw VERSION/public HTTPS SHA/PAX/all384 Git blobs verified. Metadata-only
+follow-up archive receipt is stored in outputs. Actual Spotlight hardware
 acceptance pending: user asked ghbdtn + Option in Spotlight after permissions.
 Prior accepted Codex1.4.10 Option/Space and Bitrix1.4.11 Option remain valid.
 
