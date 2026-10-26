@@ -8,7 +8,8 @@
 
 ## Текущее состояние — 2026-10-26
 
-G28/T33: 1.4.11 установлена, публикация в работе. Реальный сбой был в native
+G28/T33: 1.4.11 установлена и опубликована (code77e96be), raw VERSION и
+public HTTPS SHA/PAX/all355 files проверены; final receipt в outputs. Сбой был в native
 Bitrix24.app (пользователь уточнил), не в Яндексе. Добавлены ровно два имени:
 Bitrix24 Framework.framework и Yandex Framework.framework в общий classifier
 подготовки/Unicode. Bitrix principalclass BrowserCrApplication, static selectors

@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-26T07:09:37.070516+00:00",
+  "updatedAt": "2026-10-26T07:13:05.380626+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -48,19 +48,19 @@ window.STATE =
       "id": "build",
       "status": "active",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G28/T33 reviewed;1.4.11 installed, publication in progress; physical Bitrix24 acceptance pending. G27 Codex remains accepted."
+      "note": "G28/T33 code/reviews/tests/release1.4.11 complete; actual Bitrix24 acceptance pending. G27 Codex remains accepted."
     },
     {
       "id": "review",
       "status": "pending",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "G28/T33 reviewed;1.4.11 installed, publication in progress; physical Bitrix24 acceptance pending. G27 Codex remains accepted."
+      "note": "G28/T33 code/reviews/tests/release1.4.11 complete; actual Bitrix24 acceptance pending. G27 Codex remains accepted."
     },
     {
       "id": "final",
       "status": "pending",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "G28/T33 reviewed;1.4.11 installed, publication in progress; physical Bitrix24 acceptance pending. G27 Codex remains accepted."
+      "note": "G28/T33 code/reviews/tests/release1.4.11 complete; actual Bitrix24 acceptance pending. G27 Codex remains accepted."
     }
   ],
   "requirements": {
@@ -875,7 +875,9 @@ window.STATE =
         "spec": "approved",
         "standards": "approved"
       },
-      "validation": "Same final raw RED24→GREEN147, adapters, Linux95 exact27 reuse, fullspeech/mountedDMG; physical Bitrix pending"
+      "validation": "Same final raw RED24→GREEN147, adapters, Linux95 exact27 reuse, fullspeech/mountedDMG; physical Bitrix pending",
+      "commit": "77e96bec6ce1a54f4d8c624b202fa0bfeb670621",
+      "finishedAt": "2026-10-26T07:13:05.380626+00:00"
     }
   ],
   "singlePass": null,
@@ -1049,10 +1051,15 @@ window.STATE =
     "bytes": 11000556,
     "binarySHA256": "5c0b54728f2c043a80e2387838beab291db290276a6ea331097b0c0de14f92d5",
     "helperSHA256": "7e753560e52177d92e33777cebfa2ad3e94e08d8cdd600747d7ddb4c3e7269fe",
-    "publication": "in progress",
+    "publication": "verified; metadata-only sync follows; final receipt in outputs",
     "physicalAcceptance": "pending: Bitrix24 Option",
     "installedPID": 85982,
-    "installedBackup": "outputs/MacLayoutSwitcher-1.4.10-before-G28-backup.zip"
+    "installedBackup": "outputs/MacLayoutSwitcher-1.4.10-before-G28-backup.zip",
+    "codeCommit": "77e96bec6ce1a54f4d8c624b202fa0bfeb670621",
+    "publicCodeArchiveSHA256": "a88a2696e563ffbfb88fa1af383da8509f508479ae241705aeeb6be07f56ce40",
+    "verifiedAt": "2026-10-26T07:11:29.249046+00:00",
+    "frozenProductFilesVerified": 87,
+    "allTrackedFilesVerified": 355
   },
   "wordCoverageAudit": {
     "independentRU": 459,
@@ -1218,11 +1225,13 @@ window.STATE =
     "knownDefect": "Bitrix24 and Yandex frameworks omitted; static BrowserCrApplication/upstream enhanced evidence",
     "browserConfirmation": "User explicitly answered Приложение Битрикс24",
     "priorCodexAcceptance": "1.4.10 Option and Space confirmed 25.10",
-    "candidate": "1.4.11 installed; publication in progress",
+    "candidate": "1.4.11 installed/published; physical Bitrix24 acceptance pending",
     "scope": "Two exact framework names only; Bitrix target plus confirmed relatedYandex omission",
     "validation": "RED24/GREEN147; two independent approvals; fullspeech/DMG; exactLinux95 reuse",
     "physicalAcceptance": "pending Bitrix24 user test",
-    "durableEvidence": "audit/browser-family"
+    "durableEvidence": "audit/browser-family",
+    "codeCommit": "77e96bec6ce1a54f4d8c624b202fa0bfeb670621",
+    "publication": "public HTTPS/rawVERSION/PAX/all355 Git blobs verified"
   },
   "previousManualAcceptance": {
     "version": "1.4.10",

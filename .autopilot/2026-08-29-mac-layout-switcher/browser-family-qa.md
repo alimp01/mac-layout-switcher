@@ -50,4 +50,7 @@ and /Applications/.MacLayoutSwitcher-G28-k7tdtkiq/previous.app. User asked to re
 зщкефд+Option in the actual Bitrix24 field after preparation. Physical acceptance
 PENDING; Codex1.4.10 accepted Option/Space history remains intact.
 No private UI/AX, TCC, microphone, clipboard or form submission during tests.
-Root publication receipt follows after commit/push/archive verification.
+Code 77e96bec6ce1a54f4d8c624b202fa0bfeb670621 pushed and archived. Public HTTPS archive SHA
+a88a2696e563ffbfb88fa1af383da8509f508479ae241705aeeb6be07f56ce40 and PAX commit match; raw
+GitHub VERSION1.4.11 and all355 tracked Git blobs verified from release server.
+Final metadata receipt is in outputs; physical Bitrix24 result remains pending.
