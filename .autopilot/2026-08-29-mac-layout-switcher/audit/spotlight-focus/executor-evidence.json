@@ -1,0 +1,58 @@
+{
+  "initial-red": {
+    "path": "/tmp/mls-g29-initial-red.log",
+    "sha256": "96fb00f90aa07bc00f7421e94e24d6ca74979b2a41e32af3c0ef4a01c3361c2c",
+    "PASS": 147,
+    "FAIL": 1,
+    "first_line": "System focus snapshot: /tmp/mls-system-focus.UeGh5W"
+  },
+  "capture-lock-red": {
+    "path": "/tmp/mls-g29-capture-lock-red.log",
+    "sha256": "fb215b82f350b72a0daaaef1e3139ef50f2a31eafe52beb166595f1f9d110ab2",
+    "PASS": 148,
+    "FAIL": 2,
+    "first_line": "System focus snapshot: /tmp/mls-system-focus.pYAMYJ"
+  },
+  "final-v3-baseline-red": {
+    "path": "/tmp/mls-g29-final-v3-baseline-red.log",
+    "sha256": "5f95abc255855662a7c775bbbdfb0118360a57d74a8bf4f649f371b477996b3f",
+    "PASS": 166,
+    "FAIL": 32,
+    "first_line": "System focus snapshot: /tmp/mls-system-focus.ZigBsR"
+  },
+  "final-v3-green": {
+    "path": "/tmp/mls-g29-final-v3-green.log",
+    "sha256": "307795b2df04d5f55e750847b21cc9674e086cb5d904fd9cd05949f8b3f20dbb",
+    "PASS": 199,
+    "FAIL": 0,
+    "first_line": "System focus snapshot: /tmp/mls-system-focus.vtikNb"
+  },
+  "final-v3-keyboard-adapter": {
+    "path": "/tmp/mls-g29-final-v3-keyboard-adapter.log",
+    "sha256": "0fba213e9632f8fd02e7c0026205442617e0fb7c1d80e59cbef0a7bca19c9d21",
+    "PASS": 20,
+    "FAIL": 0,
+    "first_line": "PASS: no-op setter is uncertain, no retry"
+  },
+  "final-v3-dictation-adapter": {
+    "path": "/tmp/mls-g29-final-v3-dictation-adapter.log",
+    "sha256": "a0da4c3a67b4cf00857ec60f980b676f11a4a948fb13ff38504ce43eccaaf399",
+    "PASS": 2,
+    "FAIL": 0,
+    "first_line": "PASS: installed Codex framework routing (metadata only; no external AX access or typing)"
+  },
+  "final-stable-option": {
+    "path": "/tmp/mls-g29-final-stable-option.log",
+    "sha256": "818f84835899a589ecc65f9d0fc6d916429a7f331681875085ef09183d17be5d",
+    "PASS": 7,
+    "FAIL": 0,
+    "first_line": "Engine regression scratch: /tmp/mls-keyboard-engine.npLDNv"
+  },
+  "final-stable-ru-option": {
+    "path": "/tmp/mls-g29-final-stable-ru-option.log",
+    "sha256": "30f134610a15ed593c517716e300cd32300fe83eadab629281c87ddc022d52de",
+    "PASS": 7,
+    "FAIL": 0,
+    "first_line": "Frozen TIS fixture: source=com.apple.keylayout.RussianWin; uchrBytes=13936; uchrSHA256=94dfa9de2f2e3ea41b62b098258dca13595e40a3c6e73019da55da9a933063cb"
+  }
+}

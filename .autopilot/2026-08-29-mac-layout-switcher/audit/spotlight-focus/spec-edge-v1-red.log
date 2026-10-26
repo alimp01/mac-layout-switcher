@@ -1,0 +1,6 @@
+FAIL: initial same-PID Spotlight rejects changed process incarnation
+FAIL: initial same-PID Spotlight rejects changed process incarnation
+FAIL: initial frontmost Spotlight rejects stale app-only focus
+FAIL: dictation initial frontmost Spotlight rejects changed process
+EDGE: initial Spotlight frontmost=Optional(1) stamped=false
+EDGE: initial Spotlight frontmost=nil stamped=false

@@ -1,0 +1,11 @@
+EDGE: initial Spotlight frontmost=Optional(1) stamped=true
+PASS: initial same-PID Spotlight rejects changed process incarnation
+EDGE: initial Spotlight frontmost=nil stamped=true
+PASS: initial same-PID Spotlight rejects changed process incarnation
+PASS: initial frontmost Spotlight rejects stale app-only focus
+PASS: dictation initial frontmost Spotlight rejects changed process
+EDGE: unavailable Spotlight process object frontmost=Optional(1) target=false stamped=false
+PASS: initial same-PID Spotlight with unavailable process object refuses capture
+EDGE: unavailable Spotlight process object frontmost=nil target=false stamped=false
+PASS: initial same-PID Spotlight with unavailable process object refuses capture
+PASS: initial same-PID Spotlight with unavailable process object refuses stale app-only focus

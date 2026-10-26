@@ -116,6 +116,12 @@ final class FixtureAX: DictationAccessibility {
 let app=NSApplication.shared
 app.setActivationPolicy(.prohibited)
 func drain(_ duration: Double = 0.35) { RunLoop.current.run(until:Date().addingTimeInterval(duration)) }
+func awaitFixture(_ message: String, condition: () -> Bool) {
+ let deadline=Date().addingTimeInterval(3)
+ while !condition() && Date() < deadline { drain(0.005) }
+ require(condition(), message)
+}
+
 func fixture(unicode:Bool, configure: (inout AppConfig) -> Void = { _ in }) -> Engine {
  harnessFrontPID=harnessPID
  currentFixture=FixtureAX(unicode:unicode)
@@ -125,7 +131,8 @@ func fixture(unicode:Bool, configure: (inout AppConfig) -> Void = { _ in }) -> E
  let engine=Engine(config:config); require(engine.start(),"inert registration starts")
  currentFixture.syntheticFilter = { [weak engine] in engine?.probeEvent($0) ?? .pass }
  let event=CGEvent(keyboardEventSource:CGEventSource(stateID:.privateState),virtualKey:58,keyDown:false)!
- event.type = .flagsChanged; event.flags=[]; _=engine.probeEvent(event); drain()
+ event.type = .flagsChanged; event.flags=[]; _=engine.probeEvent(event)
+ awaitFixture("initial AX target is sampled before ready-field scenarios") { engine.probeFocusReady }
  return engine
 }
 func physical(_ engine:Engine, code:UInt16, autorepeat:Bool=false, flags:CGEventFlags=[], deliver:Bool=true) -> TapDecision {
@@ -143,10 +150,10 @@ func physical(_ engine:Engine, code:UInt16, autorepeat:Bool=false, flags:CGEvent
  if upDecision == .pass && deliver { currentFixture.receive(up) }
  return decision
 }
-// Read the real current input source; do not switch it. Only the private
-// fixture text below is typed, and its wrong-layout source is checked before
-// the separator. This also runs when the system is locked (SecureInput is the
-// explicitly injected false boundary, never modified in the OS).
+// Translate through the captured real input-source data without changing the
+// OS layout. Verify private source text before every separator, even while the
+// user independently changes their active input source during this long run.
+print("Frozen TIS fixture: " + harnessKeyboardSnapshotDescription())
 let g=KeyTranslator.characters(keyCode:5,flags:[])
 require(g=="g" || g=="п","harness requires an enabled RU/EN keyboard source")
 let startsEnglish=g=="g"
@@ -291,14 +298,14 @@ for (mode,expected) in [("secure","Включён защищённый ввод"
 }
 let lazy=fixture(unicode:true)
 currentFixture.editor.string="ghbdtn"; currentFixture.editor.setSelectedRange(NSRange(location:6,length:0)); currentFixture.needsBootstrap=true
-option(lazy); drain(0.5)
-require(currentFixture.editor.string=="привет","Option bounded bootstrap captures lazily exposed field")
+option(lazy)
+awaitFixture("Option bounded bootstrap captures lazily exposed field") { currentFixture.editor.string=="привет" }
 lazy.stop(); drain()
 let wrapped=fixture(unicode:true)
 currentFixture.editor.string="ghbdtn"; currentFixture.editor.setSelectedRange(NSRange(location:6,length:0))
 currentFixture.needsBootstrap=true; currentFixture.bootstrapWrapper=true
-option(wrapped); drain(0.5)
-require(currentFixture.editor.string=="привет","Option bootstrap may replace non-editable AX wrapper with actual text field")
+option(wrapped)
+awaitFixture("Option bootstrap may replace non-editable AX wrapper with actual text field") { currentFixture.editor.string=="привет" }
 wrapped.stop(); drain()
 print("PASS: Option distinct secure/field/range/text reasons and bounded bootstrap")
 let bootstrapChanged=fixture(unicode:false)

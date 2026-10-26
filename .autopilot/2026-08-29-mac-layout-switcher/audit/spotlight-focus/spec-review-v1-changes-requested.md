@@ -1,0 +1,11 @@
+# G29/T34 independent SPEC review
+
+Status: **CHANGES REQUESTED — one P1 finding**. Reviewed the frozen source against baseline commit `6241c86d769382413cbb6e63f59816ada55e2ee5`; no product edits or commits.
+
+- **P1 — Preserve Spotlight identity for every initial capture.** `Sources/MacLayoutSwitcher/Speech/DictationTarget.swift:276` computes `spotlightProcessStart` only when the requested PID reports `AXFrontmost=false`. If the initial requested PID already equals Spotlight and reports true or no value, line289 publishes an unstamped target. Changing its kernel start time does not invalidate keyboard or dictation capture; true plus missing system focus also allows stale application-focus fallback at line305. Spec: “Положительная identity: exact bundle ID + canonical system bundle/executable identity и живой process instance” and “допустимость только при точном system focus того же владельца.” Identify/stamp canonical Spotlight independently of AXFrontmost, preserve system-only validation, and add initial same-PID true/missing cases. Four literal failures: `/tmp/mls-g29-spec-edge/run.log`; reproduction: `/tmp/mls-g29-spec-edge/main.swift`.
+
+Otherwise the foreign-owner path is narrow, actual PID reaches Unicode/observation, old targets cannot retarget, missing Spotlight ranges avoid background bootstrap, and secure/read-only/cancellation protections remain. No unrelated product scope found. Engine/Typist unchanged. The raw seam substitutes OS replies/final posts while retaining production capture and owned AppKit text/caret operations; global replay event inspection is not WindowServer proof.
+
+Independent `bash tools/test-system-focus.sh` PASS: `/tmp/mls-g29-spec-system-focus.log`; exact copied source/seams: `/tmp/mls-system-focus.AGbCOU/SOURCE-SHA256SUMS`, `/tmp/mls-system-focus.AGbCOU/seams.patch`. Additional edge cases use those same compiled production sources.
+
+Manifest SHA256: `e189e575698aeef6ef91f24d980e5a5921f6c9528088f3e663a3103f598af16b`; **87/87 hashes verified before and after**. Live private UI/AX/microphone/TCC untouched. Physical Spotlight acceptance remains pending. Root separately investigates a full Engine regression failure; this review does not clear that gate.

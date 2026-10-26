@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-26T09:36:58.857391+00:00",
+  "updatedAt": "2026-10-26T16:42:26.566268+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -48,25 +48,25 @@ window.STATE =
       "id": "build",
       "status": "active",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G28/T33 complete: 1.4.11 published and physical Bitrix24 Option accepted by user. G27 Codex remains accepted; other historical scopes unchanged."
+      "note": "G29/T34 1.4.12 installed and all code/build/review gates passed; publication and actual Spotlight acceptance pending; G27/G28 accepted."
     },
     {
       "id": "review",
       "status": "pending",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "G28/T33 complete: 1.4.11 published and physical Bitrix24 Option accepted by user. G27 Codex remains accepted; other historical scopes unchanged."
+      "note": "G29/T34 1.4.12 installed and all code/build/review gates passed; publication and actual Spotlight acceptance pending; G27/G28 accepted."
     },
     {
       "id": "final",
       "status": "pending",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "G28/T33 complete: 1.4.11 published and physical Bitrix24 Option accepted by user. G27 Codex remains accepted; other historical scopes unchanged."
+      "note": "G29/T34 1.4.12 installed and all code/build/review gates passed; publication and actual Spotlight acceptance pending; G27/G28 accepted."
     }
   ],
   "requirements": {
-    "total": 35,
+    "total": 36,
     "done": 31,
-    "inTicket": 3,
+    "inTicket": 4,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -880,6 +880,28 @@ window.STATE =
       "finishedAt": "2026-10-26T07:13:05.380626+00:00",
       "acceptedAt": "2026-10-26T09:36:58.857391+00:00",
       "physicalAcceptance": "passed: Bitrix24 Option"
+    },
+    {
+      "id": "34",
+      "title": "Конвертация в системном Spotlight",
+      "requirements": [
+        "G29"
+      ],
+      "blockedBy": [],
+      "status": "review",
+      "startedAt": "2026-10-26T15:46:18.533238+00:00",
+      "zone": [
+        "shared AX focus capture",
+        "keyboard/dictation targets",
+        "native harnesses"
+      ],
+      "retries": 0,
+      "repairs": 2,
+      "handoffs": 0,
+      "implementation": "complete",
+      "reviews": "Spec/Standards final approved0",
+      "validation": "raw199/adapters20+2/Option7+7/rootEngine27/exactLinux95/fullspeech/DMG PASS",
+      "physicalAcceptance": "pending"
     }
   ],
   "singlePass": null,
@@ -1041,28 +1063,25 @@ window.STATE =
     "drift": []
   },
   "manualAcceptance": {
-    "version": "1.4.11",
-    "status": "passed",
-    "scope": "Bitrix24 native app зщкефд+Option → portal",
-    "note": "User answered «Да, получилось portal» after actual Bitrix24 зщкефд+Option without selection. This confirms manual conversion in that field; Yandex, auto separators and dictation were not part of this test.",
-    "confirmedAt": "2026-10-26T09:36:58.857391+00:00"
+    "version": "1.4.12",
+    "status": "pending",
+    "scope": "Spotlight ghbdtn+Option without selection",
+    "askedAt": "2026-10-26T16:42:26.566268+00:00"
   },
   "release": {
-    "version": "1.4.11",
-    "artifact": "MacLayoutSwitcher-1.4.11.dmg",
-    "sha256": "220b985a585e112ecd4ac2a42ddba321db3978f33c557f626f236926ddbb57f7",
-    "bytes": 11000556,
-    "binarySHA256": "5c0b54728f2c043a80e2387838beab291db290276a6ea331097b0c0de14f92d5",
-    "helperSHA256": "7e753560e52177d92e33777cebfa2ad3e94e08d8cdd600747d7ddb4c3e7269fe",
-    "publication": "verified; metadata-only sync follows; final receipt in outputs",
-    "physicalAcceptance": "passed: Bitrix24 зщкефд+Option → portal confirmed by user",
-    "installedPID": 85982,
-    "installedBackup": "outputs/MacLayoutSwitcher-1.4.10-before-G28-backup.zip",
-    "codeCommit": "77e96bec6ce1a54f4d8c624b202fa0bfeb670621",
-    "publicCodeArchiveSHA256": "a88a2696e563ffbfb88fa1af383da8509f508479ae241705aeeb6be07f56ce40",
-    "verifiedAt": "2026-10-26T07:11:29.249046+00:00",
-    "frozenProductFilesVerified": 87,
-    "allTrackedFilesVerified": 355
+    "version": "1.4.12",
+    "binarySHA256": "032e5f19503a9bb611eb1c1f6be7d1813539bb94d1a054d673c7d00e280324bc",
+    "helperSHA256": "e955d4e78e10a42388f77a3c988f05b1f3dbc8cbb02164283fc9d10a62bc7f39",
+    "sha256": "73b8d583ce650c5ce47eb5e870bcd6e4816dc44e7369c25ce8783972ff1a7284",
+    "bytes": 10997407,
+    "artifact": "MacLayoutSwitcher-1.4.12.dmg",
+    "mountedVerified": true,
+    "deepStrictVerified": true,
+    "publication": "pending",
+    "physicalAcceptance": "pending: Spotlight ghbdtn+Option asked",
+    "installedPID": 46563,
+    "installedBackup": "/Users/ilyaalimpiev/Documents/Codex/2026-09-16/mac-layout-switcher-punto-caramba-switcher/outputs/MacLayoutSwitcher-1.4.11-before-G29-backup.zip",
+    "frozenManifestSHA256": "6170dbc8f72a6754a851a8fa0954be8d1c392ab8ee2f6acffd0250081df0a164"
   },
   "wordCoverageAudit": {
     "independentRU": 459,
@@ -1164,21 +1183,21 @@ window.STATE =
     "publication": "GitHub VERSION1.4.6 / HTTPSarchiveSHA / PAXcommit / all64approved files exact"
   },
   "previousRelease": {
-    "version": "1.4.10",
-    "artifact": "MacLayoutSwitcher-1.4.10.dmg",
-    "sha256": "1e845439ca616a61038f53d51c2bcfe3b16fe1ec5dc4ac56b185525c570daff1",
-    "bytes": 11000313,
-    "binarySHA256": "030dc241cab5fd34c6e371c90ed68a2687d7eb665237c810f6e09397634ef3fd",
-    "helperSHA256": "e97da801466687fd0aa5f4b18ad39a2a89b52b5dc069935ba1252a6a3599c34e",
-    "publication": "verified; acceptance metadata sync follows, final receipt in outputs",
-    "physicalAcceptance": "passed: user confirms ghbdtn+Option and ghbdtn+Space in Codex",
-    "installedPID": 23883,
-    "installedBackup": "outputs/MacLayoutSwitcher-1.4.9-before-G27-backup.zip",
-    "codeCommit": "72c48b6af12d85e0da244fc55285e00d3fe446f7",
-    "publicCodeArchiveSHA256": "a52a092cecc890744f548ab00ab4cc9caad44d214d958ef91c06956499dd0cbf",
-    "verifiedAt": "2026-10-25T07:06:11.467101+00:00",
+    "version": "1.4.11",
+    "artifact": "MacLayoutSwitcher-1.4.11.dmg",
+    "sha256": "220b985a585e112ecd4ac2a42ddba321db3978f33c557f626f236926ddbb57f7",
+    "bytes": 11000556,
+    "binarySHA256": "5c0b54728f2c043a80e2387838beab291db290276a6ea331097b0c0de14f92d5",
+    "helperSHA256": "7e753560e52177d92e33777cebfa2ad3e94e08d8cdd600747d7ddb4c3e7269fe",
+    "publication": "verified; metadata-only sync follows; final receipt in outputs",
+    "physicalAcceptance": "passed: Bitrix24 зщкефд+Option → portal confirmed by user",
+    "installedPID": 85982,
+    "installedBackup": "outputs/MacLayoutSwitcher-1.4.10-before-G28-backup.zip",
+    "codeCommit": "77e96bec6ce1a54f4d8c624b202fa0bfeb670621",
+    "publicCodeArchiveSHA256": "a88a2696e563ffbfb88fa1af383da8509f508479ae241705aeeb6be07f56ce40",
+    "verifiedAt": "2026-10-26T07:11:29.249046+00:00",
     "frozenProductFilesVerified": 87,
-    "allTrackedFilesVerified": 332
+    "allTrackedFilesVerified": 355
   },
   "safariReplacementAudit": {
     "ticket": "27",
@@ -1242,5 +1261,29 @@ window.STATE =
     "status": "passed",
     "confirmedAt": "2026-10-25T12:24:37.905378+00:00",
     "note": "User replied «Да, сейчас работает» to ghbdtn+Option and separate ghbdtn+Space verification in Codex. Scope is these physical paths; no new claim for dictation, Enter, or every app."
+  },
+  "spotlightFocusAudit": {
+    "ticket": "34",
+    "diagnostic": "AXFrontmost=ok; SystemFocus=foreign-owner; AppFocus=not-read",
+    "userConfirmation": "Да, Spotlight",
+    "status": "installed/reviewed; publication and physical acceptance pending",
+    "baseline": "6241c86d769382413cbb6e63f59816ada55e2ee5",
+    "physicalAcceptance": "pending",
+    "v1Manifest": "e189e575698aeef6ef91f24d980e5a5921f6c9528088f3e663a3103f598af16b",
+    "review": "both final approved0 after2P1repairs",
+    "nativeMetadata": "Cocoa launchDate nil; kernel136byte start verified",
+    "integration": "root fullEngine27groups PASS with bounded readiness and immutable realTISfixture",
+    "scratch": "/tmp/mls-g29-release.xzt21cmz",
+    "candidate": "1.4.12",
+    "finalManifestSHA256": "6170dbc8f72a6754a851a8fa0954be8d1c392ab8ee2f6acffd0250081df0a164",
+    "evidence": "audit/spotlight-focus",
+    "installedPID": 46563
+  },
+  "bitrixManualAcceptance": {
+    "version": "1.4.11",
+    "status": "passed",
+    "scope": "Bitrix24 native app зщкефд+Option → portal",
+    "note": "User answered «Да, получилось portal» after actual Bitrix24 зщкефд+Option without selection. This confirms manual conversion in that field; Yandex, auto separators and dictation were not part of this test.",
+    "confirmedAt": "2026-10-26T09:36:58.857391+00:00"
   }
 };

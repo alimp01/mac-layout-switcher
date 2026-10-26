@@ -48,6 +48,7 @@ final class InputFocusGuard {
         let element: AXUIElement
         let pid: pid_t
         var accessibility: any DictationAccessibility = SystemDictationAccessibility()
+        var processStart: SpotlightProcessStart? = nil
 
         /// Runs on a worker. Reuse the speech adapter's bounded AX bootstrap and
         /// process routing; querying the current element itself never bootstraps.
@@ -81,9 +82,14 @@ final class InputFocusGuard {
                 guard accessibility.isTrusted else { return failed(.accessibilityDenied) }
                 guard !accessibility.isSecure else { return failed(.protectedField) }
                 var stop = false
-                guard let element = accessibility.focusedElement(pid: pid, failure: {
+                let reportFailure: (DictationFocusFailure) -> Void = {
                     reason = .systemFocus($0.including(bootstrap)); stop = $0.preventsBootstrap
-                }) else { if stop { return failed(reason) }; continue }
+                }
+                let focus = attempt == 0
+                    ? accessibility.captureFocus(pid: pid, failure: reportFailure)
+                    : accessibility.focusedElement(pid: pid, failure: reportFailure).map { DictationFocus(element: $0, pid: pid) }
+                guard let focus else { if stop { return failed(reason) }; continue }
+                let element = focus.element
                 guard accessibility.attribute(kAXSubroleAttribute, of: element) as? String != kAXSecureTextFieldSubrole
                     else { return failed(.protectedField) }
                 if let firstElement, !CFEqual(firstElement, element) { return failed(.changed) }
@@ -92,16 +98,17 @@ final class InputFocusGuard {
                 // identity even when its range is temporarily unavailable.
                 let role = accessibility.attribute(kAXRoleAttribute, of: element) as? String
                 if role == kAXTextFieldRole || role == kAXTextAreaRole { firstElement = element }
-                let target = Target(element: element, pid: pid, accessibility: accessibility)
-                if target.selection() != nil { return allowed() ? target : failed(.changed) }
+                let target = Target(element: element, pid: focus.pid, accessibility: accessibility, processStart: focus.processStart)
+                if target.selection() != nil { return allowed() && (focus.processStart == nil || target.isCurrent()) ? target : failed(.changed) }
+                if focus.processStart != nil { return failed(.unavailableSelection) }
                 reason = .unavailableSelection
             }
             return failed(reason)
         }
 
-        func matches(_ other: Target) -> Bool { pid == other.pid && CFEqual(element, other.element) }
+        func matches(_ other: Target) -> Bool { pid == other.pid && processStart == other.processStart && CFEqual(element, other.element) }
         func isCurrent() -> Bool {
-            guard !accessibility.isSecure, let current = accessibility.focusedElement(pid: pid) else { return false }
+            guard !accessibility.isSecure, let current = accessibility.focusedElement(pid: pid, processStart: processStart) else { return false }
             return CFEqual(element, current)
                 && accessibility.attribute(kAXSubroleAttribute, of: element) as? String != kAXSecureTextFieldSubrole
         }

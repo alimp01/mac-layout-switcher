@@ -15,6 +15,26 @@ func main<T>(_ body: () -> T) -> T { Thread.isMainThread ? body() : DispatchQueu
 func pump() { RunLoop.current.run(until: Date().addingTimeInterval(0.005)) }
 final class FocusFixture {
     var processID = getpid()
+    var ownerPID = getpid()
+    let spotlightPID = getpid() + 20
+    var spotlightBundleID = "com.apple.Spotlight"
+    var spotlightBundleURL = URL(fileURLWithPath: "/System/Library/CoreServices/Spotlight.app")
+    var spotlightExecutableURL = URL(fileURLWithPath: "/System/Library/CoreServices/Spotlight.app/Contents/MacOS/Spotlight")
+    var spotlightStartSeconds: UInt64 = 1_792_904_729
+    var spotlightStartMicroseconds: UInt64 = 518_098
+    var spotlightProcResult: Int32? = nil
+    var spotlightProcPID: UInt32? = nil
+    var spotlightTerminated = false
+    var spotlightMissing = false
+    var spotlightFrontmost: CFTypeRef? = kCFBooleanFalse
+    var spotlightAppFocus: CFTypeRef? = nil
+    var postedPIDs: [pid_t] = []
+    var observerPIDs: [pid_t] = []
+    var spotlightBootstrapCount = 0
+    var directSettable = true
+    let background = AXUIElementCreateApplication(1_000_004)
+    var backgroundReads = 0
+    var afterRangeRead: (() -> Void)?
     var app: AXUIElement { AXUIElementCreateApplication(processID) }
     let system = AXUIElementCreateSystemWide()
     // These are opaque identity tokens only. No real RPC uses their fake PIDs.
@@ -62,6 +82,9 @@ var fixtureSecureInput = false
 struct FixtureRunningApplication {
     let bundleURL: URL?
     let launchDate: Date?
+    var bundleIdentifier: String? = nil
+    var executableURL: URL? = nil
+    var isTerminated = false
 }
 let metadataRoot = FileManager.default.temporaryDirectory.appendingPathComponent("mls-focus-bundles-" + UUID().uuidString)
 func fixtureBundle(framework: String) -> URL {
@@ -76,6 +99,17 @@ func fixtureRunningApplication(processIdentifier: pid_t) -> FixtureRunningApplic
     if let launchDate = otherRunningInstances[processIdentifier] {
         return FixtureRunningApplication(bundleURL: fixtureBundle(framework: "Codex Framework.framework"), launchDate: launchDate)
     }
+    if processIdentifier == fixture.spotlightPID {
+        guard !fixture.spotlightMissing else { return nil }
+        let snapshot = FixtureRunningApplication(bundleURL: fixture.spotlightBundleURL,
+            launchDate: fixture.missingLaunchDate ? nil : fixture.launchDate,
+            bundleIdentifier: fixture.spotlightBundleID, executableURL: fixture.spotlightExecutableURL,
+            isTerminated: fixture.spotlightTerminated)
+        let callback = fixture.afterMetadataRead
+        fixture.afterMetadataRead = nil
+        callback?()
+        return snapshot
+    }
     guard processIdentifier == getpid() else { return nil }
     let snapshot = FixtureRunningApplication(bundleURL: fixture.framework.map(fixtureBundle),
                                             launchDate: fixture.missingLaunchDate ? nil : fixture.launchDate)
@@ -84,8 +118,26 @@ func fixtureRunningApplication(processIdentifier: pid_t) -> FixtureRunningApplic
     callback?()
     return snapshot
 }
+func fixtureproc_pidinfo(_ pid: Int32, _ flavor: Int32, _ arg: UInt64,
+                         _ buffer: UnsafeMutableRawPointer?, _ size: Int32) -> Int32 {
+    precondition(pid == fixture.spotlightPID && flavor == PROC_PIDTBSDINFO && arg == 0)
+    let info = buffer!.assumingMemoryBound(to: proc_bsdinfo.self)
+    info.pointee.pbi_pid = fixture.spotlightProcPID ?? UInt32(pid)
+    info.pointee.pbi_start_tvsec = fixture.spotlightStartSeconds
+    info.pointee.pbi_start_tvusec = fixture.spotlightStartMicroseconds
+    return fixture.spotlightProcResult ?? size
+}
+func fixtureAXObserverCreate(_ pid: pid_t, _ callback: AXObserverCallback,
+                             _ observer: UnsafeMutablePointer<AXObserver?>) -> AXError {
+    fixture.observerPIDs.append(pid)
+    // Own process only; notifications are never registered against any real UI.
+    return AXObserverCreate(getpid(), callback, observer)
+}
+func fixtureAXObserverAddNotification(_ observer: AXObserver, _ element: AXUIElement,
+                                     _ notification: CFString, _ context: UnsafeMutableRawPointer?) -> AXError { .success }
 func fixturePostEvent(_ event: CGEvent, _ pid: pid_t) {
-    precondition(pid == getpid(), "Unicode delivery stays in fixture")
+    precondition(pid == fixture.ownerPID, "Unicode delivery stays in captured fixture owner")
+    fixture.postedPIDs.append(pid)
     guard let data = event.data, let received = CGEvent(withDataAllocator: nil, data: data),
           let native = NSEvent(cgEvent: received) else { fatalError("serialized event") }
     main {
@@ -104,7 +156,8 @@ func fixtureAXUIElementSetMessagingTimeout(_ element: AXUIElement, _ seconds: Fl
     return .success
 }
 func fixtureAXUIElementGetPid(_ element: AXUIElement, _ pid: UnsafeMutablePointer<pid_t>) -> AXError {
-    if CFEqual(element, fixture.field) || CFEqual(element, fixture.other) { pid.pointee = getpid(); return fixture.ownerError }
+    if CFEqual(element, fixture.field) || CFEqual(element, fixture.other) { pid.pointee = fixture.ownerPID; return fixture.ownerError }
+    if CFEqual(element, fixture.background) { pid.pointee = getpid(); return .success }
     if CFEqual(element, fixture.foreign) { pid.pointee = getpid() + 1; return .success }
     if CFEqual(element, fixture.app) { pid.pointee = getpid(); return .success }
     return .invalidUIElement
@@ -112,6 +165,11 @@ func fixtureAXUIElementGetPid(_ element: AXUIElement, _ pid: UnsafeMutablePointe
 func fixtureAXUIElementCopyAttributeValue(_ element: AXUIElement, _ name: CFString,
                                          _ value: UnsafeMutablePointer<CFTypeRef?>) -> AXError {
     value.pointee = nil
+    if CFEqual(element, AXUIElementCreateApplication(fixture.spotlightPID)) {
+        if name as String == kAXFrontmostAttribute { value.pointee = fixture.spotlightFrontmost; return .success }
+        if name as String == kAXFocusedUIElementAttribute { value.pointee = fixture.spotlightAppFocus; return value.pointee == nil ? .noValue : .success }
+        return .attributeUnsupported
+    }
     if CFEqual(element, fixture.app) {
         switch name as String {
         case kAXFrontmostAttribute: value.pointee = fixture.frontmost; return fixture.frontmostError
@@ -128,18 +186,22 @@ func fixtureAXUIElementCopyAttributeValue(_ element: AXUIElement, _ name: CFStri
         if treePending() { return .noValue }
         value.pointee = fixture.systemFocus; return fixture.systemError
     }
+    if CFEqual(element, fixture.background) { fixture.backgroundReads += 1; return .noValue }
     precondition(CFEqual(element, fixture.field) || CFEqual(element, fixture.other), "no attribute read of foreign element")
     return main {
         switch name as String {
         case kAXValueAttribute: value.pointee = fixture.editor.accessibilityValue() as? CFTypeRef
         case kAXSelectedTextRangeAttribute:
+            let callback = fixture.afterRangeRead
+            fixture.afterRangeRead = nil
+            callback?()
             if fixture.rangeNeedsTree && (fixture.enhancedReadyAt == nil || ProcessInfo.processInfo.systemUptime < fixture.enhancedReadyAt!) { return .noValue }
             let selected = fixture.editor.selectedRange()
             var range = CFRange(location: selected.location, length: selected.length)
             value.pointee = AXValueCreate(.cfRange, &range)
         case kAXRoleAttribute: value.pointee = fixture.editor.accessibilityRole()?.rawValue as CFString?
         case kAXSubroleAttribute: value.pointee = fixture.secureField ? kAXSecureTextFieldSubrole as CFString : fixture.editor.accessibilitySubrole()?.rawValue as CFString?
-        case kAXEnabledAttribute: value.pointee = (fixture.framework == nil ? fixture.editor.isAccessibilityEnabled() : fixture.editor.isEditable) ? kCFBooleanTrue : kCFBooleanFalse
+        case kAXEnabledAttribute: value.pointee = (fixture.framework == nil && fixture.ownerPID != fixture.spotlightPID ? fixture.editor.isAccessibilityEnabled() : fixture.editor.isEditable) ? kCFBooleanTrue : kCFBooleanFalse
         default: return .attributeUnsupported
         }
         return value.pointee == nil ? .noValue : .success
@@ -148,10 +210,15 @@ func fixtureAXUIElementCopyAttributeValue(_ element: AXUIElement, _ name: CFStri
 func fixtureAXUIElementIsAttributeSettable(_ element: AXUIElement, _ name: CFString,
                                          _ settable: UnsafeMutablePointer<DarwinBoolean>) -> AXError {
     precondition(CFEqual(element, fixture.field))
-    settable.pointee = DarwinBoolean(main { fixture.editor.isEditable } && (name as String == kAXSelectedTextAttribute || name as String == kAXSelectedTextRangeAttribute || name as String == kAXValueAttribute))
+    settable.pointee = DarwinBoolean(main { fixture.editor.isEditable } && (fixture.directSettable || name as String != kAXSelectedTextAttribute) && (name as String == kAXSelectedTextAttribute || name as String == kAXSelectedTextRangeAttribute || name as String == kAXValueAttribute))
     return .success
 }
 func fixtureAXUIElementSetAttributeValue(_ element: AXUIElement, _ name: CFString, _ value: CFTypeRef) -> AXError {
+    if CFEqual(element, AXUIElementCreateApplication(fixture.spotlightPID)) {
+        precondition(name as String == "AXManualAccessibility", "only bounded accessibility activation")
+        fixture.spotlightBootstrapCount += 1
+        return .attributeUnsupported
+    }
     if CFEqual(element, fixture.app) {
         switch name as String {
         case "AXManualAccessibility":
@@ -194,6 +261,56 @@ func capturedReplacement() -> Bool {
     return result == .confirmed && fixture.editor.string == "before привет after"
         && fixture.editor.selectedRange() == NSRange(location: 13, length: 0) && fixture.writes == 1
 }
+// Literal Spotlight overlay: menu application is frontmost, but the system
+// field belongs to the canonical, live Apple Spotlight process.
+func spotlightFixture() -> FocusFixture {
+    let value = FocusFixture()
+    value.ownerPID = value.spotlightPID
+    value.appFocus = value.background
+    value.missingLaunchDate = true
+    value.editor.string = "ghbdtn"
+    value.editor.setSelectedRange(NSRange(location: 6, length: 0))
+    return value
+}
+fixture = spotlightFixture()
+let spotlightConverter = SelectionConverter()
+var spotlightCapture: SelectionConverter.Capture?
+var spotlightRequest: InputFocusGuard.Permit?
+spotlightConverter.capture(expectedPID: getpid()) { spotlightCapture = $0; spotlightRequest = $1 }
+let spotlightCaptureDeadline = Date().addingTimeInterval(4)
+while spotlightCapture == nil && Date() < spotlightCaptureDeadline { pump() }
+if case .empty(let target, _, let word, _) = spotlightCapture, let word, let spotlightRequest {
+    let typist = Typist(postEvent: { _ in fatalError("Option does not submit") })
+    var result: InputFocusGuard.ReplacementResult?
+    spotlightConverter.replace(word, permit: spotlightRequest, typist: typist,
+        replayRoute: .init(target: target)) { result = $0; _ = $1 }
+    let deadline = Date().addingTimeInterval(4)
+    while (result == nil || typist.isBusy) && Date() < deadline { pump() }
+    check(result == .confirmed && target.pid == fixture.spotlightPID
+          && fixture.editor.string == "привет" && fixture.editor.selectedRange() == NSRange(location: 6, length: 0)
+          && fixture.writes == 1 && fixture.bootstrapCount == 0,
+          "Spotlight Option captures actual owner PID and converts ghbdtn to привет once with exact caret")
+} else {
+    if case .unavailable(let reason) = spotlightCapture { print("Spotlight capture: \(reason.message)") }
+    check(false, "Spotlight Option captures actual owner PID and converts ghbdtn to привет once with exact caret")
+}
+fixture = spotlightFixture(); fixture.rangeNeedsTree = true
+check(InputFocusGuard.Target.capture(expectedPID: getpid()) == nil && fixture.writes == 0
+      && fixture.bootstrapCount == 0 && fixture.spotlightBootstrapCount == 0,
+      "Spotlight without initial selection requires fresh capture without preparing background or stale overlay")
+fixture = spotlightFixture(); fixture.rangeNeedsTree = true
+if case .unavailable(.unavailableSelection) = DictationTarget.capture(expectedPID: getpid(), permit: .init()) {
+    check(fixture.writes == 0 && fixture.bootstrapCount == 0 && fixture.spotlightBootstrapCount == 0,
+          "dictation missing initial Spotlight range refuses delayed capture without preparation")
+} else { check(false, "dictation missing initial Spotlight range refuses delayed capture without preparation") }
+fixture = spotlightFixture()
+fixture.afterRangeRead = { fixture.spotlightStartMicroseconds += 1 }
+check(InputFocusGuard.Target.capture(expectedPID: getpid()) == nil && fixture.writes == 0 && fixture.backgroundReads == 0,
+      "Spotlight process incarnation changing during initial range read refuses target publication")
+fixture = FocusFixture(); fixture.systemFocus = nil; fixture.appFocus = nil
+fixture.afterManual = { fixture.ownerPID = fixture.spotlightPID; fixture.systemFocus = fixture.field }
+check(InputFocusGuard.Target.capture(expectedPID: getpid()) == nil && fixture.writes == 0,
+      "initially missing native field cannot redirect delayed capture into newly opened Spotlight")
 fixture = FocusFixture()
 check(capturedReplacement(), "ordinary raw system focus authorizes exact own AppKit replacement")
 fixture = FocusFixture(); fixture.frontmostError = .cannotComplete; fixture.frontmost = nil
@@ -514,5 +631,177 @@ case .unavailable(let failure):
     check(failure.message.contains("AXFrontmost=-25204") && failure.message.contains("SystemFocus=-25204"), "dictation exposes the same raw focus diagnostic before observation or insertion")
 case .target: check(false, "failed raw dictation focus may not invent a target")
 }
+// Spotlight uses the same raw boundary as native/Chromium. Only the metadata
+// and AX responses differ; every text/caret result comes from owned AppKit.
+for (label, change) in [
+    ("wrong bundle ID", { fixture.spotlightBundleID = "com.example.Spotlight" }),
+    ("lookalike bundle path", { fixture.spotlightBundleURL = URL(fileURLWithPath: "/Applications/Spotlight.app") }),
+    ("lookalike executable path", { fixture.spotlightExecutableURL = URL(fileURLWithPath: "/tmp/Spotlight") }),
+    ("terminated process", { fixture.spotlightTerminated = true }),
+    ("missing process", { fixture.spotlightMissing = true }),
+    ("missing kernel start", { fixture.spotlightStartSeconds = 0 }),
+    ("kernel lookup failure", { fixture.spotlightProcResult = 0 }),
+    ("truncated kernel metadata", { fixture.spotlightProcResult = 135 }),
+    ("wrong kernel PID", { fixture.spotlightProcPID = UInt32(getpid()) }),
+    ("invalid kernel microseconds", { fixture.spotlightStartMicroseconds = 1_000_000 }),
+    ("malformed system focus", { fixture.systemFocus = "not an element" as CFString }),
+    ("unknown system owner", { fixture.ownerError = .invalidUIElement }),
+    ("secure field", { fixture.secureField = true })
+] as [(String, () -> Void)] {
+    fixture = spotlightFixture(); change()
+    check(InputFocusGuard.Target.capture(expectedPID: getpid()) == nil && fixture.writes == 0
+          && fixture.bootstrapCount == 0 && fixture.spotlightBootstrapCount == 0 && fixture.backgroundReads == 0,
+          "Spotlight \(label) refuses initial capture without stale background field or preparation")
+}
+fixture = spotlightFixture()
+check(SystemDictationAccessibility().focusedElement(pid: getpid()) == nil,
+      "strict resolver still rejects valid Spotlight as foreign to the old menu application PID")
+fixture = spotlightFixture(); fixture.systemFocus = nil; fixture.appFocus = fixture.field
+check(SystemDictationAccessibility().focusedElement(pid: fixture.spotlightPID) == nil,
+      "inactive Spotlight never uses stale application focus when system focus is missing")
+for (label, change) in [
+    ("closed overlay", { fixture.systemFocus = fixture.background }),
+    ("stale active Spotlight app-focus", { fixture.spotlightFrontmost = kCFBooleanTrue; fixture.systemFocus = nil; fixture.spotlightAppFocus = fixture.field }),
+    ("same-owner new element", { fixture.systemFocus = fixture.other }),
+    ("different owner", { fixture.systemFocus = fixture.foreign }),
+    ("new kernel start seconds", { fixture.spotlightStartSeconds += 1 }),
+    ("new kernel start microseconds", { fixture.spotlightStartMicroseconds += 1 }),
+    ("lost process metadata", { fixture.spotlightProcResult = 0 }),
+    ("process terminated", { fixture.spotlightTerminated = true }),
+    ("identity changed", { fixture.spotlightBundleID = "com.example.Other" })
+] as [(String, () -> Void)] {
+    fixture = spotlightFixture()
+    if let target = InputFocusGuard.Target.capture(expectedPID: getpid()) {
+        change()
+        let result = target.replace(range: CFRange(location: 0, length: 6), expected: "ghbdtn", with: "привет",
+            originalSelection: CFRange(location: 6, length: 0), allowed: { true })
+        check(result == .untouched && fixture.writes == 0 && fixture.editor.string == "ghbdtn"
+              && fixture.backgroundReads == 0 && !target.isCurrent(),
+              "captured Spotlight \(label) cannot redirect old replacement")
+    } else { check(false, "capture before Spotlight \(label)") }
+}
+fixture = spotlightFixture()
+if let target = InputFocusGuard.Target.capture(expectedPID: getpid()) {
+    fixture.spotlightFrontmost = kCFBooleanTrue
+    check(target.isCurrent(), "captured Spotlight can become AXFrontmost while exact system field stays current")
+    fixture.spotlightStartMicroseconds += 1
+    check(!target.isCurrent(), "frontmost Spotlight still checks captured process incarnation")
+} else { check(false, "capture before Spotlight becomes AXFrontmost") }
+for frontmost in [kCFBooleanTrue as CFTypeRef?, nil] {
+    fixture = spotlightFixture(); fixture.spotlightFrontmost = frontmost
+    if let target = InputFocusGuard.Target.capture(expectedPID: fixture.spotlightPID) {
+        check(target.isCurrent(), "initial same-PID Spotlight exact system focus is current with true or missing AXFrontmost")
+        fixture.spotlightStartMicroseconds += 1
+        check(!target.isCurrent(), "initial same-PID Spotlight rejects changed kernel process incarnation")
+    } else { check(false, "initial same-PID Spotlight captures exact system field") }
+}
+fixture = spotlightFixture(); fixture.spotlightFrontmost = kCFBooleanTrue
+fixture.systemFocus = nil; fixture.spotlightAppFocus = fixture.field
+check(InputFocusGuard.Target.capture(expectedPID: fixture.spotlightPID) == nil
+      && fixture.bootstrapCount == 0 && fixture.spotlightBootstrapCount == 0,
+      "initial frontmost Spotlight rejects stale app-only focus without preparing it")
+fixture = spotlightFixture(); fixture.spotlightFrontmost = kCFBooleanTrue
+fixture.spotlightProcResult = 0
+check(InputFocusGuard.Target.capture(expectedPID: fixture.spotlightPID) == nil,
+      "initial frontmost Spotlight without valid process identity stays unavailable")
+fixture = spotlightFixture(); fixture.spotlightFrontmost = kCFBooleanTrue
+switch DictationTarget.capture(expectedPID: fixture.spotlightPID, permit: .init()) {
+case .target(let target):
+    fixture.spotlightStartMicroseconds += 1
+    check(!target.isCurrent(), "dictation initial same-PID Spotlight rejects changed kernel process incarnation")
+case .unavailable: check(false, "dictation initial same-PID Spotlight captures exact system field")
+}
+for frontmost in [kCFBooleanTrue as CFTypeRef?, nil] {
+    fixture = spotlightFixture(); fixture.spotlightFrontmost = frontmost; fixture.spotlightMissing = true
+    check(InputFocusGuard.Target.capture(expectedPID: fixture.spotlightPID) == nil && fixture.writes == 0
+          && fixture.bootstrapCount == 0 && fixture.spotlightBootstrapCount == 0,
+          "initial same-PID missing running process cannot become an ordinary unstamped target")
+}
+fixture = spotlightFixture(); fixture.spotlightFrontmost = kCFBooleanTrue; fixture.spotlightMissing = true
+fixture.systemFocus = nil; fixture.spotlightAppFocus = fixture.field
+check(InputFocusGuard.Target.capture(expectedPID: fixture.spotlightPID) == nil,
+      "initial same-PID missing process cannot authorize stale application focus")
+for kind in ["selected", "word Unicode", "read-only", "cancelled"] {
+    fixture = spotlightFixture()
+    fixture.directSettable = kind != "word Unicode"
+    if kind == "selected" { fixture.editor.setSelectedRange(NSRange(location: 0, length: 6)) }
+    if kind == "read-only" { fixture.editor.isEditable = false }
+    let converter = SelectionConverter()
+    var capture: SelectionConverter.Capture?
+    var request: InputFocusGuard.Permit?
+    converter.capture(expectedPID: getpid()) { capture = $0; request = $1 }
+    let deadline = Date().addingTimeInterval(4)
+    while capture == nil && Date() < deadline { pump() }
+    var selection: SelectionConverter.Selection?
+    switch capture {
+    case .selected(let value): selection = value
+    case .empty(_, _, let word, _): selection = word
+    default: break
+    }
+    if let selection, let request {
+        if kind == "cancelled" { request.cancel() }
+        let typist = Typist(postEvent: { _ in fatalError("Option never submits") })
+        var result: InputFocusGuard.ReplacementResult?
+        converter.replace(selection, permit: request, typist: typist, replayRoute: .init(target: selection.target)) { result = $0; _ = $1 }
+        let deadline = Date().addingTimeInterval(4)
+        while (result == nil || typist.isBusy) && Date() < deadline { pump() }
+        let refused = kind == "read-only" || kind == "cancelled"
+        check(result == (refused ? .untouched : .confirmed) && fixture.editor.string == (refused ? "ghbdtn" : "привет")
+              && fixture.editor.selectedRange() == NSRange(location: 6, length: 0)
+              && fixture.writes == (refused ? 0 : 1) && fixture.backgroundReads == 0
+              && selection.target.pid == fixture.spotlightPID
+              && (kind != "word Unicode" || fixture.postedPIDs == [fixture.spotlightPID, fixture.spotlightPID]),
+              "Spotlight Option \(kind) keeps exact text/caret and actual owner routing")
+        print("Spotlight \(kind): pid=\(selection.target.pid), text=\(fixture.editor.string), caret=\(fixture.editor.selectedRange()), unicodePIDs=\(fixture.postedPIDs)")
+    } else { check(false, "Spotlight Option \(kind) raw capture") }
+}
+for (label, key, flags) in [("Space", CGKeyCode(49), CGEventFlags()), ("Enter", 36, CGEventFlags()),
+                            ("ShiftEnter", 36, CGEventFlags.maskShift)] {
+    fixture = spotlightFixture()
+    guard let target = InputFocusGuard.Target.capture(expectedPID: getpid()) else {
+        check(false, "Spotlight automatic \(label) raw capture"); continue
+    }
+    let ticket = InputFocusGuard.Ticket(target: target, permit: .init(), replacementPermit: .init(), replayRoute: .init(target: target))
+    var posted: [CGEvent] = []
+    var receivers: [pid_t] = []
+    let typist = Typist(postEvent: {
+        posted.append(CGEvent(withDataAllocator: nil, data: $0.data!)!)
+        receivers.append(fixture.ownerPID)
+    })
+    var result: InputFocusGuard.ReplacementResult?
+    typist.replaceLastWord(expected: "ghbdtn", with: "привет", ticket: ticket,
+        separator: Typist.makeKeyPress(keyCode: key, flags: flags), separatorCharacter: key == 49 ? " " : "\n", navigates: key != 49) { result = $0 }
+    let deadline = Date().addingTimeInterval(4)
+    while (result == nil || typist.isBusy) && Date() < deadline { pump() }
+    check(result == .confirmed && fixture.editor.string == (key == 49 ? "привет " : "привет")
+          && fixture.editor.selectedRange() == NSRange(location: key == 49 ? 7 : 6, length: 0)
+          && fixture.writes == 1 && fixture.backgroundReads == 0 && target.pid == fixture.spotlightPID
+          && posted.count == (key == 49 ? 0 : 2) && receivers.allSatisfy { $0 == target.pid }
+          && posted.allSatisfy { $0.getIntegerValueField(.keyboardEventKeycode) == key && $0.flags == flags },
+          "Spotlight automatic \(label) keeps full value/caret and only original separator key pair")
+    print("Spotlight auto\(label): pid=\(target.pid), text=\(fixture.editor.string), caret=\(fixture.editor.selectedRange()), keyPairs=\(posted.count / 2), receiverPIDs=\(receivers)")
+}
+for kind in ["direct", "Unicode", "changed process", "cancelled"] {
+    fixture = spotlightFixture(); fixture.editor.string = ""; fixture.editor.setSelectedRange(NSRange(location: 0, length: 0))
+    fixture.directSettable = kind != "Unicode"
+    let permit = DictationInsertionPermit()
+    switch DictationTarget.capture(expectedPID: getpid(), permit: permit) {
+    case .target(let target):
+        if kind == "changed process" { fixture.spotlightStartMicroseconds += 1 }
+        if kind == "cancelled" { permit.cancel() }
+        let result = target.insert("привет", permit: permit)
+        let refused = kind == "changed process" || kind == "cancelled"
+        check(result == (refused ? .fallback(.changed) : .inserted)
+              && fixture.editor.string == (refused ? "" : "привет")
+              && fixture.editor.selectedRange() == NSRange(location: refused ? 0 : 6, length: 0)
+              && fixture.writes == (refused ? 0 : 1) && fixture.backgroundReads == 0
+              && target.pid == fixture.spotlightPID && fixture.observerPIDs == [fixture.spotlightPID]
+              && (kind != "Unicode" || fixture.postedPIDs == [fixture.spotlightPID, fixture.spotlightPID]),
+              "Spotlight dictation \(kind) shares actual-owner capture/observation and exact insertion checks")
+        print("Spotlight dictation\(kind): pid=\(target.pid), text=\(fixture.editor.string), caret=\(fixture.editor.selectedRange()), observerPIDs=\(fixture.observerPIDs), unicodePIDs=\(fixture.postedPIDs)")
+    case .unavailable(let reason): check(false, "Spotlight dictation \(kind): \(reason.message)")
+    }
+}
+
 if failures > 0 { exit(1) }
 print("System focus harness passed; raw AX faults and own AppKit only, not live WindowServer acceptance.")

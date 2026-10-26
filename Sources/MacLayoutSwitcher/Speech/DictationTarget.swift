@@ -2,6 +2,7 @@
 import ApplicationServices
 import AppKit
 import Foundation
+import Darwin
 
 /// Reasons are kept separate from recognition: unavailable AX never means
 /// silence. An attempted write can have an uncertain outcome and is not retried.
@@ -32,7 +33,7 @@ enum DictationInsertionFailure: Equatable {
 /// Only fixed stage names and AX result codes; no editor text or persistent log.
 struct DictationFocusFailure: Equatable {
     enum Status: Equatable {
-        case notRead, success, noValue, invalidType, notFrontmost, foreignOwner
+        case notRead, success, noValue, invalidType, notFrontmost, foreignOwner, processChanged
         case error(Int32), ownerError(Int32)
         var code: String {
             switch self {
@@ -42,6 +43,7 @@ struct DictationFocusFailure: Equatable {
             case .invalidType: return "invalid-type"
             case .notFrontmost: return "false"
             case .foreignOwner: return "foreign-owner"
+            case .processChanged: return "process-changed"
             case .error(let code): return String(code)
             case .ownerError(let code): return "owner:\(code)"
             }
@@ -50,10 +52,13 @@ struct DictationFocusFailure: Equatable {
     let frontmost: Status
     let system: Status
     let application: Status
+    var requiresFreshFocus = false
     var bootstrap: String? = nil
     var preventsBootstrap: Bool {
-        frontmost == .notFrontmost || [system, application].contains(.foreignOwner)
+        requiresFreshFocus || frontmost == .notFrontmost || [system, application].contains(.foreignOwner)
             || [system, application].contains(.invalidType)
+            || [system, application].contains(.processChanged)
+            || [system, application].contains(where: { if case .ownerError = $0 { return true }; return false })
     }
     func including(_ preparation: DictationAXBootstrap?) -> Self {
         var result = self
@@ -66,7 +71,7 @@ struct DictationFocusFailure: Equatable {
     }
     var message: String {
         let reason: String
-        if frontmost == .notFrontmost || system == .foreignOwner || application == .foreignOwner {
+        if frontmost == .notFrontmost || [system, application].contains(.foreignOwner) || [system, application].contains(.processChanged) {
             reason = "Активное приложение изменилось. Выберите нужное поле и повторите действие."
         } else if [frontmost, system, application].contains(.error(AXError.apiDisabled.rawValue)) {
             reason = "macOS отклонила доступ к полю. Проверьте разрешение «Универсальный доступ» для Mac Layout Switcher."
@@ -129,12 +134,27 @@ private struct DictationWriteStates {
     }
 }
 
+/// Initial selection can discover Spotlight's actual owner. Its live process
+/// instance is retained separately from the menu application's PID.
+struct SpotlightProcessStart: Equatable {
+    let seconds: UInt64
+    let microseconds: UInt64
+}
+
+struct DictationFocus {
+    let element: AXUIElement
+    let pid: pid_t
+    var processStart: SpotlightProcessStart? = nil
+}
+
 /// Injectable at the AX system boundary so the exact production capture/write
 /// path can be exercised without accessing any user's editor or granting TCC.
 protocol DictationAccessibility {
     var isTrusted: Bool { get }
     var isSecure: Bool { get }
     func focusedElement(pid: pid_t) -> AXUIElement?
+    func focusedElement(pid: pid_t, processStart: SpotlightProcessStart?) -> AXUIElement?
+    func captureFocus(pid: pid_t, failure: (DictationFocusFailure) -> Void) -> DictationFocus?
     func focusedElement(pid: pid_t, failure: (DictationFocusFailure) -> Void) -> AXUIElement?
     func enableAccessibility(pid: pid_t)
     func prepareAccessibility(pid: pid_t, allowed: () -> Bool) -> DictationAXBootstrap
@@ -151,6 +171,13 @@ protocol DictationAccessibility {
 }
 
 extension DictationAccessibility {
+    func captureFocus(pid: pid_t, failure: (DictationFocusFailure) -> Void) -> DictationFocus? {
+        focusedElement(pid: pid, failure: failure).map { DictationFocus(element: $0, pid: pid) }
+    }
+    func focusedElement(pid: pid_t, processStart: SpotlightProcessStart?) -> AXUIElement? {
+        guard processStart == nil else { return nil }
+        return focusedElement(pid: pid)
+    }
     func prepareAccessibility(pid: pid_t, allowed: () -> Bool) -> DictationAXBootstrap {
         if allowed() { enableAccessibility(pid: pid) }
         return DictationAXBootstrap()
@@ -202,10 +229,54 @@ struct SystemDictationAccessibility: DictationAccessibility {
         AXUIElementSetMessagingTimeout(element, 0.1)
         return element
     }
+    /// Bundle ID alone is not a process identity: require Apple's canonical
+    /// system bundle and executable, and a live launch instance.
+    private func spotlightProcessStart(pid: pid_t) -> SpotlightProcessStart? {
+        guard let app = NSRunningApplication(processIdentifier: pid), !app.isTerminated,
+              app.bundleIdentifier == "com.apple.Spotlight",
+              app.bundleURL?.resolvingSymlinksInPath().standardizedFileURL.path == "/System/Library/CoreServices/Spotlight.app",
+              app.executableURL?.resolvingSymlinksInPath().standardizedFileURL.path == "/System/Library/CoreServices/Spotlight.app/Contents/MacOS/Spotlight"
+        else { return nil }
+        var info = proc_bsdinfo()
+        let size = Int32(MemoryLayout<proc_bsdinfo>.size)
+        guard proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &info, size) == size,
+              info.pbi_pid == UInt32(pid), info.pbi_start_tvsec > 0, info.pbi_start_tvusec < 1_000_000 else { return nil }
+        return SpotlightProcessStart(seconds: info.pbi_start_tvsec, microseconds: info.pbi_start_tvusec)
+    }
+    func captureFocus(pid: pid_t, failure: (DictationFocusFailure) -> Void) -> DictationFocus? {
+        func changedProcess() -> DictationFocus? {
+            failure(.init(frontmost: .notRead, system: .processChanged, application: .notRead))
+            return nil
+        }
+        guard let running = NSRunningApplication(processIdentifier: pid) else { return changedProcess() }
+        let launchDate = running.launchDate
+        // Spotlight is still an overlay when NSWorkspace happens to name it
+        // directly or AXFrontmost is true/absent. Never drop its identity guard.
+        let isSpotlight = running.bundleIdentifier == "com.apple.Spotlight"
+        let spotlight = isSpotlight ? spotlightProcessStart(pid: pid) : nil
+        if isSpotlight && spotlight == nil { return changedProcess() }
+        let focus = resolveFocus(pid: pid, selectingOwner: true, spotlight: spotlight,
+                                 requiresSystemFocus: isSpotlight, failure: failure)
+        // Reading process metadata can race a restart even when the initial AX
+        // field is unavailable. Do not bootstrap the replacement incarnation.
+        if let launchDate, NSRunningApplication(processIdentifier: pid)?.launchDate != launchDate { return changedProcess() }
+        return focus
+    }
     func focusedElement(pid: pid_t) -> AXUIElement? {
         focusedElement(pid: pid, failure: { _ in })
     }
+    func focusedElement(pid: pid_t, processStart: SpotlightProcessStart?) -> AXUIElement? {
+        guard processStart.map({ spotlightProcessStart(pid: pid) == $0 }) != false else { return nil }
+        let element = resolveFocus(pid: pid, selectingOwner: false, spotlight: processStart, requiresSystemFocus: processStart != nil, failure: { _ in })?.element
+        guard processStart.map({ spotlightProcessStart(pid: pid) == $0 }) != false else { return nil }
+        return element
+    }
     func focusedElement(pid: pid_t, failure: (DictationFocusFailure) -> Void) -> AXUIElement? {
+        resolveFocus(pid: pid, selectingOwner: false, failure: failure)?.element
+    }
+    private func resolveFocus(pid: pid_t, selectingOwner: Bool, spotlight knownSpotlight: SpotlightProcessStart? = nil,
+                              requiresSystemFocus: Bool = false,
+                              failure: (DictationFocusFailure) -> Void) -> DictationFocus? {
         typealias Status = DictationFocusFailure.Status
         func read(_ name: String, from element: AXUIElement) -> (CFTypeRef?, Status) {
             var value: CFTypeRef?
@@ -217,36 +288,46 @@ struct SystemDictationAccessibility: DictationAccessibility {
         var (frontmostValue, frontmostStatus) = read(kAXFrontmostAttribute, from: app)
         var systemStatus = Status.notRead
         var appStatus = Status.notRead
-        func failed() -> AXUIElement? {
-            failure(.init(frontmost: frontmostStatus, system: systemStatus, application: appStatus))
+        func failed() -> DictationFocus? {
+            failure(.init(frontmost: frontmostStatus, system: systemStatus, application: appStatus,
+                          requiresFreshFocus: requiresSystemFocus))
             return nil
         }
         let frontmost = frontmostValue as? Bool
+        let spotlight = knownSpotlight ?? (frontmost == false ? spotlightProcessStart(pid: pid) : nil)
         if frontmostValue != nil && frontmost == nil { frontmostStatus = .invalidType }
-        if frontmost == false { frontmostStatus = .notFrontmost; return failed() }
+        if frontmost == false {
+            frontmostStatus = .notFrontmost
+            if spotlight == nil { return failed() }
+        }
         let system = bounded(AXUIElementCreateSystemWide())
-        func ownedElement(_ value: CFTypeRef, status: inout Status) -> AXUIElement? {
+        func ownedElement(_ value: CFTypeRef, status: inout Status, systemFocus: Bool) -> DictationFocus? {
             guard CFGetTypeID(value) == AXUIElementGetTypeID() else { status = .invalidType; return nil }
             let element = bounded(unsafeBitCast(value, to: AXUIElement.self))
             var actualPID: pid_t = 0
             let result = AXUIElementGetPid(element, &actualPID)
             guard result == .success else { status = .ownerError(result.rawValue); return nil }
-            guard actualPID == pid else { status = .foreignOwner; return nil }
-            return element
+            if actualPID == pid { return DictationFocus(element: element, pid: pid, processStart: spotlight) }
+            // Only initial capture may choose this distinct owner. Validation
+            // of an existing target never follows a different process.
+            guard selectingOwner, systemFocus, let processStart = spotlightProcessStart(pid: actualPID) else {
+                status = .foreignOwner; return nil
+            }
+            return DictationFocus(element: element, pid: actualPID, processStart: processStart)
         }
-        // A positively identified system focus is authoritative: a different
-        // owner must never fall through to an application's stale focused field.
-        // A missing AXFrontmost response alone cannot veto an exact system focus.
+        // Positive system focus is authoritative, including an ordinary foreign
+        // owner: never fall through to an application's stale focused field.
         let systemRead = read(kAXFocusedUIElementAttribute, from: system)
         systemStatus = systemRead.1
         if let value = systemRead.0 {
-            return ownedElement(value, status: &systemStatus) ?? failed()
+            return ownedElement(value, status: &systemStatus, systemFocus: true) ?? failed()
         }
-        guard frontmost == true else { return failed() }
+        // An overlay's app-focus attribute can outlive its visible search box.
+        guard frontmost == true, spotlight == nil, !requiresSystemFocus else { return failed() }
         let appRead = read(kAXFocusedUIElementAttribute, from: app)
         appStatus = appRead.1
         guard let value = appRead.0 else { return failed() }
-        return ownedElement(value, status: &appStatus) ?? failed()
+        return ownedElement(value, status: &appStatus, systemFocus: false) ?? failed()
     }
     func enableAccessibility(pid: pid_t) {
         _ = prepareAccessibility(pid: pid, allowed: { true })
@@ -442,6 +523,7 @@ private final class DictationAXObservation {
 struct DictationTarget {
     let element: AXUIElement
     let pid: pid_t
+    private let processStart: SpotlightProcessStart?
     private let range: CFRange
     private let original: String
     private let accessibility: any DictationAccessibility
@@ -481,18 +563,28 @@ struct DictationTarget {
             guard accessibility.isTrusted else { return .unavailable(.accessibilityDenied) }
             guard !accessibility.isSecure else { return .unavailable(.protectedField) }
             var stop = false
-            guard let element = accessibility.focusedElement(pid: expectedPID, failure: {
+            let reportFailure: (DictationFocusFailure) -> Void = {
                 lastFailure = .systemFocus($0.including(bootstrap)); stop = $0.preventsBootstrap
-            }) else { if stop { return .unavailable(lastFailure) }; continue }
+            }
+            // Only the initial snapshot may choose another process. A later
+            // retry for a native/Chromium tree must keep its original PID.
+            let focus = attempt == 0
+                ? accessibility.captureFocus(pid: expectedPID, failure: reportFailure)
+                : accessibility.focusedElement(pid: expectedPID, failure: reportFailure).map { DictationFocus(element: $0, pid: expectedPID) }
+            guard let focus else { if stop { return .unavailable(lastFailure) }; continue }
+            let element = focus.element, pid = focus.pid
             if let firstElement, !CFEqual(firstElement, element) { return .unavailable(.changed) }
-            var pid: pid_t = 0
-            guard AXUIElementGetPid(element, &pid) == .success, pid == expectedPID else { continue }
             let role = accessibility.attribute(kAXRoleAttribute, of: element) as? String
             if role == kAXTextFieldRole || role == kAXTextAreaRole { firstElement = element }
             if accessibility.attribute(kAXSubroleAttribute, of: element) as? String == kAXSecureTextFieldSubrole {
                 return .unavailable(.protectedField)
             }
-            guard let range = selection(element, accessibility) else { lastFailure = .unavailableSelection; continue }
+            guard let range = selection(element, accessibility) else {
+                // Spotlight exposes an exact system field or needs a fresh
+                // request. Never prepare the background menu application.
+                if focus.processStart != nil { return .unavailable(.unavailableSelection) }
+                lastFailure = .unavailableSelection; continue
+            }
             guard let original = accessibility.attribute(kAXValueAttribute, of: element) as? String,
                   range.location <= original.utf16.count, range.length <= original.utf16.count - range.location,
                   (accessibility.selectedTextIsSettable(element) || accessibility.supportsUnicodeInsertion(element)) else {
@@ -502,7 +594,7 @@ struct DictationTarget {
                 received: { permit.receiveChange($0) }, changed: { permit.observedChange($0) }) else {
                 return .unavailable(.monitoringUnavailable)
             }
-            let target = DictationTarget(element: element, pid: pid, range: range, original: original,
+            let target = DictationTarget(element: element, pid: pid, processStart: focus.processStart, range: range, original: original,
                                          accessibility: accessibility, observation: observation)
             guard permit.isAllowed, target.isCurrent() else { return .unavailable(.changed) }
             return .target(target)
@@ -511,7 +603,7 @@ struct DictationTarget {
     }
 
     func isCurrent() -> Bool {
-        guard !accessibility.isSecure, let focused = accessibility.focusedElement(pid: pid),
+        guard !accessibility.isSecure, let focused = accessibility.focusedElement(pid: pid, processStart: processStart),
               CFEqual(element, focused),
               accessibility.attribute(kAXSubroleAttribute, of: element) as? String != kAXSecureTextFieldSubrole,
               let current = Self.selection(element, accessibility),
@@ -529,9 +621,9 @@ struct DictationTarget {
         defer { permit.endWriting() }
         // The validator owns only the system boundary and element, never the
         // observation which owns the permit's callback.
-        let ax = accessibility, destination = element, destinationPID = pid
+        let ax = accessibility, destination = element, destinationPID = pid, destinationStart = processStart
         let readSnapshot: () -> DictationFieldState? = {
-            Self.fieldState(element: destination, pid: destinationPID, accessibility: ax)
+            Self.fieldState(element: destination, pid: destinationPID, processStart: destinationStart, accessibility: ax)
         }
         if direct {
             let expected = replacing(original, range: range, with: text)
@@ -590,14 +682,14 @@ struct DictationTarget {
     }
 
     private func isFocused() -> Bool {
-        guard !accessibility.isSecure, let focused = accessibility.focusedElement(pid: pid) else { return false }
+        guard !accessibility.isSecure, let focused = accessibility.focusedElement(pid: pid, processStart: processStart) else { return false }
         return CFEqual(element, focused)
             && accessibility.attribute(kAXSubroleAttribute, of: element) as? String != kAXSecureTextFieldSubrole
     }
-    private static func fieldState(element: AXUIElement, pid: pid_t,
+    private static func fieldState(element: AXUIElement, pid: pid_t, processStart: SpotlightProcessStart?,
                                    accessibility: any DictationAccessibility) -> DictationFieldState? {
         guard !accessibility.isSecure,
-              accessibility.focusedElement(pid: pid).map({ CFEqual(element, $0) }) == true,
+              accessibility.focusedElement(pid: pid, processStart: processStart).map({ CFEqual(element, $0) }) == true,
               accessibility.attribute(kAXSubroleAttribute, of: element) as? String != kAXSecureTextFieldSubrole,
               let value = accessibility.attribute(kAXValueAttribute, of: element) as? String,
               let range = selection(element, accessibility) else { return nil }

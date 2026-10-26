@@ -32,7 +32,7 @@ for name in files:
         source = exact(source, 'tap.start {', 'tap.installProbeHandler {')
         source = exact(source, 'ConversionNotice()', 'ConversionNotice(presentsWindow: false)')
         source = exact(source, '    private func isExcludedApp() -> Bool {',
-          '    func probeEvent(_ event: CGEvent) -> TapDecision { tap.process(type: event.type, event: event) }\n\n    private func isExcludedApp() -> Bool {')
+          '    func probeEvent(_ event: CGEvent) -> TapDecision { tap.process(type: event.type, event: event) }\n    var probeFocusReady: Bool { inputFocus.ticket != nil }\n\n    private func isExcludedApp() -> Bool {')
     elif name == 'System/InputFocusGuard.swift':
         source = exact(source, 'SystemDictationAccessibility()', 'harnessAccessibility', 2)
         source = exact(source, 'NSWorkspace.shared.frontmostApplication?.processIdentifier', 'Optional(harnessFrontPID)', 2)
@@ -44,6 +44,11 @@ for name in files:
           '    func process(type: CGEventType, event: CGEvent) -> TapDecision {')
         source = exact(source, '    public init() {}',
           '    public init() {}\n    func installProbeHandler(handler: @escaping (KeyStroke) -> TapDecision) -> Bool { self.handler = handler; return true }')
+    elif name == 'System/KeyTranslator.swift':
+        # Retain native translation, but freeze the read-only TIS input for the
+        # fixture so concurrent user layout changes cannot change its source.
+        source = exact(source, 'TISCopyCurrentKeyboardInputSource()', 'harnessCopyKeyboardInputSource()')
+        source = exact(source, 'TISGetInputSourceProperty(source, kTISPropertyUnicodeKeyLayoutData)', 'harnessKeyboardLayoutData(source)')
     elif name == 'System/SecureInput.swift':
         source = exact(source, '        IsSecureEventInputEnabled()', '        false')
     elif name == 'System/FrontApp.swift':

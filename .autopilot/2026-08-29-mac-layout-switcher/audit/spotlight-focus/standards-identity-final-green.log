@@ -1,0 +1,96 @@
+PASS: same-PID frontmost true stamps exact live identity
+PASS: same-PID frontmost true refuses bad bundle path without bootstrap
+PASS: same-PID frontmost true refuses bad executable without bootstrap
+PASS: same-PID frontmost true refuses terminated without bootstrap
+PASS: same-PID frontmost true refuses zero start without bootstrap
+PASS: same-PID frontmost true refuses missing kernel without bootstrap
+PASS: same-PID frontmost true refuses truncated kernel without bootstrap
+PASS: same-PID frontmost true refuses wrong PID without bootstrap
+PASS: same-PID frontmost true refuses bad microseconds without bootstrap
+PASS: same-PID frontmost true refuses missing system without bootstrap
+PASS: same-PID frontmost true refuses invalid system without bootstrap
+PASS: same-PID frontmost true refuses foreign system without bootstrap
+PASS: captured frontmost true refuses bad bundle path before write
+PASS: captured frontmost true refuses bad executable before write
+PASS: captured frontmost true refuses terminated before write
+PASS: captured frontmost true refuses zero start before write
+PASS: captured frontmost true refuses missing kernel before write
+PASS: captured frontmost true refuses truncated kernel before write
+PASS: captured frontmost true refuses wrong PID before write
+PASS: captured frontmost true refuses bad microseconds before write
+PASS: captured frontmost true refuses missing system before write
+PASS: captured frontmost true refuses invalid system before write
+PASS: captured frontmost true refuses foreign system before write
+PASS: captured frontmost true refuses lost app metadata before write
+PASS: captured frontmost true refuses wrong bundle ID before write
+PASS: captured frontmost true refuses restarted process before write
+PASS: captured frontmost true refuses changed element before write
+PASS: same-PID frontmost false stamps exact live identity
+PASS: same-PID frontmost false refuses bad bundle path without bootstrap
+PASS: same-PID frontmost false refuses bad executable without bootstrap
+PASS: same-PID frontmost false refuses terminated without bootstrap
+PASS: same-PID frontmost false refuses zero start without bootstrap
+PASS: same-PID frontmost false refuses missing kernel without bootstrap
+PASS: same-PID frontmost false refuses truncated kernel without bootstrap
+PASS: same-PID frontmost false refuses wrong PID without bootstrap
+PASS: same-PID frontmost false refuses bad microseconds without bootstrap
+PASS: same-PID frontmost false refuses missing system without bootstrap
+PASS: same-PID frontmost false refuses invalid system without bootstrap
+PASS: same-PID frontmost false refuses foreign system without bootstrap
+PASS: captured frontmost false refuses bad bundle path before write
+PASS: captured frontmost false refuses bad executable before write
+PASS: captured frontmost false refuses terminated before write
+PASS: captured frontmost false refuses zero start before write
+PASS: captured frontmost false refuses missing kernel before write
+PASS: captured frontmost false refuses truncated kernel before write
+PASS: captured frontmost false refuses wrong PID before write
+PASS: captured frontmost false refuses bad microseconds before write
+PASS: captured frontmost false refuses missing system before write
+PASS: captured frontmost false refuses invalid system before write
+PASS: captured frontmost false refuses foreign system before write
+PASS: captured frontmost false refuses lost app metadata before write
+PASS: captured frontmost false refuses wrong bundle ID before write
+PASS: captured frontmost false refuses restarted process before write
+PASS: captured frontmost false refuses changed element before write
+PASS: same-PID frontmost missing stamps exact live identity
+PASS: same-PID frontmost missing refuses bad bundle path without bootstrap
+PASS: same-PID frontmost missing refuses bad executable without bootstrap
+PASS: same-PID frontmost missing refuses terminated without bootstrap
+PASS: same-PID frontmost missing refuses zero start without bootstrap
+PASS: same-PID frontmost missing refuses missing kernel without bootstrap
+PASS: same-PID frontmost missing refuses truncated kernel without bootstrap
+PASS: same-PID frontmost missing refuses wrong PID without bootstrap
+PASS: same-PID frontmost missing refuses bad microseconds without bootstrap
+PASS: same-PID frontmost missing refuses missing system without bootstrap
+PASS: same-PID frontmost missing refuses invalid system without bootstrap
+PASS: same-PID frontmost missing refuses foreign system without bootstrap
+PASS: captured frontmost missing refuses bad bundle path before write
+PASS: captured frontmost missing refuses bad executable before write
+PASS: captured frontmost missing refuses terminated before write
+PASS: captured frontmost missing refuses zero start before write
+PASS: captured frontmost missing refuses missing kernel before write
+PASS: captured frontmost missing refuses truncated kernel before write
+PASS: captured frontmost missing refuses wrong PID before write
+PASS: captured frontmost missing refuses bad microseconds before write
+PASS: captured frontmost missing refuses missing system before write
+PASS: captured frontmost missing refuses invalid system before write
+PASS: captured frontmost missing refuses foreign system before write
+PASS: captured frontmost missing refuses lost app metadata before write
+PASS: captured frontmost missing refuses wrong bundle ID before write
+PASS: captured frontmost missing refuses restarted process before write
+PASS: captured frontmost missing refuses changed element before write
+PASS: missing initial process frontmost true, staleAppOnly=false refuses keyboard capture
+PASS: missing initial process frontmost true, staleAppOnly=false refuses dictation without bootstrap
+PASS: missing initial process frontmost true, staleAppOnly=true refuses keyboard capture
+PASS: missing initial process frontmost true, staleAppOnly=true refuses dictation without bootstrap
+PASS: missing initial process frontmost false, staleAppOnly=false refuses keyboard capture
+PASS: missing initial process frontmost false, staleAppOnly=false refuses dictation without bootstrap
+PASS: missing initial process frontmost false, staleAppOnly=true refuses keyboard capture
+PASS: missing initial process frontmost false, staleAppOnly=true refuses dictation without bootstrap
+PASS: missing initial process frontmost missing, staleAppOnly=false refuses keyboard capture
+PASS: missing initial process frontmost missing, staleAppOnly=false refuses dictation without bootstrap
+PASS: missing initial process frontmost missing, staleAppOnly=true refuses keyboard capture
+PASS: missing initial process frontmost missing, staleAppOnly=true refuses dictation without bootstrap
+PASS: ordinary live native app with nil launchDate retains capture and replacement
+PASS: live Spotlight with nil Cocoa launchDate keeps exact kernel identity
+Independent v3 identity matrix passed; own raw AX/metadata fixture only.

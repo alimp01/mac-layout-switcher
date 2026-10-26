@@ -1,0 +1,8 @@
+Frozen TIS fixture: source=com.apple.keylayout.RussianWin; uchrBytes=13936; uchrSHA256=94dfa9de2f2e3ea41b62b098258dca13595e40a3c6e73019da55da9a933063cb
+PASS: Option accepts fresh field before sampler and discards stale buffered word
+PASS: Option distinguishes actual process trust denial
+PASS: Option cancels changed context during capture
+PASS: Option same-field buffered/fallback/selection/undo/empty behavior on AX and Unicode
+PASS: Option field/PID/caret/key/click changes during capture cancel without writing
+PASS: Option distinct secure/field/range/text reasons and bounded bootstrap
+PASS: Option keeps editable-field bootstrap identity, validates full capture before every write route, and cancels before dispatch

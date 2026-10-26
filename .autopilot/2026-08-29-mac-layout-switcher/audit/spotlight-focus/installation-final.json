@@ -1,0 +1,14 @@
+{
+  "version": "1.4.12",
+  "oldPIDs": [
+    4817
+  ],
+  "newPID": 46563,
+  "binarySHA256": "032e5f19503a9bb611eb1c1f6be7d1813539bb94d1a054d673c7d00e280324bc",
+  "helperSHA256": "e955d4e78e10a42388f77a3c988f05b1f3dbc8cbb02164283fc9d10a62bc7f39",
+  "previousApp": "/Applications/.MacLayoutSwitcher-G29-7ifbvr4v/previous.app",
+  "backup": "/Users/ilyaalimpiev/Documents/Codex/2026-09-16/mac-layout-switcher-punto-caramba-switcher/outputs/MacLayoutSwitcher-1.4.11-before-G29-backup.zip",
+  "backupSHA256": "a57fe1b39bbf922d828fb19cbd07bf8dc2776dd5cc217157dac1fc3f78690bbe",
+  "installedAt": "2026-10-26T16:40:16.874736+00:00",
+  "checks": "exact version/hash/deep strict signature and single process twice; physical acceptance pending"
+}

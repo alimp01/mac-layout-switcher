@@ -22,7 +22,8 @@ from pathlib import Path
 import difflib,hashlib,re,sys
 root=Path(sys.argv[1]); seams=[]
 names=['AXUIElementCopyAttributeValue','AXUIElementSetAttributeValue','AXUIElementIsAttributeSettable',
-       'AXUIElementGetPid','AXUIElementSetMessagingTimeout','AXIsProcessTrusted']
+       'AXUIElementGetPid','AXUIElementSetMessagingTimeout','AXIsProcessTrusted',
+       'AXObserverCreate','AXObserverAddNotification']
 for path in (root/'Sources').glob('*.swift'):
     original=path.read_text(); compiled=original
     if path.name=='DictationTarget.swift':
@@ -30,6 +31,7 @@ for path in (root/'Sources').glob('*.swift'):
         compiled=re.sub(r'NSRunningApplication\(processIdentifier: ([^)]+)\)', r'fixtureRunningApplication(processIdentifier: \1)', compiled)
         assert '$0.postToPid($1)' in compiled
         compiled=compiled.replace('$0.postToPid($1)', 'fixturePostEvent($0, $1)')
+        compiled=re.sub(r'\bproc_pidinfo\b', 'fixtureproc_pidinfo', compiled)
         for name in names:
             assert name in compiled, name
             compiled=re.sub(r'\b'+name+r'\b', 'fixture'+name, compiled)

@@ -1,0 +1,5 @@
+{
+  "rawPath": "/tmp/mls-g29-engine-timing-proof.log",
+  "rawSHA256": "9c0535cd6b451749c06e9ef76eda7e97d9da8e4eba0267319da414efa3cff923",
+  "rawText": "Frozen TIS fixture: source=com.apple.keylayout.ABC; uchrBytes=5032; uchrSHA256=464baf9b5025c0e060e45b1ceeafe45307e8be4c7a518d1bf4606edfecd98545\nTIMING initialExtra=0.0, separator=pass\nTIMING aftertext=ghbdtn \nTIMING initialExtra=1.0, separator=suppress\nTIMING aftertext=привет \nTIMING wrapper0.5=привет\nTIMING wrapper2.5=привет\n"
+}
