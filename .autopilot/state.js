@@ -11,7 +11,7 @@ window.STATE =
   "memoryFile": "CLAUDE.md",
   "skillDir": "/home/claudebot/.claude/skills/autopilot",
   "startedAt": "2026-08-29T03:22:57+00:00",
-  "updatedAt": "2026-10-26T16:44:41.762729+00:00",
+  "updatedAt": "2026-10-27T03:23:04.365606+00:00",
   "stages": [
     {
       "id": "preflight",
@@ -48,25 +48,25 @@ window.STATE =
       "id": "build",
       "status": "active",
       "startedAt": "2026-08-29T03:52:30+00:00",
-      "note": "G29/T34 1.4.12 installed/published; all code/build/review gates passed, actual Spotlight acceptance pending; G27/G28 accepted."
+      "note": "G29/T34 complete:1.4.12 published and actual Spotlight Option accepted by user27.10. G27 Codex/G28 Bitrix scoped acceptances retained; other historical scopes unchanged."
     },
     {
       "id": "review",
       "status": "pending",
       "startedAt": "2026-10-08T04:45:11.080956+00:00",
-      "note": "G29/T34 1.4.12 installed/published; all code/build/review gates passed, actual Spotlight acceptance pending; G27/G28 accepted."
+      "note": "G29/T34 complete:1.4.12 published and actual Spotlight Option accepted by user27.10. G27 Codex/G28 Bitrix scoped acceptances retained; other historical scopes unchanged."
     },
     {
       "id": "final",
       "status": "pending",
       "startedAt": "2026-08-29T05:25:00+00:00",
-      "note": "G29/T34 1.4.12 installed/published; all code/build/review gates passed, actual Spotlight acceptance pending; G27/G28 accepted."
+      "note": "G29/T34 complete:1.4.12 published and actual Spotlight Option accepted by user27.10. G27 Codex/G28 Bitrix scoped acceptances retained; other historical scopes unchanged."
     }
   ],
   "requirements": {
     "total": 36,
-    "done": 31,
-    "inTicket": 4,
+    "done": 32,
+    "inTicket": 3,
     "droppedNote": "G07 отменён пользователем в пользу G08",
     "inSpec": 0,
     "placeholder": 0,
@@ -888,7 +888,7 @@ window.STATE =
         "G29"
       ],
       "blockedBy": [],
-      "status": "review",
+      "status": "done",
       "startedAt": "2026-10-26T15:46:18.533238+00:00",
       "zone": [
         "shared AX focus capture",
@@ -901,9 +901,11 @@ window.STATE =
       "implementation": "complete",
       "reviews": "Spec/Standards final approved0",
       "validation": "raw199/adapters20+2/Option7+7/rootEngine27/exactLinux95/fullspeech/DMG PASS",
-      "physicalAcceptance": "pending",
+      "physicalAcceptance": "passed: actual Spotlight ghbdtn+Option → привет, user confirmed",
       "commit": "dba351ccdd82cd737661531e744dc0bd2c5b33e7",
-      "publication": "verified"
+      "publication": "verified",
+      "finishedAt": "2026-10-27T03:23:04.365606+00:00",
+      "acceptedAt": "2026-10-27T03:23:04.365606+00:00"
     }
   ],
   "singlePass": null,
@@ -1066,9 +1068,13 @@ window.STATE =
   },
   "manualAcceptance": {
     "version": "1.4.12",
-    "status": "pending",
+    "status": "passed",
     "scope": "Spotlight ghbdtn+Option without selection",
-    "askedAt": "2026-10-26T16:42:26.566268+00:00"
+    "askedAt": "2026-10-26T16:42:26.566268+00:00",
+    "answer": "Да, получилось «привет»",
+    "confirmedAt": "2026-10-27T03:23:04.365606+00:00",
+    "confirmedDateMoscow": "2026-10-27",
+    "result": "ghbdtn + Option without selection → привет in actual Spotlight"
   },
   "release": {
     "version": "1.4.12",
@@ -1080,7 +1086,7 @@ window.STATE =
     "mountedVerified": true,
     "deepStrictVerified": true,
     "publication": "raw VERSION/public HTTPS archive/PAX/all384 files verified; metadata-only sync follows; final receipt in outputs",
-    "physicalAcceptance": "pending: Spotlight ghbdtn+Option asked",
+    "physicalAcceptance": "passed: user confirmed Spotlight ghbdtn+Option → привет without selection on2026-10-27",
     "installedPID": 46563,
     "installedBackup": "/Users/ilyaalimpiev/Documents/Codex/2026-09-16/mac-layout-switcher-punto-caramba-switcher/outputs/MacLayoutSwitcher-1.4.11-before-G29-backup.zip",
     "frozenManifestSHA256": "6170dbc8f72a6754a851a8fa0954be8d1c392ab8ee2f6acffd0250081df0a164",
@@ -1272,9 +1278,9 @@ window.STATE =
     "ticket": "34",
     "diagnostic": "AXFrontmost=ok; SystemFocus=foreign-owner; AppFocus=not-read",
     "userConfirmation": "Да, Spotlight",
-    "status": "installed/published; physical acceptance pending",
+    "status": "complete: installed/published and actual Spotlight Option accepted",
     "baseline": "6241c86d769382413cbb6e63f59816ada55e2ee5",
-    "physicalAcceptance": "pending",
+    "physicalAcceptance": "passed: Да, получилось «привет»",
     "v1Manifest": "e189e575698aeef6ef91f24d980e5a5921f6c9528088f3e663a3103f598af16b",
     "review": "both final approved0 after2P1repairs",
     "nativeMetadata": "Cocoa launchDate nil; kernel136byte start verified",
@@ -1285,7 +1291,8 @@ window.STATE =
     "evidence": "audit/spotlight-focus",
     "installedPID": 46563,
     "codeCommit": "dba351ccdd82cd737661531e744dc0bd2c5b33e7",
-    "publication": "rawVERSION/publicHTTPS/PAX/all384files verified"
+    "publication": "rawVERSION/publicHTTPS/PAX/all384files verified",
+    "confirmedAt": "2026-10-27T03:23:04.365606+00:00"
   },
   "bitrixManualAcceptance": {
     "version": "1.4.11",

@@ -6,10 +6,13 @@
 исправление, автозапуск, индикатор RU/EN и утка, самообновление, локальная
 диктовка GigaAM v3. Дневника набора нет.
 
-## Текущее состояние — 2026-10-26
+## Текущее состояние — 2026-10-27
 
 G29/T34:1.4.12 installed/published (codedba351c), rawVERSION/publicHTTPS
-archiveSHA/PAX/all384files verified; actual Spotlight acceptance pending.
+archiveSHA/PAX/all384files verified; actual Spotlight Option acceptance PASS.
+27.10 пользователь подтвердил «Да, получилось «привет»» после ghbdtn+Option
+без выделения в Spotlight. G29/T34 закрыт; авторазделители/диктовка и все
+приложения этим ответом не подтверждены.
 User confirmed Spotlight, foreign-owner. Narrow initial system-overlay capture
 binds exactApple path/ID/executable + actualPID + libproc start; Cocoa launchDate
 is nil on this Mac. Strict existing-field/system-only validation, no app-focus
@@ -19,8 +22,8 @@ rawRED32→GREEN199, adapters20+2, ABC/Russian Option7+7, rootEngine27groups,
 exactLinux95 reuse27, fullspeech and mountedDMG PASS. Both finalreviews approved0.
 Final87freeze6170dbc8… /tmp/mls-g29-release.xzt21cmz/source-v3. Installedbinary
 032e5f19…, onePID46563 replacing4817; previous1.4.11 at outputs backupzip and
-/Applications/.MacLayoutSwitcher-G29-7ifbvr4v/previous.app. User asked Spotlight
-ghbdtn+Option afterpermissions; do not repeat acceptedCodex/Bitrix tests.
+/Applications/.MacLayoutSwitcher-G29-7ifbvr4v/previous.app. Do not repeat
+accepted Spotlight Option, Codex or Bitrix tests.
 Engine harness now pins real TISsource/data and waits for cachedreadiness;
 initial timing/TIS failures documented, finalrunpassed. See spotlight-focus-spec/qa.
 No denied-app UI/AX bypass.
